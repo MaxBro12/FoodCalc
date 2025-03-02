@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import Literal
 from enum import Enum
 
 
@@ -10,9 +11,14 @@ class ActivityLevel(float, Enum):
     very_active = 1.9
 
 
-class CalculatorRequest(BaseModel):
+class CalcCaloriesRequest(BaseModel):
     weight: float
     height: int
     age: int
     man: bool
     activity_level: float
+
+
+class CalcPFCRequest(BaseModel):
+    calories: int
+    target: Literal["gain", "maintain", "loose"]

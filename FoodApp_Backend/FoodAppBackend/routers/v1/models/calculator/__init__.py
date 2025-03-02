@@ -1,3 +1,3 @@
-from .calculator import CalculatorRequest
+from .calculator import CalcCaloriesRequest, CalcPFCRequest
 
-__all__ = ("CalculatorRequest",)
+__all__ = ("CalculatorRequest", "CalcPFCRequest")
