@@ -1,0 +1,29 @@
+# IDE
+.idea
+.vscode
+.vs
+.env
+
+# Python
+__pycache__
+venv
+
+# Pyinstall
+*.manifest
+*.spec
+*.exe
+
+# Settings
+*.log
+*.log.*
+test
+test.*
+settings.toml
+cache
+logs
+
+# DB
+*.sqlite3
+
+# NODE
+node_modules
