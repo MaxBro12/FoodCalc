@@ -7,6 +7,7 @@
 # Python
 __pycache__
 venv
+.venv
 
 # Pyinstall
 *.manifest
@@ -27,3 +28,6 @@ logs
 
 # NODE
 node_modules
+
+# Utils
+old
