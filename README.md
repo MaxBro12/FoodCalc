@@ -1,3 +1,39 @@
+# Foodapp
+
+Это приложение для отслеживания калорий, полезных веществ в еде.
+
+## Запуск
+
+### Docker
+
+```zsh
+docker-compose up
+```
+
+### Ручной
+
+#### Frontend
+
+```zsh
+cd frontend
+npm run build
+...
+```
+
+#### Backend
+
+```zsh
+cd backend
+uv pip sync
+uvicorn app.__main__:app --host 0.0.0.0 --port 8001 --workers 2
+```
+
+При ошибке `Failed to canonicalize script path`:
+
+```zsh
+python -m uvicorn app.__main__:app --host 0.0.0.0 --port 8001 --workers 2
+```
+
 ## Backend
 
 ### DB
@@ -9,8 +45,6 @@
 |id|INT PRYMARY KEY| - |
 |hash|VARCHAR UNIQUE| - |
 |is_admin|BOOLEAN| - |
-|is_guest|BOOLEAN| - |
-|is_user|BOOLEAN| - |
 
 #### Users
 
@@ -22,7 +56,21 @@
 |is_admin|BOOLEAN|-|
 |last_active|DATETIME|-|
 
-#### Minerals & Vitamins
+#### Minerals
+
+Minerals & Vitamins & Energy in 1 table
+
+|name|type|desc|
+|----|----|----|
+|id|INT PRYMARY KEY|-|
+|name|VARCHAR|-|
+|description|TEXT|-|
+|intake|FLOAT|in milligrams per day|
+|type|INT FOREIGN KEY MineralTypes.id|
+
+#### Minerals Types
+
+Minerals types more info
 
 |name|type|desc|
 |----|----|----|
@@ -36,4 +84,21 @@
 |----|----|----|
 |code|INT PRYMARY KEY|-|
 |name|VARCHAR|-|
-|description|TEXT||
+|description|TEXT|-|
+|added_by|INT FOREIGN KEY Users.id|-|
+
+#### Products - Minerals & Vitamins
+
+|name|type|desc|
+|----|----|----|
+|product_id|INT PRYMARY KEY FOREIGN KEY Products.code|-|
+|mineral_id|INT PRYMARY KEY FOREIGN KEY Minerals.id|-|
+|portion|FLOAT|in milligrams per 100 gram|
+
+#### Dish
+
+|name|type|desc|
+|----|----|----|
+|dish_id|INT PRYMARY KEY|-|
+|added_by|INT FOREIGN KEY Users.id|-|
+||||
