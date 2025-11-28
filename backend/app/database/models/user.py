@@ -17,6 +17,8 @@ class User(Base):
     key_id: Mapped[int] = mapped_column(ForeignKey('access_keys.id'))
     key: Mapped['Key'] = relationship('Key', back_populates='users', lazy='selectin')
 
+    products = relationship('Product', back_populates='added_by', lazy='selectin')
+
     def __str__(self):
         return f'User: {self.id} - {self.name} - {self.is_admin}'
 

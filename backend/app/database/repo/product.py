@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import Repository
-from app.database.models import Mineral
+from app.database.models import Product
 
 
-class MineralRepo(Repository):
+class ProductRepo(Repository):
     def __init__(self):
-        super().__init__(Mineral, ('type', 'products'))
+        super().__init__(Product, ('type', 'minerals'))
 
     async def exists_by_id(self, mineral_id: int, session: AsyncSession) -> bool:
         return await self._exists(f"{self.table_name}.id={mineral_id}", session=session)
@@ -15,19 +15,18 @@ class MineralRepo(Repository):
         self,
         name: str,
         description: str,
-        intake: float,
-        type_id: int,
+        added_by_id: int,
         session: AsyncSession,
         commit: bool = True
     ) -> bool:
         return await self.add(
-            Mineral(name=name, description=description, intake=intake, type_id=type_id),
+            Product(name=name, description=description, added_by_id=added_by_id),
             session=session,
             commit=commit
         )
 
-    async def by_id(self, type_id: int, session: AsyncSession, load_relation: bool = False) -> Mineral | None:
+    async def by_id(self, type_id: int, session: AsyncSession, load_relation: bool = False) -> Product | None:
         return await self.get(f'{self.table_name}.id={type_id}', session=session, load_relations=load_relation)
 
-    async def by_name(self, name: str, session: AsyncSession, load_relation: bool = False) -> Mineral | None:
+    async def by_name(self, name: str, session: AsyncSession, load_relation: bool = False) -> Product | None:
         return await self.get(f"{self.table_name}.name='{name}'", session=session, load_relations=load_relation)

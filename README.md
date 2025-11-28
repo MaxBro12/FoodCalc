@@ -70,7 +70,7 @@ Minerals & Vitamins & Energy in 1 table
 
 #### Minerals Types
 
-Minerals types more info
+Подробная информация о типе минерала.
 
 |name|type|desc|
 |----|----|----|
@@ -82,7 +82,7 @@ Minerals types more info
 
 |name|type|desc|
 |----|----|----|
-|code|INT PRYMARY KEY|-|
+|id|INT PRYMARY KEY|-|
 |name|VARCHAR|-|
 |description|TEXT|-|
 |added_by|INT FOREIGN KEY Users.id|-|
@@ -91,9 +91,9 @@ Minerals types more info
 
 |name|type|desc|
 |----|----|----|
-|product_id|INT PRYMARY KEY FOREIGN KEY Products.code|-|
+|product_id|INT PRYMARY KEY FOREIGN KEY Products.id|-|
 |mineral_id|INT PRYMARY KEY FOREIGN KEY Minerals.id|-|
-|portion|FLOAT|in milligrams per 100 gram|
+|content|FLOAT|in milligrams per 100 gram|
 
 #### Dish
 

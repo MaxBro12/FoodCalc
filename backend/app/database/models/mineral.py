@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -15,6 +17,10 @@ class Mineral(Base):
 
     type_id: Mapped[int] = mapped_column(ForeignKey('mineral_types.id'))
     type: Mapped[MineralType] = relationship(MineralType, back_populates='minerals', lazy='selectin')
+
+    products: Mapped[List['ProductMineral']] = relationship(
+        back_populates='mineral'
+    )
 
     def __str__(self):
         return f'Mineral {self.name} ({self.id}) - {self.intake} - {self.type}'
