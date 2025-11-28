@@ -22,4 +22,4 @@ class User(Base):
 
     def __repr__(self):
         return f'User(id={self.id}, name={self.name}, password={self.password}, is_admin={self.is_admin}, \
-        last_active={self.last_active}, key_id={self.key_id}'
+        last_active={self.last_active}, key_id={self.key_id})'
