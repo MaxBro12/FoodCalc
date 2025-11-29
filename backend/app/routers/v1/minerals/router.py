@@ -6,6 +6,9 @@ from app.depends.pagination import PaginationParams
 from app.routers.v1.minerals.models import NewMineral, NewMineralType, MineralsResp, MineralResp, MineralTypesResp, \
     MineralTypeResp
 from app.routers.misc_models import Ok
+from app.depends import Token
+from app.routers.decorators import admin_access
+
 
 mineral_router_v1 = APIRouter(prefix='/v1/universe', tags=['minerals and types'])
 
@@ -30,7 +33,7 @@ async def mineral_by_id(mineral_id: int, session: SessionDep):
 
 
 @mineral_router_v1.post('/new_mineral', response_model=Ok)
-async def save_new_mineral(new: NewMineral, session: SessionDep):
+async def save_new_mineral(new: NewMineral, session: SessionDep, token: Token):
     return {'ok': await DB.minerals.new(
         name=new.name,
         description=new.description,
@@ -38,6 +41,12 @@ async def save_new_mineral(new: NewMineral, session: SessionDep):
         type_id=new.type_id,
         session=session,
     )}
+
+
+@admin_access
+@mineral_router_v1.delete('/del_mineral/{mineral_id}', response_model=Ok)
+async def del_mineral(mineral_id: int, session: SessionDep, token: Token):
+    return {'ok': await DB.minerals.del_by_id(mineral_id=mineral_id, session=session)}
 
 
 @mineral_router_v1.get('/types/', response_model=MineralTypesResp)
@@ -60,9 +69,15 @@ async def mineral_by_id(type_id: int, session: SessionDep):
 
 
 @mineral_router_v1.post('/new_mineral_type', response_model=Ok)
-async def save_new_mineral(new: NewMineralType, session: SessionDep):
+async def save_new_mineral(new: NewMineralType, session: SessionDep, token: Token):
     return {'ok': await DB.mineral_types.new(
         name=new.name,
         description=new.description,
         session=session,
     )}
+
+
+@admin_access
+@mineral_router_v1.delete('/del_type/{type_id}', response_model=Ok)
+async def del_type(type_id: int, session: SessionDep, token: Token):
+    return {'ok': await DB.mineral_types.del_by_id(type_id=type_id, session=session)}

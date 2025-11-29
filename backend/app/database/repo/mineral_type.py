@@ -19,3 +19,9 @@ class MineralTypeRepo(Repository):
 
     async def by_name(self, name: str, session: AsyncSession, load_relation: bool = False) -> MineralType | None:
         return await self.get(f"{self.table_name}.name='{name}'", session=session, load_relations=load_relation)
+
+    async def del_by_id(self, type_id: int, session: AsyncSession) -> bool:
+        obj = await self.by_id(type_id=type_id, session=session)
+        if obj is not None:
+            return await self.delete(obj=obj, session=session, commit=True)
+        return False
