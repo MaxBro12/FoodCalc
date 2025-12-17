@@ -5,7 +5,8 @@ from app.routers.misc_models import Ok
 from app.database.repo import DB
 from app.depends import Token
 from app.routers.v1.products.models import NewProduct
-from routers.decorators import admin_access
+from app.routers.decorators import admin_access
+
 
 products_router_v1 = APIRouter(prefix='/v1/products', tags=['products'])
 
@@ -15,6 +16,7 @@ async def products_pagination(session: SessionDep, pagination: PaginationParams)
     return {'products': await DB.products.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
+        order_by_field='id',
         session=session,
         load_relations=True
     )}
@@ -47,6 +49,6 @@ async def save_new_product(new: NewProduct, session: SessionDep, token: Token):
 
 
 @admin_access
-@products_router_v1.delete('/del/{product_id}', response_model=Ok)
+@products_router_v1.delete('/{product_id}', response_model=Ok)
 async def del_product(product_id: int, session: SessionDep, token: Token):
     return {'ok': await DB.products.del_by_id(product_id=product_id, session=session)}

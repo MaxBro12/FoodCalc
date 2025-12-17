@@ -43,39 +43,49 @@ export const Login = () => {
         return <LoadingAnimation />
     }
 
-    return (
-        <div className='full_screen'>
-            <form onSubmit={handleSubmit} className='rounded_border base_margins'>
-                <div className='base_flex_row' style={{justifyContent: 'space-between'}}>
-                    <label>Логин</label>
-                    <input
-                        type="text"
-                        name="username"
-                        className='base_button'
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='base_flex_row' style={{justifyContent: 'space-between', marginTop: '5px'}}>
-                    <label>Пароль</label>
-                    <input
-                        type="password"
-                        name="password"
-                        className='base_button'
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                {error && <div style={{ color: 'red' }}>{error}</div>}
-                <div className='base_flex_row' style={{marginTop: 5, justifyContent: 'space-between'}}>
-                    <button type="submit" disabled={loading} className='base_button'>
-                        {loading ? 'Вхожу...' : 'Войти'}
-                    </button>
-                    <Link to='/auth/register'>Создать аккаунт</Link>
-                </div>
-            </form>
-        </div>
-    );
+    return <form onSubmit={handleSubmit} className='base_flex_column'>
+        <input
+            type="text"
+            name="username"
+            placeholder="Логин"
+            className='base_button'
+            style={{
+                textAlign: 'center',
+            }}
+            value={formData.username}
+            onChange={handleChange}
+            required
+        />
+        <input
+            type="password"
+            name="password"
+            placeholder="Пароль"
+            className='base_button'
+            style={{
+                textAlign: 'center',
+            }}
+            value={formData.password}
+            onChange={handleChange}
+            required
+        />
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        <button type="submit" disabled={loading} className='base_button desktop'>
+            {loading ? 'Вхожу...' : 'Войти'}
+        </button>
+        <button type="submit" disabled={loading} style={{
+            padding: '15px',
+            marginTop: '10px',
+        }} className='base_button mobile'>
+            {loading ? 'Вхожу...' : 'Войти'}
+        </button>
+        <Link to='/auth/register' style={{
+            textDecoration: 'none',
+            userSelect: 'none',
+        }} className='desktop'>Создать</Link>
+        <Link to='/auth/register' style={{
+            textDecoration: 'none',
+            userSelect: 'none',
+            marginTop: 10
+        }} className='mobile'>Создать</Link>
+    </form>
 };

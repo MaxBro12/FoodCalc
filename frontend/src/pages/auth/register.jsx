@@ -58,61 +58,73 @@ export const Register = () => {
         return <LoadingAnimation />
     }
 
-    return (
-        <div className='full_screen'>
-            <form onSubmit={handleSubmit} className='rounded_border base_margins'>
-                <div className='base_flex_row' style={{justifyContent: 'space-between'}}>
-                    <label>Логин</label>
-                    <input
-                        type="text"
-                        name="username"
-                        className='base_button'
-                        value={formData.username}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='base_flex_row' style={{justifyContent: 'space-between', marginTop: '5px'}}>
-                    <label>Пароль</label>
-                    <input
-                        type="password"
-                        name="password"
-                        className='base_button'
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='base_flex_row' style={{justifyContent: 'space-between', marginTop: '5px'}}>
-                    <label>Повтор пароля</label>
-                    <input
-                        type="password"
-                        name="confirmPassword"
-                        className='base_button'
-                        value={formData.confirmPassword}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                <div className='base_flex_row' style={{justifyContent: 'space-between', marginTop: '5px'}}>
-                    <label>Ключ</label>
-                    <input
-                        type="text"
-                        name="key"
-                        className='base_button'
-                        value={formData.key}
-                        onChange={handleChange}
-                        required
-                    />
-                </div>
-                {error && <div style={{ color: 'red' }}>{error}</div>}
-                <div className='base_flex_row' style={{marginTop: 5, justifyContent: 'space-between'}}>
-                    <button type="submit" disabled={loading} className='base_button'>
-                        {loading ? 'Регистрируюсь...' : 'Регистрация'}
-                    </button>
-                    <Link to='/auth/login'>Есть аккаунт</Link>
-                </div>
-            </form>
-        </div>
-    );
+    return <form onSubmit={handleSubmit} className='base_flex_column'>
+        <input
+            type="text"
+            name="username"
+            placeholder="Логин"
+            className='base_button'
+            style={{
+                textAlign: 'center',
+            }}
+            value={formData.username}
+            onChange={handleChange}
+            required
+        />
+        <input
+            type="password"
+            name="password"
+            placeholder="Пароль"
+            className='base_button'
+            style={{
+                textAlign: 'center',
+            }}
+            value={formData.password}
+            onChange={handleChange}
+            required
+        />
+        <input
+            type="password"
+            name="confirmPassword"
+            placeholder="Повтор пароля"
+            className='base_button'
+            style={{
+                textAlign: 'center',
+            }}
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+        />
+        <input
+            type="text"
+            name="key"
+            placeholder="Ключ"
+            className='base_button'
+            style={{
+                textAlign: 'center',
+            }}
+            value={formData.key}
+            onChange={handleChange}
+            required
+        />
+        {error && <div style={{ color: 'red' }}>{error}</div>}
+        <button type="submit" disabled={loading} className='base_button desktop'>
+            {loading ? 'Регистрируюсь...' : 'Регистрация'}
+        </button>
+        <button type="submit" disabled={loading} style={{
+            padding: '15px',
+            marginTop: '10px',
+        }} className='base_button mobile'>
+            {loading ? 'Регистрируюсь...' : 'Регистрация'}
+        </button>
+        <Link to='/auth/login' style={{
+            textDecoration: 'none',
+            userSelect: 'none',
+        }} className='desktop'>Есть аккаунт</Link>
+        <Link to='/auth/login' style={{
+            textDecoration: 'none',
+            userSelect: 'none',
+            marginTop: 10
+        }} className='mobile'>Есть аккаунт</Link>
+    </form>
 };

@@ -51,7 +51,7 @@ python -m uvicorn app.__main__:app --host 0.0.0.0 --port 8001 --workers 2
 |name|type|desc|
 |----|----|----|
 |id|INT PRYMARY KEY|-|
-|name|VARCHAR UNIQUE|save only hashed|
+|name|VARCHAR UNIQUE|-|
 |password|VARCHAR|save only hashed|
 |is_admin|BOOLEAN|-|
 |last_active|DATETIME|-|

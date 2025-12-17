@@ -17,7 +17,7 @@ class ProductRepo(Repository):
         description: str,
         added_by_id: int,
         session: AsyncSession,
-        commit: bool = True
+        commit: bool = False
     ) -> bool:
         return await self.add(
             Product(name=name, description=description, added_by_id=added_by_id),
@@ -25,11 +25,29 @@ class ProductRepo(Repository):
             commit=commit
         )
 
-    async def by_id(self, type_id: int, session: AsyncSession, load_relation: bool = False) -> Product | None:
-        return await self.get(f'{self.table_name}.id={type_id}', session=session, load_relations=load_relation)
+    async def by_id(
+        self,
+        type_id: int,
+        session: AsyncSession,
+        load_relation: bool = False
+    ) -> Product | None:
+        return await self.get(
+            f'{self.table_name}.id={type_id}',
+            session=session,
+            load_relations=load_relation
+        )
 
-    async def by_name(self, name: str, session: AsyncSession, load_relation: bool = False) -> Product | None:
-        return await self.get(f"{self.table_name}.name='{name}'", session=session, load_relations=load_relation)
+    async def by_name(
+        self,
+        name: str,
+        session: AsyncSession,
+        load_relation: bool = False
+    ) -> Product | None:
+        return await self.get(
+            f"{self.table_name}.name='{name}'",
+            session=session,
+            load_relations=load_relation
+        )
 
     async def del_by_id(self, product_id: int, session: AsyncSession) -> bool:
         obj = await self.by_id(type_id=product_id, session=session)

@@ -8,38 +8,28 @@ class NewMineral(BaseModel):
     type_id: int
 
 
+class MineralResponse(BaseModel):
+    id: int
+    name: str
+    description: str
+    intake: float
+    type_id: int
+
+
+class MultipleMineralResponse(BaseModel):
+    minerals: list[MineralResponse]
+
+
 class NewMineralType(BaseModel):
     name: str
     description: str
-    intake: float
-    type_id: int
 
 
-class Mineral(BaseModel):
-    id: int
-    name: str
-    description: str
-    intake: float
-    type_id: int
-
-
-class MineralsResp(BaseModel):
-    minerals: list[Mineral]
-
-
-class MineralResp(BaseModel):
-    mineral: Mineral
-
-
-class MineralType(BaseModel):
+class MineralTypeResponse(BaseModel):
     id: int
     name: str
     description: str
 
 
-class MineralTypesResp(BaseModel):
-    types: list[MineralType]
-
-
-class MineralTypeResp(BaseModel):
-    type: MineralType
+class MultipleMineralTypeResponse(BaseModel):
+    types: list[MineralTypeResponse]

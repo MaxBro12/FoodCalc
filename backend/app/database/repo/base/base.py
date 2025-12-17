@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import TypeVar, Type, Optional, AsyncGenerator
+from typing import Type, AsyncGenerator, Tuple, List
 from sqlalchemy import text, select, delete, exists, func
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -7,17 +7,16 @@ from sqlalchemy.orm import selectinload
 
 from app.core.debug import logger
 from app.core.single import Singleton
-from ..database import Base
-from ..session import new_session
+from app.database.session import new_session
 
-
-T = TypeVar('T', bound=Base)
+from .classes import T
+from .exeptions import GetMultiple
 
 
 class Repository(ABC, Singleton):
     table_name: str
 
-    def __init__(self, model: Type[T], relationships: Optional[list[str, ...] | tuple[str, ...]] = None):
+    def __init__(self, model: Type[T], relationships: List[str] | Tuple[str] | None = None):
         self.model = model
         self.table_name = model.__tablename__
         self.relationships = relationships
@@ -25,7 +24,9 @@ class Repository(ABC, Singleton):
     async def __get_object_from_db(
         self,
         _filter: str | None = None,
+        offset: int | None = None,
         limit: int | None = None,
+        order_by_field: str | None = None,
         session: AsyncSession | None = None,
         load_relations: bool = True,
     ) -> tuple[T]:
@@ -39,6 +40,10 @@ class Repository(ABC, Singleton):
             query = query.filter(text(_filter))
         if limit:
             query = query.limit(limit)
+        if offset:
+            query = query.offset(offset)
+        if order_by_field:
+            query = query.order_by(text(order_by_field))
 
         if session is None:
             async with new_session() as session:
@@ -53,7 +58,7 @@ class Repository(ABC, Singleton):
     ) -> T | None:
         objs = await self.__get_object_from_db(_filter=_filter, session=session, load_relations=load_relations)
         if len(objs) > 1:
-            logger.log(f'{self.__class__.__name__} > get > got multiple, return 0', 'warning')
+            raise GetMultiple(self.model, len(objs))
         elif len(objs) == 0:
             return None
         return objs[0]
@@ -61,11 +66,20 @@ class Repository(ABC, Singleton):
     async def some(
         self,
         _filter: str,
+        offset: int | None = None,
         limit: int | None = None,
+        order_by_field: str | None = None,
         session: AsyncSession | None = None,
         load_relations: bool = True,
     ) -> tuple[T, ...]:
-        return await self.__get_object_from_db(_filter=_filter, limit=limit, session=session, load_relations=load_relations)
+        return await self.__get_object_from_db(
+            _filter=_filter,
+            offset=offset,
+            limit=limit,
+            order_by_field=order_by_field,
+            session=session,
+            load_relations=load_relations
+        )
 
     @staticmethod
     async def __add(model: T, session: AsyncSession, commit: bool = False) -> bool:
@@ -81,30 +95,20 @@ class Repository(ABC, Singleton):
     async def add(
         self,
         model: T,
-        session: AsyncSession | None = None,
+        session: AsyncSession,
         commit: bool = False,
     ) -> bool:
-        if session is None:
-            async with new_session() as session:
-                return await self.__add(model, session, commit)
         return await self.__add(model, session, commit)
 
     @staticmethod
-    async def add_many(self,
+    async def add_many(
         objs: tuple[Type[T]] | list[Type[T]],
-        session: AsyncSession | None = None,
+        session: AsyncSession,
         commit: bool = False
     ) -> None:
-        if session is None:
-            async with new_session() as session:
-                session.add_all(objs)
-        else:
-            session.add_all(objs)
+        session.add_all(objs)
         if commit:
             await session.commit()
-
-    async def update(self, obj: Type[T], session: AsyncSession | None) -> None:
-        pass
 
     @staticmethod
     async def delete(obj: T, session: AsyncSession | None, commit: bool = False) -> bool:
@@ -125,14 +129,19 @@ class Repository(ABC, Singleton):
 
     async def all(
         self,
+        session: AsyncSession,
+        skip: int | None = None,
         limit: int | None = None,
-        session: AsyncSession | None = None,
+        order_by_field: str | None = None,
         load_relations: bool = True,
     ) -> tuple[T, ...]:
-        if session is None:
-            async with new_session() as session:
-                return await self.__get_object_from_db(limit=limit, session=session, load_relations=load_relations)
-        return await self.__get_object_from_db(limit=limit, session=session, load_relations=load_relations)
+        return await self.__get_object_from_db(
+            offset=skip,
+            limit=limit,
+            order_by_field=order_by_field,
+            session=session,
+            load_relations=load_relations,
+        )
 
     async def clear_table(self, session: AsyncSession | None = None, commit: bool = False) -> bool:
         if session is None:
@@ -155,27 +164,33 @@ class Repository(ABC, Singleton):
         async with new_session() as n_session:
             return (await n_session.execute(select(func.count()).select_from(self.model))).scalar()
 
-    async def all_gen(self, session: AsyncSession | None = None, load_relations: bool = False, skip: int = 0, search_field: str = 'id') -> AsyncGenerator[Type[T]]:
+    async def all_gen(
+        self,
+        session: AsyncSession | None = None,
+        load_relations: bool = False, skip: int = 0,
+        search_field: str = 'id'
+    ) -> AsyncGenerator[Type[T]]:
         for i in range(skip, await self.count(session=session)):
-            yield await self.get(f'{self.model.__tablename__}.{search_field}={i}', load_relations=load_relations, session=session)
+            yield await self.get(
+                f'{self.model.__tablename__}.{search_field}={i}',
+                load_relations=load_relations,
+                session=session
+            )
 
     async def pagination(
         self,
+        _filter: str | None = None,
         skip: int | None = None,
         limit: int | None = None,
+        order_by_field: str | None = None,
         session: AsyncSession | None = None,
         load_relations: bool = False,
-        search_field: str = 'id'
     ) -> tuple[T, ...]:
-        _filter = ''
-        if skip:
-            _filter += f'{self.model.__tablename__}.{search_field}>={skip}'
-        if skip and limit:
-            _filter += ' AND '
-        if limit:
-            _filter += f'{self.model.__tablename__}.{search_field}<{skip + limit}'
         return await self.some(
             _filter=_filter,
+            offset=skip,
+            limit=limit,
+            order_by_field=order_by_field,
             session=session,
             load_relations=load_relations,
         )

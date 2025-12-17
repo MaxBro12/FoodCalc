@@ -14,21 +14,20 @@ from app.core.trash import generate_trash_string
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])
 
 
-@auth_router_v1.post('/login', response_model=Token | Ok)
+@auth_router_v1.post('/login', response_model=Token)
 async def login(user_data: UserLogin, session: SessionDep):
-    logging.info(f'login > {user_data.username}')
-    user = await DB.users.by_name(get_hash(user_data.username), session)
+    user = await DB.users.by_name(user_data.username, session)
     if not user or not verify_hashed(user_data.password, user.password):
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail="Некорректное имя пользователя или пароль",
         )
     return {
         "access_token": create_access_token(data={
             "sub": user.name,
-            generate_trash_string(randint(3, 6)): generate_trash_string(randint(5, 20))
+            generate_trash_string(randint(3, 6)): generate_trash_string(randint(5, 10))
         }),
-        "token_type": "bearer"
+        "token_type": "Bearer"
     }
 
 
@@ -43,6 +42,12 @@ async def register(user_data: UserRegister, session: SessionDep):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ввели неправильный ключ")
 
     key = await DB.keys.by_hash(user_data.key, session)
-    if key is None or not await DB.users.new(get_hash(user_data.username), get_hash(user_data.password), key.id, session):
+    if key is None or not await DB.users.new(
+        username=user_data.username,
+        password=get_hash(user_data.password),
+        is_admin=key.is_admin,
+        key_id=key.id,
+        session=session
+    ):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка приложения, свяжитесь с администрацией")
     return {'ok': True}

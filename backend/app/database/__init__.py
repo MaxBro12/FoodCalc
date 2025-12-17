@@ -8,4 +8,5 @@ __all__ = (
     'User',
     'Key',
     'init_db',
+    'Base',
 )

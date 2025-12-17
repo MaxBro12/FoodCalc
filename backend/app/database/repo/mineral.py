@@ -18,7 +18,7 @@ class MineralRepo(Repository):
         intake: float,
         type_id: int,
         session: AsyncSession,
-        commit: bool = True
+        commit: bool = False
     ) -> bool:
         return await self.add(
             Mineral(name=name, description=description, intake=intake, type_id=type_id),
@@ -26,11 +26,25 @@ class MineralRepo(Repository):
             commit=commit
         )
 
-    async def by_id(self, type_id: int, session: AsyncSession, load_relation: bool = False) -> Mineral | None:
-        return await self.get(f'{self.table_name}.id={type_id}', session=session, load_relations=load_relation)
+    async def by_id(
+        self, type_id: int,
+        session: AsyncSession,
+        load_relations: bool = False
+    ) -> Mineral | None:
+        return await self.get(
+            f'{self.table_name}.id={type_id}',
+            session=session,
+            load_relations=load_relations
+        )
 
-    async def by_name(self, name: str, session: AsyncSession, load_relation: bool = False) -> Mineral | None:
-        return await self.get(f"{self.table_name}.name='{name}'", session=session, load_relations=load_relation)
+    async def by_name(
+        self, name: str, session: AsyncSession, load_relation: bool = False
+    ) -> Mineral | None:
+        return await self.get(
+            f"{self.table_name}.name='{name}'",
+            session=session,
+            load_relations=load_relation
+        )
 
     async def del_by_id(self, mineral_id: int, session: AsyncSession) -> bool:
         obj = await self.by_id(type_id=mineral_id, session=session)

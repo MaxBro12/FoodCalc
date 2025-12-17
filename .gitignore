@@ -22,6 +22,7 @@ test.*
 settings.toml
 cache
 logs
+test*/misc.*
 
 # DB
 *.sqlite3

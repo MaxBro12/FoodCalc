@@ -1,5 +1,7 @@
 @import "base.css";
 
+@import "mobile_desktop.css";
+@import "custom_header.css";
 @import "loading.css";
 @import "overlay.css";
 
@@ -14,7 +16,7 @@
     --button-pressed: #1677FF;
 
     --header-color: #001529;
-    --header-text-color: #A6ADB4;
+    --header-text-color: #e0e8ef;
     --header-current-color: #1677FF;
     --header-current-text-color: #FFFFFF;
 

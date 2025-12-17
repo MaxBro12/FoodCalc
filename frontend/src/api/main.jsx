@@ -5,6 +5,7 @@ const api = axios.create({
     baseURL: import.meta.env.VITE_API_URL,
 })
 
+
 // Интерцептор для добавления токена к запросам
 api.interceptors.request.use(
     (config) => {

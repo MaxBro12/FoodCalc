@@ -17,7 +17,7 @@
     border-width: 0;
     background-color: var(--bg-color);
     color: var(--text-color);
-    padding: 5px;
+
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
     z-index: 9999; /* Самый высокий z-index */
     overflow: auto;

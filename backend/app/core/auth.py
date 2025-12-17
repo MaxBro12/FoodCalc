@@ -13,6 +13,7 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from app.core.debug import logger
 from app.database.models import User
 from app.database.repo import DB
+from app.depends.session import SessionDep
 from app.settings import settings
 
 
@@ -49,7 +50,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return token
 
 
-async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> TokenData:
+async def verify_token(
+    session: SessionDep,
+    credentials: HTTPAuthorizationCredentials = Depends(security)
+) -> TokenData:
     token = credentials.credentials
     try:
         data = jwt.decode(token, settings.AUTH_SECRET_KEY, algorithms=[settings.AUTH_ALGORITHM])
@@ -57,11 +61,12 @@ async def verify_token(credentials: HTTPAuthorizationCredentials = Depends(secur
             logger.log(f'verify_token > expired for {data['sub']}', 'info')
             raise JWTError
 
-        user = await DB.users.by_name(data['sub'])
+        user = await DB.users.by_name(data['sub'], session=session)
         if user is None:
             logger.log(f'verify_token > {data['sub']} not exists', 'info')
             raise JWTError
 
+        user.last_active = datetime.now()
         return TokenData(user=user, exp=data['exp'])
     except JWTError:
         raise HTTPException(

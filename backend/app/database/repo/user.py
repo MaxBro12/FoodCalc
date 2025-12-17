@@ -40,9 +40,9 @@ class UserRepo(Repository):
         username: str,
         password: str,
         is_admin: bool,
-        key_id: str,
+        key_id: int,
         session: AsyncSession,
-        commit: bool = True
+        commit: bool = False
     ) -> bool:
         return await self.add(User(
             name=username,
