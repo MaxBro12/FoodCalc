@@ -4,7 +4,7 @@ import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.database.database import init_db
+from app.database.init_db import init_db
 from app.routers.v1 import auth_router_v1, mineral_router_v1, products_router_v1
 from app.settings import settings
 

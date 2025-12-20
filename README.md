@@ -102,3 +102,8 @@ Minerals & Vitamins & Energy in 1 table
 |dish_id|INT PRYMARY KEY|-|
 |added_by|INT FOREIGN KEY Users.id|-|
 ||||
+
+####### Откуда брать апи?
+
+https://ru.openfoodfacts.org/data
+http://dietagram.com/Russian/api-page

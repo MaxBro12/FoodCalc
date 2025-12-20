@@ -1,6 +1,9 @@
 import { useState } from 'react'
 import './css/style.css'
 import logo from '/icon.svg'
+import dark from '/dark.svg'
+import light from '/light.svg'
+
 import {BrowserRouter, Route, Routes} from "react-router-dom";
 
 import {AuthOutlet} from "./pages/auth/outlet.jsx";
@@ -8,17 +11,67 @@ import {Login} from "./pages/auth/login.jsx";
 import {Register} from "./pages/auth/register.jsx";
 
 import auth_service from "./api/auth.jsx";
-import CustomHeader from "./components/custom_header.jsx";
+import CustomHeader from "./components/utils/custom_header.jsx";
+import {Logout} from "./pages/auth/logout.jsx";
+import {UniverseOutlet} from "./pages/universe/outlet.jsx";
+import {MineralsTypes} from "./pages/universe/types.jsx";
+import {Products} from "./pages/universe/products.jsx";
+import {Minerals} from "./pages/universe/minerals.jsx";
+import {Calculator} from "./pages/calculator/calculator.jsx";
 
 
 function App() {
     const [theme, set_theme] = useState(localStorage.getItem('theme') || 'dark');
+    const [username, set_username] = useState('');
+
+    const change_theme = () => {
+        set_theme(theme === 'dark' ? 'light' : 'dark');
+    }
+    const handle_theme = (new_theme) => {
+        set_theme(new_theme);
+        localStorage.setItem('theme', new_theme);
+    }
 
     const headers = [
         {
-            path: '/auth',
-            label: 'Вход'
+            path: '/calc',
+            label: 'Калькулятор',
         },
+        {
+            path: '/db',
+            label: 'База'
+        },
+        {
+            path: undefined,
+            label: theme === 'dark' ? <img src={light} alt="светлая тема" style={{
+                width: '25px',
+                height: '25px',
+                backgroundColor: 'var(--header-color)',
+                padding: '10px',
+            }} onClick={() => handle_theme('light')}/>: <img src={dark} alt="темная тема" style={{
+                width: '25px',
+                height: '25px',
+                backgroundColor: 'var(--header-color)',
+                padding: '10px',
+            }} onClick={() => handle_theme('dark')}/>,
+            d_style: {
+                marginLeft: 'auto',
+                marginRight: '10px',
+            }
+        },
+        ...!auth_service.isAuthenticated() ? [{
+            path: '/auth',
+            label: 'Вход',
+            d_style: {
+                marginRight: '10px',
+            }
+        }]:[{
+            path: '/auth/logout',
+            label: 'Выход',
+            d_style: {
+                marginRight: '10px',
+            }
+        }],
     ]
 
     return <BrowserRouter>
@@ -28,11 +81,17 @@ function App() {
                 height: '100%',
                 backgroundColor: 'var(--header-current-color)',
                 padding: '0px 10px',
-            }}/>} headers={headers} set_theme={set_theme}/>
+            }}/>} headers={headers} username={username} theme={theme} change_theme={change_theme}/>
             <Routes>
+                <Route path='/calc' element={<Calculator />} />
+                <Route path='/db' element={<UniverseOutlet />} />
+                <Route path='/db/types' element={<MineralsTypes />}/>
+                <Route path='/db/minerals' element={<Minerals />}/>
+                <Route path='/db/products' element={<Products />}/>
                 <Route path="/auth" element={<AuthOutlet />}>
                     <Route path="login" element={<Login />}/>
                     <Route path="register" element={<Register />}/>
+                    <Route path="logout" element={<Logout />}/>
                 </Route>
             </Routes>
         </div>

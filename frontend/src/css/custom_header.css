@@ -31,7 +31,6 @@
 }
 
 .header_a:hover, .header_a_c:hover {
-    user-select: none;
     background-color: var(--header-current-color);
     color: var(--header-current-text-color);
 }
