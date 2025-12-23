@@ -25,10 +25,17 @@ class NewMineralType(BaseModel):
     description: str
 
 
+class MineralResponseMini(BaseModel):
+    id: int
+    name: str
+    description: str
+
+
 class MineralTypeResponse(BaseModel):
     id: int
     name: str
     description: str
+    minerals: list[MineralResponseMini]
 
 
 class MultipleMineralTypeResponse(BaseModel):

@@ -22,11 +22,49 @@ export const Minerals = () => {
     }
 
     return <div>
-        {items.map((item, index) => <div style={{
-
-        }} key={index}>
-            <h3>{item.name}</h3>
-            <p>{item.description}</p>
-        </div>)}
+        <table>
+            <thead className='desktop'>
+            <tr>
+                <th></th>
+                <th>Норма (мг)</th>
+                <th>Описание</th>
+            </tr>
+            </thead>
+            <tbody className='desktop'>
+            {items.map((item, index) => <tr key={index}>
+                <td style={{
+                    border: '5px solid rgb(30,105,216)',
+                    borderRadius: '10px',
+                    padding: '5px',
+                    color: 'rgb(31,118,251)',
+                    backgroundColor: 'rgba(13,126,255,0.29)',
+                    fontWeight: 'bolder',
+                    textAlign: 'center',
+                    userSelect: 'none',
+                }}>{item.name}</td>
+                <td style={{
+                    textAlign: 'center',
+                }}>{item.intake}</td>
+                <td>{item.description}</td>
+            </tr>)}
+            </tbody>
+            <tbody className='mobile'>
+            {items.map((item, index) => <tr key={index}>
+                <td className='base_flex_column' style={{
+                    border: '5px solid rgb(30,105,216)',
+                    borderRadius: '10px',
+                    padding: '5px',
+                    backgroundColor: 'rgba(13,126,255,0.29)',
+                    fontWeight: 'bolder',
+                }}><span style={{
+                    color: 'rgb(31,118,251)',
+                    userSelect: 'none',
+                }}>{item.name}</span><span style={{
+                    color: 'rgb(31,118,251)',
+                }}>{item.intake}</span></td>
+                <td>{item.description}</td>
+            </tr>)}
+            </tbody>
+        </table>
     </div>
 }

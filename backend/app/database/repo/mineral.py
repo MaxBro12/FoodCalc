@@ -11,6 +11,9 @@ class MineralRepo(Repository):
     async def exists_by_id(self, mineral_id: int, session: AsyncSession) -> bool:
         return await self._exists(f"{self.table_name}.id={mineral_id}", session=session)
 
+    async def exists_by_name(self, name: str, session: AsyncSession) -> bool:
+        return await self._exists(f"{self.table_name}.name='{name}'", session=session)
+
     async def new(
         self,
         name: str,

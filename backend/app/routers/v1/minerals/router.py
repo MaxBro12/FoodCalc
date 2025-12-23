@@ -58,12 +58,22 @@ async def save_new_mineral(new: NewMineral, session: SessionDep, token: Token):
 
 @mineral_router_v1.get('/types/', response_model=MultipleMineralTypeResponse)
 async def mineral_types_pagination(session: SessionDep, pagination: PaginationParams):
-    return {'types': await DB.mineral_types.pagination(
+    types = await DB.mineral_types.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
         session=session,
         load_relations=True
-    )}
+    )
+    return {'types': [{
+        'id': t.id,
+        'name': t.name,
+        'description': t.description,
+        'minerals': [{
+            'id': mineral.id,
+            'name': mineral.name,
+            'description': mineral.description,
+        } for mineral in t.minerals]
+    } for t in types]}
 
 
 @mineral_router_v1.get('/types/{type_id}', response_model=MineralTypeResponse)

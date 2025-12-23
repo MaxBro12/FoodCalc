@@ -6,10 +6,13 @@ from app.database.models import MineralType
 
 class MineralTypeRepo(Repository):
     def __init__(self):
-        super().__init__(MineralType, tuple('minerals'))
+        super().__init__(MineralType, ('minerals',))
 
     async def exists_by_id(self, mineral_type_id: int, session: AsyncSession) -> bool:
         return await self._exists(f"{self.table_name}.id={mineral_type_id}", session=session)
+
+    async def exists_by_name(self, mineral_type_name: str, session: AsyncSession) -> bool:
+        return await self._exists(f"{self.table_name}.name='{mineral_type_name}'", session=session)
 
     async def new(
         self,
