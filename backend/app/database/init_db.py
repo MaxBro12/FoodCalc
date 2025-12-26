@@ -56,6 +56,35 @@ async def init_db():
                 session=session
             )
 
+        energy_type = await DB.mineral_types.by_name(
+            name='Макронутриенты',
+            session=session
+        )
+        if not await DB.minerals.exists_by_name(name='Белки', session=session):
+            await DB.minerals.new(
+                name='Белки',
+                description='Строительный материал для клеток, тканей (мышцы, кожа, волосы), ферментов, гормонов, антител. Вторичный источник энергии.',
+                intake=4,
+                type_id=energy_type.id,
+                session=session,
+            )
+        if not await DB.minerals.exists_by_name(name='Жиры', session=session):
+            await DB.minerals.new(
+                name='Жиры',
+                description='Самый концентрированный источник энергии, строительный материал для клеточных мембран и гормонов, среда для усвоения жирорастворимых витаминов (A, D, E, K), защита органов, терморегуляция.',
+                intake=9,
+                type_id=energy_type.id,
+                session=session,
+            )
+        if not await DB.minerals.exists_by_name(name='Углеводы', session=session):
+            await DB.minerals.new(
+                name='Углеводы',
+                description='Быстрый и основной источник энергии для тела, особенно для мозга и мышц.',
+                intake=4,
+                type_id=energy_type.id,
+                session=session,
+            )
+
         water_type = await DB.mineral_types.by_name(
             name='Водорастворимые',
             session=session,

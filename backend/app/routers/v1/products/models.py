@@ -11,6 +11,8 @@ class NewProduct(BaseModel):
     name: str
     description: str
     minerals: list[MineralInProduct]
+    calories: int
+    energy: int
 
 
 class SearchProduct(BaseModel):
@@ -29,6 +31,8 @@ class ProductResponse(BaseModel):
     name: str
     description: str
     minerals: list[MineralInProductResponse]
+    calories: int
+    energy: int
     added_by_id: int
     added_by_name: str
 

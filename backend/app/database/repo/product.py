@@ -16,12 +16,21 @@ class ProductRepo(Repository):
         pid: int,
         name: str,
         description: str,
+        calories: int,
+        energy: int,
         added_by_id: int,
         session: AsyncSession,
         commit: bool = False
     ) -> bool:
         return await self.add(
-            Product(id=pid, name=name, description=description, added_by_id=added_by_id),
+            Product(
+                id=pid,
+                name=name,
+                description=description,
+                calories=calories,
+                energy=energy,
+                added_by_id=added_by_id
+            ),
             session=session,
             commit=commit
         )
