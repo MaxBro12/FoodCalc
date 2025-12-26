@@ -25,6 +25,11 @@ export const auth_service = {
         }
         return false;
     },
+    send_feedback: async (msg) => {
+        await api.post('/v1/utils/feedback', {
+            message: msg,
+        })
+    },
 
     // Выход
     logout: () => {

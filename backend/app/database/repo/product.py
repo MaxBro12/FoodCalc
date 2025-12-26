@@ -13,6 +13,7 @@ class ProductRepo(Repository):
 
     async def new(
         self,
+        pid: int,
         name: str,
         description: str,
         added_by_id: int,
@@ -20,7 +21,7 @@ class ProductRepo(Repository):
         commit: bool = False
     ) -> bool:
         return await self.add(
-            Product(name=name, description=description, added_by_id=added_by_id),
+            Product(id=pid, name=name, description=description, added_by_id=added_by_id),
             session=session,
             commit=commit
         )
@@ -29,24 +30,24 @@ class ProductRepo(Repository):
         self,
         type_id: int,
         session: AsyncSession,
-        load_relation: bool = False
+        load_relations: bool = False
     ) -> Product | None:
         return await self.get(
             f'{self.table_name}.id={type_id}',
             session=session,
-            load_relations=load_relation
+            load_relations=load_relations
         )
 
     async def by_name(
         self,
         name: str,
         session: AsyncSession,
-        load_relation: bool = False
+        load_relations: bool = False
     ) -> Product | None:
         return await self.get(
             f"{self.table_name}.name='{name}'",
             session=session,
-            load_relations=load_relation
+            load_relations=load_relations
         )
 
     async def del_by_id(self, product_id: int, session: AsyncSession) -> bool:

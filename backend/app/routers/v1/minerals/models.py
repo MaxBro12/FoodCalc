@@ -14,6 +14,7 @@ class MineralResponse(BaseModel):
     description: str
     intake: float
     type_id: int
+    type_name: str
 
 
 class MultipleMineralResponse(BaseModel):

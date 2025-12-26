@@ -21,12 +21,20 @@ mineral_router_v1 = APIRouter(prefix='/v1/universe', tags=['minerals and types']
 
 @mineral_router_v1.get('/minerals/', response_model=MultipleMineralResponse)
 async def minerals_pagination(session: SessionDep, pagination: PaginationParams):
-    return {'minerals': await DB.minerals.pagination(
+    minerals = await DB.minerals.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
         session=session,
         load_relations=True
-    )}
+    )
+    return {'minerals': [{
+        'id': mineral.id,
+        'name': mineral.name,
+        'description': mineral.description,
+        'intake': mineral.intake,
+        'type_id': mineral.type_id,
+        'type_name': mineral.type.name
+    } for mineral in minerals]}
 
 
 @mineral_router_v1.get('/minerals/{mineral_id}', response_model=MineralResponse)

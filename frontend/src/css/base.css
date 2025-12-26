@@ -8,6 +8,10 @@ body {
     min-width: 320px;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 .App {
     height: 100dvh;
     overflow-y: auto;

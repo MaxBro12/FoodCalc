@@ -18,6 +18,8 @@ import {MineralsTypes} from "./pages/universe/types.jsx";
 import {Products} from "./pages/universe/products.jsx";
 import {Minerals} from "./pages/universe/minerals.jsx";
 import {Calculator} from "./pages/calculator/calculator.jsx";
+import {AboutPage} from "./pages/about/about.jsx";
+import {DebugPage} from "./pages/about/send_feedback.jsx";
 
 
 function App() {
@@ -42,17 +44,31 @@ function App() {
             label: 'База'
         },
         {
+            path: '/about',
+            label: 'О нас',
+        },
+        {
+            path: '/debug',
+            label: 'О нас',
+            d_style: {
+                display: 'none',
+            },
+            m_style: {
+                display: 'none',
+            }
+        },
+        {
             path: undefined,
             label: theme === 'dark' ? <img src={light} alt="светлая тема" style={{
                 width: '25px',
                 height: '25px',
                 backgroundColor: 'var(--header-color)',
-                padding: '10px',
+                padding: '1px',
             }} onClick={() => handle_theme('light')}/>: <img src={dark} alt="темная тема" style={{
                 width: '25px',
                 height: '25px',
                 backgroundColor: 'var(--header-color)',
-                padding: '10px',
+                padding: '1px',
             }} onClick={() => handle_theme('dark')}/>,
             d_style: {
                 marginLeft: 'auto',
@@ -93,6 +109,8 @@ function App() {
                     <Route path="register" element={<Register />}/>
                     <Route path="logout" element={<Logout />}/>
                 </Route>
+                <Route path='/debug' element={<DebugPage />}/>
+                <Route path='/about' element={<AboutPage />}/>
             </Routes>
         </div>
     </BrowserRouter>

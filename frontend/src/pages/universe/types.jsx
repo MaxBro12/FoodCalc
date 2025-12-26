@@ -1,6 +1,7 @@
 import {useEffect, useState} from "react";
 import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
 import db_service from "../../api/universe.jsx";
+import {mineral_color} from "../../utils/minerals_colors.jsx";
 
 
 export const MineralsTypes = () => {
@@ -28,20 +29,20 @@ export const MineralsTypes = () => {
 
         }} key={index}>
             <h3>{item.name}</h3>
-            <p>{item.description}</p>
+            <p style={{margin: '5px 0px', textAlign: 'justify'}}>{item.description}</p>
             <div className='base_flex_row'>
                 {item.minerals.map((i, index) => <div style={{
-                    border: '5px solid rgb(30,105,216)',
+                    border: `5px solid ${mineral_color(item.name).color}`,
                     borderRadius: '10px',
                     padding: '5px',
-                    color: 'rgb(31,118,251)',
-                    backgroundColor: 'rgba(13,126,255,0.29)',
+                    color: mineral_color(item.name).color,
+                    backgroundColor: mineral_color(item.name).background,
                     fontWeight: 'bolder',
                     textAlign: 'center',
                     verticalAlign: 'middle',
                     userSelect: 'none',
-                    width: '30px',
-                    height: '30px',
+                    width: '45px',
+                    height: '45px',
                 }} key={index}>{i.name}</div>)}
             </div>
         </div>)}
