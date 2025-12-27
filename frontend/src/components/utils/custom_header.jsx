@@ -50,7 +50,7 @@ const MobileHeaderView = ({headers, set_show, change_theme}) => {
             color: 'var(--header-text-color)',
 
             height: '30vh',
-            width: '80%',
+            padding: '5px'
         }} onClick={(e) => handleInnerClick(e)}>
             {mobile_headers.map((header, i) => <div key={i} style={{
                 backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)': 'inherit',

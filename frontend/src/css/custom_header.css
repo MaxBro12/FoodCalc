@@ -18,20 +18,23 @@
 }
 .header_a_c {
     height: 100%;
-    width: 100%;
+    min-width: 100px;
+
+    padding: 0 50px;
 
     color: var(--header-text-color);
     font-size: 20px;
-
-    display: flex;
-    justify-content: center; /* Центрирует по горизонтали */
-    align-items: center;
 
     border: 0 solid var(--header-color);
 
     cursor: pointer;
 
     user-select: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1;
 }
 
 .header_a:hover, .header_a_c:hover {
