@@ -7,7 +7,7 @@ from app.database.database import Base
 class ProductMineral(Base):
     __tablename__ = 'products_minerals'
 
-    product_id: Mapped[int] = mapped_column(ForeignKey('products.id'), primary_key=True)
+    product_id: Mapped[str] = mapped_column(ForeignKey('products.id'), primary_key=True)
     mineral_id: Mapped[int] = mapped_column(ForeignKey('minerals.id'), primary_key=True)
     content: Mapped[float] = mapped_column(nullable=False)
 

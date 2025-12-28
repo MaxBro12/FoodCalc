@@ -1,211 +1,108 @@
 import {useEffect, useState} from "react";
 import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
 import db_service from "../../api/universe.jsx";
-import {mineral_color} from "../../utils/minerals_colors.jsx";
+import {useNavigate} from "react-router-dom";
+import PaginationTable from "../../components/utils/custom_tables.jsx";
+import {not_to_long_text} from "../../components/utils/string_line.jsx";
 import {Mineral} from "../../components/mineral.jsx";
 
 
-const ShowMaterials = ({minerals, set_close, set_choose}) => {
+const ProductsHeader = () => {
+    return <tr>
+        <th style={{textAlign: 'left', width: '250px'}}>Название</th>
+        <th style={{textAlign: 'left'}}>Описание</th>
+    </tr>
+}
+
+const ProductLine = ({data, update, action_on_click}) => {
+    const handle_click = () => {
+        action_on_click(data)
+    }
+    return <tr>
+        <td className='mobile' onClick={() => handle_click()} dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 40)}}></td>
+        <td className='desktop' onClick={() => handle_click()} dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 100)}}></td>
+        <td className='mobile' dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 30)}}></td>
+        <td className='desktop' dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 100)}}></td>
+    </tr>
+}
+
+const ProductDetail = ({data, on_close, update}) => {
+    const sorted_minerals = {...data}
+    sorted_minerals.minerals.sort((a,b)=> a.id - b.id)
 
     const handleOuterClick = () => {
-        set_close(false);
+        on_close();
     };
 
     const handleInnerClick = (e) => {
         e.stopPropagation(); // Останавливаем всплытие события
     };
 
-    return <div className='overlay-backdrop' onClick={handleOuterClick}>
-        <div className='overlay-content base_flex_row rounded_border' onClick={handleInnerClick}>
-            {minerals.map((mineral, index) => <div key={index} onClick={() => set_choose(mineral)}>
-                <Mineral mineral={mineral} />
-            </div>)}
+    return <div className="overlay-backdrop" onClick={() => handleOuterClick()}>
+        <div className="overlay-content base_flex_column rounded_border base_margins desktop" style={{
+            width: '50em',
+        }} onClick={(e) => handleInnerClick(e)}>
+            <div className='base_flex_column' style={{
+                alignItems: 'flex-start',
+                width: '100%',
+            }}>
+                <span style={{fontWeight: 'bolder'}}>{data.name}</span>
+                <span>EAN-13: {data.id}</span>
+                <span>Добавлено: {data.added_by_name}</span>
+                <span>{data.description}</span>
+                <span>Калорийность: {data.calories} ККал</span>
+                <span>Энергетическая ценность: {data.energy} КДж</span>
+
+                {sorted_minerals.minerals.length > 0 && <div className='base_flex_row' style={{
+                    padding: '5px',
+                }}>
+                    {sorted_minerals.minerals.map((mineral, index) => <div key={index} className='base_flex_column rounded_border' style={{
+                        flexWrap: 'nowrap',
+                        padding: '5px'
+                    }}>
+                        <Mineral mineral={mineral}/>
+                        <span>{mineral.content}</span>
+                    </div>)}
+                </div>}
+            </div>
+        </div>
+        <div className="base_flex_column mobile" style={{
+            width: '100%',
+            marginTop: '50px'
+        }} onClick={(e) => handleInnerClick(e)}>
+            <div className='base_flex_column' style={{
+                alignItems: 'flex-start',
+                width: '100%',
+                padding: '5px'
+            }}>
+                <span style={{fontWeight: 'bolder'}}>{data.name}</span>
+                <span>EAN-13: {data.id}</span>
+                <span>Добавлено: {data.added_by_name}</span>
+                <span>{data.description}</span>
+                <span>Калорийность: {data.calories} ККал</span>
+                <span>Энергетическая ценность: {data.energy} КДж</span>
+
+                {sorted_minerals.minerals.length > 0 && <div className='base_flex_row' style={{
+                    padding: '5px',
+                }}>
+                    {sorted_minerals.minerals.map((mineral, index) => <div key={index} className='base_flex_column rounded_border' style={{
+                        flexWrap: 'nowrap',
+                        padding: '5px'
+                    }}>
+                        <Mineral mineral={mineral}/>
+                        <span>{mineral.content}</span>
+                    </div>)}
+                </div>}
+            </div>
         </div>
     </div>
 }
 
 
-const NewProductView = () => {
-    const [minerals, set_minerals] = useState([]);
-    const [target_minerals, set_target_minerals] = useState([]);
-    const [show_materials, set_show_materials] = useState(false);
-
-    const [formData, setFormData] = useState({
-        product_id: '',
-        product_name: '',
-        product_desc: '',
-        minerals: [],
-        calories: 0,
-
-        energy: 0,
-    });
-
-    const handleChange = (e) => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value,
-        });
-    };
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        await db_service.new_product(
-            formData.product_id,
-            formData.product_name,
-            formData.product_desc,
-            formData.minerals,
-            formData.calories,
-            formData.energy,
-        );
-    }
-    const on_choose = (e) => {
-        if (target_minerals.length === 0 || target_minerals.some(item => e.id !== item.id)) {
-            const new_material = {...e}
-            new_material.content = 0
-            const new_list = [...target_minerals, new_material  ]
-            new_list.sort((a, b) => a.id - b.id)
-            set_target_minerals(new_list)
-        }
-        set_show_materials(false)
-    }
-
-    const handle_change_content = (mineral, e) => {
-        const new_minerals = [...target_minerals.filter(item => mineral.id !== item.id)];
-        const new_mineral = target_minerals.find(item => mineral.id === item.id)
-        new_mineral.content = Number(e);
-        const new_list = [...new_minerals, new_mineral]
-        new_list.sort((a, b) => a.id - b.id)
-        set_target_minerals(new_list);
-    }
-
-    const update_minerals = async () => {
-        set_minerals(await db_service.minerals());
-    }
-
-    useEffect(() => {
-        update_minerals()
-    }, []);
-
-    return <div style={{maxWidth: '600px', padding: '5px'}} className='base_flex_column'>
-        {show_materials && <ShowMaterials minerals={minerals} set_close={set_show_materials} set_choose={on_choose} />}
-        <form onSubmit={handleSubmit} className='base_flex_column'>
-            <input
-                type="number"
-                name="product_id"
-                placeholder="Код товара"
-                className='base_button'
-                style={{
-                    textAlign: 'left',
-                    width: '100%',
-                }}
-                max='9999999999999'
-                min='1000000000000'
-                value={formData.product_id}
-                onChange={handleChange}
-                required
-            />
-            <input
-                type="text"
-                name="product_name"
-                placeholder="Название"
-                className='base_button'
-                style={{
-                    textAlign: 'left',
-                    width: '100%',
-                }}
-                value={formData.product_name}
-                onChange={handleChange}
-                required
-            />
-            <textarea value={formData.product_desc} onChange={handleChange}
-                      placeholder='Описание'
-                      name='product_desc'
-                      style={{
-                          padding: '8px 16px',
-                          height: 200,
-                          width: '100%',
-                          border: "1px solid var(--border-color)",
-                          backgroundColor: 'var(--button-color)',
-                          color: 'var(--text-color)',
-                          borderRadius: 10,
-                          textAlign: 'left',
-                          verticalAlign: 'top',
-                          display: "block",
-                          position: "relative",
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                      }}/>
-            <div className='base_flex_row' style={{flexWrap: 'nowrap', width: '100%'}}>
-                <label>Калории (ККАЛ)</label>
-                <input
-                    type="number"
-                    name="calories"
-                    placeholder="0"
-                    min='0'
-                    className='base_button'
-                    style={{
-                        textAlign: 'center',
-                        width: '100%',
-                    }}
-                    value={formData.calories}
-                    onChange={handleChange}
-                />
-            </div>
-            <div className='base_flex_row' style={{flexWrap: 'nowrap', width: '100%'}}>
-                <label>Энергоценность (КДж)</label>
-                <input
-                    type="number"
-                    name="energy"
-                    placeholder="0"
-                    min='0'
-                    className='base_button'
-                    style={{
-                        textAlign: 'center',
-                        width: '100%',
-                    }}
-                    value={formData.energy}
-                    onChange={handleChange}
-                />
-            </div>
-            {target_minerals.length > 0 ? <div className='base_flex_column rounded_border' style={{
-                padding: target_minerals.length > 0 ? '5px' : 0,
-                width: '100%',
-            }}>
-                <div className='base_button' onClick={() => set_show_materials(true)}>
-                    Добавить минерал
-                </div>
-                {target_minerals.map((mineral, i) => <div key={i} style={{
-                    flexWrap: 'nowrap',
-                    width: '100%',
-                }} className='base_flex_row'>
-                    <Mineral mineral={mineral}/>
-                    <input
-                        type="number"
-                        placeholder="0"
-                        min='0'
-                        className='base_button'
-                        style={{
-                            textAlign: 'center',
-                            width: '100%',
-                        }}
-                        value={mineral.content}
-                        onChange={(e) => handle_change_content(mineral, e.target.value)}
-                    />
-                    <label>мг</label>
-                </div>)}
-            </div>:<div className='base_button' onClick={() => set_show_materials(true)}>
-                Добавить минерал
-            </div>}
-            <input type='submit' className='base_button'/>
-        </form>
-    </div>
-}
-
-
-
 export const Products = () => {
     const [loading, set_loading] = useState(true);
+    const navigate = useNavigate()
 
-    const [show_new_product, set_show_new_product] = useState(false);
     const [show_details, set_show_details] = useState(false);
     const [items, set_items] = useState([]);
 
@@ -231,6 +128,17 @@ export const Products = () => {
         alignItems: 'center',
         justifyContent: 'flex-start',
     }}>
-        <NewProductView />
+        <div className='base_button mobile' style={{
+            width: '100%',
+            padding: '10px 20px',
+            margin: '10px'
+        }} onClick={() => navigate('/db/products/new')}>Добавить продукт</div>
+        <div className='base_button desktop' style={{
+            margin: '5px'
+        }} onClick={() => navigate('/db/products/new')}>Добавить продукт</div>
+        <PaginationTable CustomHead={ProductsHeader} Line={ProductLine} Detail={ProductDetail} api_request={db_service.products} adt_style={{
+            width: '100%',
+            marginTop: '0px'
+        }}/>
     </div>
 }

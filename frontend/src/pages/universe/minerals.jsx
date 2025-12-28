@@ -10,7 +10,8 @@ export const Minerals = () => {
 
     const update_items = async () => {
         set_loading(true)
-        set_items(await db_service.minerals());
+        const minerals = (await db_service.minerals()).filter(miner => miner.type_id !== 1)
+        set_items(minerals);
         set_loading(false)
     }
 
@@ -34,11 +35,11 @@ export const Minerals = () => {
             <tbody className='desktop'>
             {items.map((item, index) => <tr key={index}>
                 <td style={{
-                    border: `5px solid ${mineral_color(item.type_name).color}`,
+                    border: `5px solid ${mineral_color(item.type_id).color}`,
                     borderRadius: '10px',
                     padding: '5px',
-                    color: mineral_color(item.type_name).color,
-                    backgroundColor: mineral_color(item.type_name).background,
+                    color: mineral_color(item.type_id).color,
+                    backgroundColor: mineral_color(item.type_id).background,
                     fontWeight: 'bolder',
                     textAlign: 'center',
                     userSelect: 'none',
@@ -52,16 +53,16 @@ export const Minerals = () => {
             <tbody className='mobile'>
             {items.map((item, index) => <tr key={index}>
                 <td className='base_flex_column' style={{
-                    border: `5px solid ${mineral_color(item.type_name).color}`,
+                    border: `5px solid ${mineral_color(item.type_id).color}`,
                     borderRadius: '10px',
                     padding: '5px',
-                    backgroundColor: mineral_color(item.type_name).background,
+                    backgroundColor: mineral_color(item.type_id).background,
                     fontWeight: 'bolder',
                 }}><span style={{
-                    color: mineral_color(item.type_name).color,
+                    color: mineral_color(item.type_id).color,
                     userSelect: 'none',
                 }}>{item.name}</span><span style={{
-                    color: mineral_color(item.type_name).color,
+                    color: mineral_color(item.type_id).color,
                 }}>{item.intake}</span></td>
                 <td style={{textAlign: 'justify'}}>{item.description}</td>
             </tr>)}

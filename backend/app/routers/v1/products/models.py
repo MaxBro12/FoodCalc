@@ -7,7 +7,7 @@ class MineralInProduct(BaseModel):
 
 
 class NewProduct(BaseModel):
-    id: int
+    id: str
     name: str
     description: str
     minerals: list[MineralInProduct]
@@ -26,7 +26,7 @@ class MineralInProductResponse(MineralInProduct):
 
 
 class ProductResponse(BaseModel):
-    id: int
+    id: str
     name: str
     description: str
     minerals: list[MineralInProductResponse]

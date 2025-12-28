@@ -1,6 +1,4 @@
-import PropTypes from "prop-types";
 import {useEffect, useState} from "react";
-import IncidentsView from "../../pages/incidents/incidents.jsx";
 import {LoadingAnimation} from "./loading_animation.jsx";
 
 
@@ -112,13 +110,6 @@ const PaginationTable = ({CustomHead, Line, Detail, api_request, adt_style}) => 
         </div>
         {show_detail ? <Detail data={detail_data} on_close={() => set_show_detail(false)} update={get_items}/> : null}
     </div>
-}
-PaginationTable.propTypes = {
-    CustomHead: PropTypes.element.isRequired,
-    Line: PropTypes.element.isRequired,
-    Detail: PropTypes.element.isRequired,
-    api_request: PropTypes.func.isRequired,
-    adt_style: PropTypes.object,
 }
 
 

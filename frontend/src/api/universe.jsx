@@ -9,10 +9,16 @@ export const db_service = {
     minerals: async () => {
         return (await api.get('/v1/universe/minerals')).data.minerals || [];
     },
-    products: async () => {
-        return (await api.get('/v1/products/')).data.products || [];
+    products: async (skip_= 0, limit_= 10) => {
+        return (await api.get('/v1/products/', {
+            params: {
+                skip: skip_,
+                limit: limit_,
+            }
+        })).data.products || [];
     },
     new_product: async (id, name, description, minerals, calories, energy) => {
+        console.log(minerals)
         return (await api.post('/v1/products/new', {
             id: id,
             name: name,

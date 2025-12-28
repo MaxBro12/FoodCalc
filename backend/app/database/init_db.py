@@ -46,3 +46,4 @@ async def init_db():
 
     async with new_session() as session:
         await create_tables(session)
+        await session.commit()

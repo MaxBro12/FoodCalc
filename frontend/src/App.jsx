@@ -20,6 +20,7 @@ import {Minerals} from "./pages/universe/minerals.jsx";
 import {Calculator} from "./pages/calculator/calculator.jsx";
 import {AboutPage} from "./pages/about/about.jsx";
 import {DebugPage} from "./pages/about/send_feedback.jsx";
+import {NewProductView} from "./pages/universe/new_product.jsx";
 
 
 function App() {
@@ -104,6 +105,7 @@ function App() {
                 <Route path='/db/types' element={<MineralsTypes />}/>
                 <Route path='/db/minerals' element={<Minerals />}/>
                 <Route path='/db/products' element={<Products />}/>
+                <Route path='/db/products/new' element={<NewProductView />}/>
                 <Route path="/auth" element={<AuthOutlet />}>
                     <Route path="login" element={<Login />}/>
                     <Route path="register" element={<Register />}/>

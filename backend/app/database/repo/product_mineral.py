@@ -11,13 +11,13 @@ class ProductMineralRepo(Repository):
 
     async def exists_by_id(self, product_id: int, mineral_id: int, session: AsyncSession) -> bool:
         return await self._exists(
-            f"{self.table_name}.product_id={product_id} AND {self.table_name}.mineral_id={mineral_id}",
+            f"{self.table_name}.product_id='{product_id}' AND {self.table_name}.mineral_id={mineral_id}",
             session=session
         )
 
     async def new(
         self,
-        product_id: int,
+        product_id: str,
         mineral_id: int,
         content: float,
         session: AsyncSession,
