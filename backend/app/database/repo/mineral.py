@@ -21,7 +21,7 @@ class MineralRepo(Repository):
         intake: float,
         type_id: int,
         session: AsyncSession,
-        commit: bool = False
+        commit: bool = True
     ) -> bool:
         return await self.add(
             Mineral(name=name, description=description, intake=intake, type_id=type_id),

@@ -29,7 +29,7 @@ class ProductRepo(Repository):
                 description=description,
                 calories=calories,
                 energy=energy,
-                added_by_id=added_by_id
+                added_by_id=int(added_by_id)
             ),
             session=session,
             commit=commit

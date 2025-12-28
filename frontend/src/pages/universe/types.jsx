@@ -32,16 +32,17 @@ export const MineralsTypes = () => {
             <p style={{margin: '5px 0px', textAlign: 'justify'}}>{item.description}</p>
             <div className='base_flex_row'>
                 {item.minerals.map((i, index) => <div style={{
-                    border: `5px solid ${mineral_color(item.name).color}`,
+                    border: `5px solid ${mineral_color(item.id).color}`,
                     borderRadius: '10px',
                     padding: '5px',
-                    color: mineral_color(item.name).color,
-                    backgroundColor: mineral_color(item.name).background,
+                    color: mineral_color(item.id).color,
+                    backgroundColor: mineral_color(item.id).background,
                     fontWeight: 'bolder',
                     textAlign: 'center',
                     verticalAlign: 'middle',
                     userSelect: 'none',
-                    width: '45px',
+                    maxWidth: '300px',
+                    minWidth: '45px',
                     height: '45px',
                 }} key={index}>{i.name}</div>)}
             </div>

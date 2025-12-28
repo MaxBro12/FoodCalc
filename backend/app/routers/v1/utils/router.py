@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request
 
 from app.core import dispatcher
 from app.routers.misc_models import Ok
-from app.depends import Token
+from app.depends import TokenDep
 from .model import Feedback
 
 
@@ -10,7 +10,7 @@ utils_router_v1 = APIRouter(prefix="/v1/utils", tags=["utils"])
 
 
 @utils_router_v1.post("/feedback", response_model=Ok)
-async def feedback_data(feedback: Feedback, token: Token):
+async def feedback_data(feedback: Feedback, token: TokenDep):
     await dispatcher.send(
         title='Сообщение от пользователя:',
         message=feedback.message,

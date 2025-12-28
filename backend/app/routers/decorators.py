@@ -2,18 +2,18 @@ from functools import wraps
 
 from fastapi import HTTPException, status
 
-from app.depends import Token
+from app.depends import TokenDep
 
 
 def admin_access(func):
     @wraps(func)
     async def wrapper(*args, **kwargs):
         user = kwargs.get('token')
-        if type(user) == Token:
+        if type(user) == TokenDep:
             return await func(*args, **kwargs)
         if user is None:
             for arg in args:
-                if type(arg) == Token:
+                if type(arg) == TokenDep:
                     if arg.user.is_admin:
                         return await func(args, kwargs)
         raise HTTPException(

@@ -20,5 +20,6 @@ class Product(Base):
 
     minerals: Mapped[List['ProductMineral']] = relationship(
         back_populates='product',
+        lazy='selectin',
         cascade='all, delete-orphan'
     )

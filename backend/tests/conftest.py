@@ -1,23 +1,23 @@
 import pytest
-from datetime import datetime
+import json
+
 from os import environ
 from typing import AsyncGenerator
 
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from httpx import AsyncClient, ASGITransport
 
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 
 from app.__main__ import app
-from app.database import Base, User, DB
+from app.database import Base, User, DB, MineralType, Mineral, Key
+from app.database.init_db import create_tables
 from app.core.auth import get_hash, TokenData
-from app.depends import SessionDep
-
 from app.depends.session import get_session
 from app.depends.auth import verify_token
 
 
-db_path = "sqlite+aiosqlite:///food_test.sqlite3"
+db_path = "sqlite+aiosqlite:///foodapp_test.sqlite3"
 
 
 environ['DB_PATH'] = db_path
@@ -75,12 +75,15 @@ async def setup_db():
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
-    async with test_session() as session:
-        user = User(id=1, name='test', password=get_hash('123456'))
-        session.add(user)
-        await session.flush()
-
-        await session.commit()
+        async with test_session() as session:
+            key = Key(id=1, hash='12345', is_admin=True)
+            session.add(key)
+            await session.flush()
+            user = User(id=1, name='test12345', password=get_hash('123456'), is_admin=True, key=key)
+            session.add(user)
+            await session.flush()
+            await create_tables(session)
+            await session.commit()
 
 
 @pytest.fixture(autouse=True)

@@ -23,7 +23,6 @@ class SearchProduct(BaseModel):
 class MineralInProductResponse(MineralInProduct):
     name: str
     type_id: int
-    type_name: str
 
 
 class ProductResponse(BaseModel):

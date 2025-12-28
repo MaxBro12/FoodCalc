@@ -11,5 +11,5 @@ class ProductMineral(Base):
     mineral_id: Mapped[int] = mapped_column(ForeignKey('minerals.id'), primary_key=True)
     content: Mapped[float] = mapped_column(nullable=False)
 
-    product: Mapped['Product'] = relationship(back_populates='minerals')
-    mineral: Mapped['Mineral'] = relationship(back_populates='products')
+    product: Mapped['Product'] = relationship(back_populates='minerals', lazy='joined')
+    mineral: Mapped['Mineral'] = relationship(back_populates='products', lazy='joined')

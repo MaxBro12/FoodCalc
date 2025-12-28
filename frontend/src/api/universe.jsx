@@ -12,6 +12,16 @@ export const db_service = {
     products: async () => {
         return (await api.get('/v1/products/')).data.products || [];
     },
+    new_product: async (id, name, description, minerals, calories, energy) => {
+        return (await api.post('/v1/products/new', {
+            id: id,
+            name: name,
+            description: description,
+            minerals: minerals,
+            calories: calories,
+            energy: energy,
+        })).data.ok || false;
+    }
 };
 
 export default db_service;
