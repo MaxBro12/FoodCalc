@@ -1,3 +1,4 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import Repository
@@ -64,3 +65,6 @@ class ProductRepo(Repository):
         if obj is not None:
             return await self.delete(obj=obj, session=session, commit=True)
         return False
+
+    async def names(self, session: AsyncSession, limit: int = 500) -> list[tuple]:
+        return (await session.execute(select(Product.id, Product.name).limit(limit))).scalars().all()

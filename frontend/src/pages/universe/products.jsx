@@ -18,11 +18,11 @@ const ProductLine = ({data, update, action_on_click}) => {
     const handle_click = () => {
         action_on_click(data)
     }
-    return <tr>
-        <td className='mobile' onClick={() => handle_click()} dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 40)}}></td>
-        <td className='desktop' onClick={() => handle_click()} dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 100)}}></td>
+    return <tr onClick={() => handle_click()}>
+        <td className='mobile' dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 40)}}></td>
+        <td className='desktop' style={{userSelect:'none'}} dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 100)}}></td>
         <td className='mobile' dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 30)}}></td>
-        <td className='desktop' dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 100)}}></td>
+        <td className='desktop' style={{userSelect:'none'}} dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 100)}}></td>
     </tr>
 }
 
@@ -47,7 +47,7 @@ const ProductDetail = ({data, on_close, update}) => {
                 width: '100%',
             }}>
                 <span style={{fontWeight: 'bolder'}}>{data.name}</span>
-                <span>EAN-13: {data.id}</span>
+                <span>Код: {data.id}</span>
                 <span>Добавлено: {data.added_by_name}</span>
                 <span>{data.description}</span>
                 <span>Калорийность: {data.calories} ККал</span>
@@ -76,7 +76,7 @@ const ProductDetail = ({data, on_close, update}) => {
                 padding: '5px'
             }}>
                 <span style={{fontWeight: 'bolder'}}>{data.name}</span>
-                <span>EAN-13: {data.id}</span>
+                <span>Код: {data.id}</span>
                 <span>Добавлено: {data.added_by_name}</span>
                 <span>{data.description}</span>
                 <span>Калорийность: {data.calories} ККал</span>

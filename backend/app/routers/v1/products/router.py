@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Body
 
 from app.depends import SessionDep, PaginationParams, TokenDep
 from app.routers.misc_models import Ok
@@ -94,6 +94,10 @@ async def search_products(query: SearchProduct, session: SessionDep):
         'added_by_id': product.added_by_id,
         'added_by_name': product.added_by.name
     }
+
+@products_router_v1.post('/names', response_model=Ok)
+async def names(session: SessionDep, limit: int = Body(embed=True, default=500)):
+    return {'names': await DB.products.names(limit=limit, session=session)}
 
 
 @products_router_v1.post('/new', response_model=Ok)

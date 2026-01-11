@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
 from .database import engine, Base, new_session
+from .repo import DB
 from .models import MineralType, Mineral
 
 
@@ -18,6 +19,8 @@ async def create_tables(session: AsyncSession):
     if data is not None:
         try:
             for type in data['data']:
+                if DB.mineral_types.exists_by_id(int(type['id']), session=session):
+                    continue
                 mineral_type = MineralType(
                     id=type['id'],
                     name=type['name'],
