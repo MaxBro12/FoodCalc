@@ -23,3 +23,5 @@ class Product(Base):
         lazy='selectin',
         cascade='all, delete-orphan'
     )
+
+    search_index: Mapped[float] = mapped_column(default=0)

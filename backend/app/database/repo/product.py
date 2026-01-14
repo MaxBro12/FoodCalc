@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .base import Repository
@@ -14,7 +14,7 @@ class ProductRepo(Repository):
 
     async def new(
         self,
-        pid: int,
+        pid: str,
         name: str,
         description: str,
         calories: int,
@@ -66,5 +66,11 @@ class ProductRepo(Repository):
             return await self.delete(obj=obj, session=session, commit=True)
         return False
 
-    async def names(self, session: AsyncSession, limit: int = 500) -> list[tuple]:
-        return (await session.execute(select(Product.id, Product.name).limit(limit))).scalars().all()
+    async def names(self, session: AsyncSession, limit: int = 500) -> list[tuple[str, str, float]]:
+        return (await session.execute(select(Product.id, Product.name, Product.search_index).limit(limit))).all()
+
+    async def search(self, query: str, session: AsyncSession, limit: int = 500) -> list[tuple[str, str, float]]:
+        ans = (await session.execute(select(Product.id, Product.name, Product.search_index).where(func.lower(Product.name).like(f'%{query.lower()}%')).limit(limit))).all()
+        if len(ans) == 0:
+            return (await session.execute(select(Product.id, Product.name, Product.search_index).where(Product.id.like(f'%{query}%')).limit(limit))).all()
+        return ans

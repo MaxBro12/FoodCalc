@@ -19,6 +19,15 @@ class SearchProduct(BaseModel):
     id_or_name: str
 
 
+class ProductName(BaseModel):
+    id: str
+    name: str
+    search_index: float
+
+
+class ProductsNames(BaseModel):
+    names: list[ProductName]
+
 
 class MineralInProductResponse(MineralInProduct):
     name: str

@@ -5,7 +5,7 @@ from app.routers.misc_models import Ok
 from app.database.repo import DB
 from app.routers.v1.products.models import NewProduct
 from app.routers.decorators import admin_access
-from .models import SearchProduct, MultipleProductsResponse, ProductResponse
+from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
 
 
 products_router_v1 = APIRouter(prefix='/v1/products', tags=['products'])
@@ -37,7 +37,7 @@ async def products_pagination(session: SessionDep, pagination: PaginationParams)
     } for product in products]}
 
 
-@products_router_v1.get('/{product_id}', response_model=ProductResponse)
+@products_router_v1.get('/details/{product_id}', response_model=ProductResponse)
 async def product_by_id(product_id: int, session: SessionDep):
     product = await DB.products.by_id(
         type_id=product_id,
@@ -63,41 +63,22 @@ async def product_by_id(product_id: int, session: SessionDep):
     }
 
 
-@products_router_v1.post('/search', response_model=ProductResponse)
+@products_router_v1.post('/search', response_model=ProductsNames)
 async def search_products(query: SearchProduct, session: SessionDep):
-    try:
-        product = await DB.products.by_id(
-            type_id=int(query.id_or_name),
-            session=session,
-            load_relations=True
-        )
-    except ValueError:
-        product = await DB.products.by_name(
-            name=query.id_or_name,
-            session=session,
-            load_relations=True
-        )
-    if product is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f'Продукт по запросу {query.id_or_name} не найден')
-    return {
-        'id': product.id,
-        'name': product.name,
-        'description': product.description,
-        'minerals': [{
-            'id': mineral.mineral.id,
-            'name': mineral.mineral.name,
-            'type_id': mineral.mineral.type_id,
-            'content': mineral.content,
-        } for mineral in product.minerals],
-        'calories': product.calories,
-        'energy': product.energy,
-        'added_by_id': product.added_by_id,
-        'added_by_name': product.added_by.name
-    }
+    return {'names': [{
+        'id': i[0],
+        'name': i[1],
+        'search_index': i[2]
+    } for i in await DB.products.search(query=query.id_or_name, session=session)]}
 
-@products_router_v1.post('/names', response_model=Ok)
-async def names(session: SessionDep, limit: int = Body(embed=True, default=500)):
-    return {'names': await DB.products.names(limit=limit, session=session)}
+
+@products_router_v1.get('/names', response_model=ProductsNames)
+async def names(session: SessionDep, limit: int = 500):
+    return {'names': [{
+        'id': i[0],
+        'name': i[1],
+        'search_index': i[2]
+    } for i in await DB.products.names(limit=limit, session=session)]}
 
 
 @products_router_v1.post('/new', response_model=Ok)
@@ -115,7 +96,6 @@ async def save_new_product(new: NewProduct, session: SessionDep, token: TokenDep
     await session.flush()
     for i in new.minerals:
         await DB.products_minerals.new(new.id, i.id, content=i.content, session=session, commit=False)
-    await session.commit()
     return {'ok': True}
 
 

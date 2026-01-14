@@ -17,10 +17,19 @@ export const db_service = {
             }
         })).data.products || [];
     },
+    products_names: async (limit_= 500) => {
+        return (await api.get('/v1/products/names', {
+            params: {
+                limit: limit_,
+            }
+        })).data.names || [];
+    },
+    products_search: async (query) => {
+        return (await api.post('/v1/products/search', {id_or_name: query})).data.names || [];
+    },
     new_product: async (id, name, description, minerals, calories, energy) => {
-        console.log(minerals)
         return (await api.post('/v1/products/new', {
-            id: id,
+            id: id.toString(),
             name: name,
             description: description,
             minerals: minerals,
