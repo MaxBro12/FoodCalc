@@ -56,13 +56,7 @@ const ProductDetail = ({data, on_close, update}) => {
                 {sorted_minerals.minerals.length > 0 && <div className='base_flex_row' style={{
                     padding: '5px',
                 }}>
-                    {sorted_minerals.minerals.map((mineral, index) => <div key={index} className='base_flex_column rounded_border' style={{
-                        flexWrap: 'nowrap',
-                        padding: '5px'
-                    }}>
-                        <Mineral mineral={mineral}/>
-                        <span>{mineral.content}</span>
-                    </div>)}
+                    {sorted_minerals.minerals.map((mineral, index) => <Mineral key={index} mineral={mineral} adt_str={mineral.content}/>)}
                 </div>}
             </div>
         </div>

@@ -39,7 +39,7 @@ async def products_pagination(session: SessionDep, pagination: PaginationParams)
 
 
 @products_router_v1.get('/details/{product_id}', response_model=ProductResponse)
-async def product_by_id(product_id: int, session: SessionDep):
+async def product_by_id(product_id: str, session: SessionDep):
     product = await DB.products.by_id(
         type_id=product_id,
         session=session,

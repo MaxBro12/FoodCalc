@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
 import db_service from "../../api/universe.jsx";
+import {Minerals} from "../universe/minerals.jsx";
+import {Mineral} from "../../components/mineral.jsx";
+import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
 
 
 const ProductsSearch = ({items, set_current, search_length = 3}) => {
@@ -10,6 +13,8 @@ const ProductsSearch = ({items, set_current, search_length = 3}) => {
     const handleSelectItem = (item) => {
         set_search(item.name);
         set_current(item)
+        set_search('')
+        set_suggestions([])
         set_is_open(false);
     };
 
@@ -60,6 +65,8 @@ const ProductsSearch = ({items, set_current, search_length = 3}) => {
 
 
 export const Calculator = () => {
+    const [loading, set_loading] = useState(false);
+
     const [products_names, set_products_names] = useState([]);
     const [products, set_products] = useState([]);
 
@@ -73,8 +80,18 @@ export const Calculator = () => {
         set_products_names(new_items)
     }
 
-    const handle_current = (e) => {
-        set_products([...products, e]);
+    const handle_current = async (e) => {
+        if (products.length === 0) {
+            set_loading(true);
+            set_products([await db_service.product_detail(e.id)])
+            set_loading(false);
+        } else {
+            if (!products.some(product => product.id === e.id)) {
+                set_loading(true);
+                set_products([...products, await db_service.product_detail(e.id)])
+                set_loading(false);
+            }
+        }
     }
     const handle_delete = (id) => {
         set_products(products.filter(product => product.id !== id));
@@ -84,19 +101,38 @@ export const Calculator = () => {
         get_products_names();
     }, []);
 
-    return <div style={{padding: '5px'}}>
+    if (loading) {
+        return <LoadingAnimation />
+    }
+
+    return <div style={{padding: '5px', width: '100%', justifyContent: 'flex-start'}} className='full_screen'>
         <ProductsSearch items={products_names} set_current={handle_current} />
-        <ul className='rounded_border base_flex_column' style={{
+        {products.length > 0 && <ul className='rounded_border base_flex_column' style={{
             listStyleType: 'none',
             textAlign: 'left',
             padding: '5px',
             margin: '5px 0px 0px 0px',
             alignItems: 'flex-start',
+            width: '100%'
         }}>
-            {products.map((item, i) => <li key={i}><span onClick={() => handle_delete(item.id)} style={{
-                padding: '0px 5px',
-                userSelect: 'none',
-            }}>❌</span>{item.name}</li>)}
-        </ul>
+            <span>Выбранные продукты:</span>
+            {products.map((item, i) => <li key={i} style={{
+                width: '100%'
+            }}><div className='base_flex_row'>
+                {item.name}{item.minerals?.map((mineral, i) => <Mineral mineral={mineral} adt_style={{
+                    height: 25,
+                    width: 25,
+                    fontSize: 13,
+                    borderWidth: 1,
+            }} key={i} compact={true}/>)}
+                <span onClick={() => handle_delete(item.id)} style={{
+                    userSelect: 'none',
+                }}>❌</span>
+            </div>
+                </li>)}
+        </ul>}
+        <div>
+
+        </div>
     </div>
 }

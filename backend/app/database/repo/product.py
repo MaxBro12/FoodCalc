@@ -38,12 +38,12 @@ class ProductRepo(Repository):
 
     async def by_id(
         self,
-        type_id: int,
+        type_id: str,
         session: AsyncSession,
         load_relations: bool = False
     ) -> Product | None:
         return await self.get(
-            f'{self.table_name}.id={type_id}',
+            f"{self.table_name}.id='{type_id}'",
             session=session,
             load_relations=load_relations
         )

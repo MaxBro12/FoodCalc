@@ -17,6 +17,9 @@ export const db_service = {
             }
         })).data.products || [];
     },
+    product_detail: async (product_id) => {
+        return (await api.get(`/v1/products/details/${product_id}`)).data;
+    },
     products_names: async (limit_= 500) => {
         return (await api.get('/v1/products/names', {
             params: {
