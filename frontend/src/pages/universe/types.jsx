@@ -1,7 +1,8 @@
 import {useEffect, useState} from "react";
-import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
 import db_service from "../../api/universe.jsx";
-import {mineral_color} from "../../utils/minerals_colors.jsx";
+
+import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
+import {Mineral} from "../../components/mineral.jsx";
 
 
 export const MineralsTypes = () => {
@@ -31,20 +32,7 @@ export const MineralsTypes = () => {
             <h3>{item.name}</h3>
             <p style={{margin: '5px 0px', textAlign: 'justify'}}>{item.description}</p>
             <div className='base_flex_row'>
-                {item.minerals.map((i, index) => <div style={{
-                    border: `5px solid ${mineral_color(item.id).color}`,
-                    borderRadius: '10px',
-                    padding: '5px',
-                    color: mineral_color(item.id).color,
-                    backgroundColor: mineral_color(item.id).background,
-                    fontWeight: 'bolder',
-                    textAlign: 'center',
-                    verticalAlign: 'middle',
-                    userSelect: 'none',
-                    maxWidth: '300px',
-                    minWidth: '45px',
-                    height: '45px',
-                }} key={index}>{i.name}</div>)}
+                {item.minerals.map((i, index) => <Mineral key={index} mineral={i} spec_type_id={item.id} compact={true}/>)}
             </div>
         </div>)}
     </div>

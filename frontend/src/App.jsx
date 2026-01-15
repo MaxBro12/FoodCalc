@@ -21,6 +21,7 @@ import {Calculator} from "./pages/calculator/calculator.jsx";
 import {AboutPage} from "./pages/about/about.jsx";
 import {DebugPage} from "./pages/about/send_feedback.jsx";
 import {NewProductView} from "./pages/universe/new_product.jsx";
+import {WrongPage} from "./pages/about/wrong.jsx";
 
 
 function App() {
@@ -113,6 +114,7 @@ function App() {
                 </Route>
                 <Route path='/debug' element={<DebugPage />}/>
                 <Route path='/about' element={<AboutPage />}/>
+                <Route path='/wrong' element={<WrongPage />}/>
             </Routes>
         </div>
     </BrowserRouter>

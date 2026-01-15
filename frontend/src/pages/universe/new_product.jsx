@@ -56,7 +56,13 @@ export const NewProductView = () => {
         );
     }
     const on_choose = (e) => {
-        if (target_minerals.length === 0 || target_minerals.some(item => e.id !== item.id)) {
+        if (target_minerals.length === 0) {
+            const new_material = {...e}
+            new_material.content = 0
+            const new_list = [new_material]
+            set_target_minerals(new_list)
+        }
+        if (!target_minerals.some(item => e.id === item.id)) {
             const new_material = {...e}
             new_material.content = 0
             const new_list = [...target_minerals, new_material  ]
@@ -175,7 +181,7 @@ export const NewProductView = () => {
                     flexWrap: 'nowrap',
                     width: '100%',
                 }} className='base_flex_row'>
-                    <Mineral mineral={mineral}/>
+                    <Mineral mineral={mineral} compact={true}/>
                     <input
                         type="number"
                         placeholder="0"

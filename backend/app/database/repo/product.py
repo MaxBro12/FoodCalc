@@ -67,10 +67,24 @@ class ProductRepo(Repository):
         return False
 
     async def names(self, session: AsyncSession, limit: int = 500) -> list[tuple[str, str, float]]:
-        return (await session.execute(select(Product.id, Product.name, Product.search_index).limit(limit))).all()
+        return (await session.execute(select(
+            Product.id,
+            Product.name,
+            Product.search_index
+        ).limit(limit))).all()
 
     async def search(self, query: str, session: AsyncSession, limit: int = 500) -> list[tuple[str, str, float]]:
-        ans = (await session.execute(select(Product.id, Product.name, Product.search_index).where(func.lower(Product.name).like(f'%{query.lower()}%')).limit(limit))).all()
+        ans = (await session.execute(
+            select(
+                Product.id,
+                Product.name,
+                Product.search_index
+            ).where(func.lower(Product.name).like(f'%{query.lower()}%')).limit(limit)
+        )).all()
         if len(ans) == 0:
-            return (await session.execute(select(Product.id, Product.name, Product.search_index).where(Product.id.like(f'%{query}%')).limit(limit))).all()
+            return (await session.execute(select(
+                Product.id,
+                Product.name,
+                Product.search_index
+            ).where(Product.id.like(f'%{query}%')).limit(limit))).all()
         return ans

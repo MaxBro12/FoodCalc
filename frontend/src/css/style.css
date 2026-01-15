@@ -6,6 +6,8 @@
 @import "overlay.css";
 @import "search.css";
 
+@import "mineral.css";
+
 
 :root {
     --bg-color: #FFFFFF;

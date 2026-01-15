@@ -32,6 +32,7 @@ async def create_tables(session: AsyncSession):
                     mineral_to_save = Mineral(
                         id=mineral['id'],
                         name=mineral['name'],
+                        compact_name=mineral['compact_name'],
                         description=mineral['description'],
                         intake=mineral['intake'],
                         type_id=type['id'],

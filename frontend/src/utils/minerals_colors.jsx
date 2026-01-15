@@ -1,5 +1,10 @@
 export function mineral_color(type_name) {
     switch (type_name) {
+        case 1: // Макронутриенты
+            return {
+                color: 'rgb(115,115,115)',
+                background: 'rgba(131,131,131,0.21)',
+            };
         case 2: // Водорастворимые
             return {
                 color: 'rgb(31,118,251)',
@@ -7,13 +12,8 @@ export function mineral_color(type_name) {
             };
         case 3: // Жирорастворимые
             return {
-                color: 'rgb(251,229,0)',
-                background: 'rgba(247,255,13,0.19)',
-            };
-        case 1: // Макронутриенты
-            return {
-                color: 'rgb(31,118,251)',
-                background: 'rgba(13,126,255,0.29)',
+                color: 'rgb(255,196,0)',
+                background: 'rgba(247,255,13,0.37)',
             };
         case 4: // Макроминералы
             return {

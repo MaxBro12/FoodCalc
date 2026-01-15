@@ -27,6 +27,7 @@ async def products_pagination(session: SessionDep, pagination: PaginationParams)
         'minerals': [{
             'id': mineral.mineral.id,
             'name': mineral.mineral.name,
+            'compact_name': mineral.mineral.compact_name,
             'type_id': mineral.mineral.type_id,
             'content': mineral.content,
         } for mineral in product.minerals],
@@ -53,6 +54,7 @@ async def product_by_id(product_id: int, session: SessionDep):
         'minerals': [{
             'id': mineral.mineral.id,
             'name': mineral.mineral.name,
+            'compact_name': mineral.mineral.compact_name,
             'type_id': mineral.mineral.type_id,
             'content': mineral.content,
         } for mineral in product.minerals],

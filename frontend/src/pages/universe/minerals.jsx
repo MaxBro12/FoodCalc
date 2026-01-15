@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
 import db_service from "../../api/universe.jsx";
 import {mineral_color} from "../../utils/minerals_colors.jsx";
+import {Mineral} from "../../components/mineral.jsx";
 
 
 export const Minerals = () => {
@@ -34,16 +35,7 @@ export const Minerals = () => {
             </thead>
             <tbody className='desktop'>
             {items.map((item, index) => <tr key={index}>
-                <td style={{
-                    border: `5px solid ${mineral_color(item.type_id).color}`,
-                    borderRadius: '10px',
-                    padding: '5px',
-                    color: mineral_color(item.type_id).color,
-                    backgroundColor: mineral_color(item.type_id).background,
-                    fontWeight: 'bolder',
-                    textAlign: 'center',
-                    userSelect: 'none',
-                }}>{item.name}</td>
+                <td><Mineral mineral={item}/></td>
                 <td style={{
                     textAlign: 'center',
                 }}>{item.intake}</td>
@@ -52,18 +44,7 @@ export const Minerals = () => {
             </tbody>
             <tbody className='mobile'>
             {items.map((item, index) => <tr key={index}>
-                <td className='base_flex_column' style={{
-                    border: `5px solid ${mineral_color(item.type_id).color}`,
-                    borderRadius: '10px',
-                    padding: '5px',
-                    backgroundColor: mineral_color(item.type_id).background,
-                    fontWeight: 'bolder',
-                }}><span style={{
-                    color: mineral_color(item.type_id).color,
-                    userSelect: 'none',
-                }}>{item.name}</span><span style={{
-                    color: mineral_color(item.type_id).color,
-                }}>{item.intake}</span></td>
+                <td><Mineral mineral={item} compact={true} adt_str={item.intake}/></td>
                 <td style={{textAlign: 'justify'}}>{item.description}</td>
             </tr>)}
             </tbody>

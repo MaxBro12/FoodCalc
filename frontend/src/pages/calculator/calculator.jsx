@@ -3,8 +3,6 @@ import db_service from "../../api/universe.jsx";
 
 
 const ProductsSearch = ({items, set_current, search_length = 3}) => {
-    console.log(items)
-
     const [search, set_search] = useState("");
     const [suggestions, set_suggestions] = useState([]);
     const [is_open, set_is_open] = useState(false);
@@ -78,16 +76,27 @@ export const Calculator = () => {
     const handle_current = (e) => {
         set_products([...products, e]);
     }
+    const handle_delete = (id) => {
+        set_products(products.filter(product => product.id !== id));
+    }
 
     useEffect(() => {
         get_products_names();
     }, []);
 
-    return <div>
+    return <div style={{padding: '5px'}}>
         <ProductsSearch items={products_names} set_current={handle_current} />
-        <div className='rounded_border'>
-
-
-        </div>
+        <ul className='rounded_border base_flex_column' style={{
+            listStyleType: 'none',
+            textAlign: 'left',
+            padding: '5px',
+            margin: '5px 0px 0px 0px',
+            alignItems: 'flex-start',
+        }}>
+            {products.map((item, i) => <li key={i}><span onClick={() => handle_delete(item.id)} style={{
+                padding: '0px 5px',
+                userSelect: 'none',
+            }}>❌</span>{item.name}</li>)}
+        </ul>
     </div>
 }

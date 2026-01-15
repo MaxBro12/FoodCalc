@@ -31,6 +31,7 @@ class ProductsNames(BaseModel):
 
 class MineralInProductResponse(MineralInProduct):
     name: str
+    compact_name: str
     type_id: int
 
 

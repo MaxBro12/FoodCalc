@@ -17,6 +17,7 @@ class MineralRepo(Repository):
     async def new(
         self,
         name: str,
+        compact_name: str,
         description: str,
         intake: float,
         type_id: int,
@@ -24,7 +25,7 @@ class MineralRepo(Repository):
         commit: bool = True
     ) -> bool:
         return await self.add(
-            Mineral(name=name, description=description, intake=intake, type_id=type_id),
+            Mineral(name=name, compact_name=compact_name, description=description, intake=intake, type_id=type_id),
             session=session,
             commit=commit
         )

@@ -12,6 +12,7 @@ class Mineral(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
+    compact_name: Mapped[str] = mapped_column(unique=True, nullable=False)
     description: Mapped[str]
     intake: Mapped[float]
 

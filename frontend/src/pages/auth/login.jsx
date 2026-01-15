@@ -30,7 +30,7 @@ export const Login = () => {
 
         try {
             if (await auth_service.login(formData.username, formData.password)) {
-                navigate('/')
+                navigate('/calc')
             }
         } catch (error) {
             setError(error.response?.data?.detail || 'Непредвиденная ошибка');

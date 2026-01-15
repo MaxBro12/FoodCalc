@@ -30,6 +30,7 @@ async def minerals_pagination(session: SessionDep, pagination: PaginationParams)
     return {'minerals': [{
         'id': mineral.id,
         'name': mineral.name,
+        'compact_name': mineral.compact_name,
         'description': mineral.description,
         'intake': mineral.intake,
         'type_id': mineral.type_id,
@@ -49,6 +50,7 @@ async def mineral_by_id(mineral_id: int, session: SessionDep):
     return {
         'id': ans.id,
         'name': ans.name,
+        'compact_name': ans.compact_name,
         'description': ans.description,
         'intake': ans.intake,
         'type_id': ans.type_id,
@@ -67,6 +69,7 @@ async def del_mineral(mineral_id: int, session: SessionDep, token: TokenDep):
 async def save_new_mineral(new: NewMineral, session: SessionDep, token: TokenDep):
     return {'ok': await DB.minerals.new(
         name=new.name,
+        compact_name=new.compact_name,
         description=new.description,
         intake=new.intake,
         type_id=new.type_id,
@@ -89,6 +92,7 @@ async def mineral_types_pagination(session: SessionDep, pagination: PaginationPa
         'minerals': [{
             'id': mineral.id,
             'name': mineral.name,
+            'compact_name': mineral.compact_name,
             'description': mineral.description,
         } for mineral in t.minerals]
     } for t in types]}

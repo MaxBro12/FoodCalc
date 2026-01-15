@@ -89,7 +89,7 @@ const ProductDetail = ({data, on_close, update}) => {
                         flexWrap: 'nowrap',
                         padding: '5px'
                     }}>
-                        <Mineral mineral={mineral}/>
+                        <Mineral mineral={mineral} compact={true}/>
                         <span>{mineral.content}</span>
                     </div>)}
                 </div>}

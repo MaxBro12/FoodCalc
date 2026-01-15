@@ -33,4 +33,14 @@ api.interceptors.response.use(
     }
 );
 
+api.interceptors.response.use(
+    response => {
+        return response;
+    },
+    error => {
+        window.location.href = '/wrong'
+        return Promise.reject(error);
+    }
+)
+
 export default api;

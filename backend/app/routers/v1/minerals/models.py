@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class NewMineral(BaseModel):
     name: str
+    compact_name: str
     description: str
     intake: float
     type_id: int
@@ -11,6 +12,7 @@ class NewMineral(BaseModel):
 class MineralResponse(BaseModel):
     id: int
     name: str
+    compact_name: str
     description: str
     intake: float
     type_id: int
@@ -29,6 +31,7 @@ class NewMineralType(BaseModel):
 class MineralResponseMini(BaseModel):
     id: int
     name: str
+    compact_name: str
     description: str
 
 
