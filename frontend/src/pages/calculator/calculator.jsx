@@ -105,7 +105,7 @@ export const Calculator = () => {
         return <LoadingAnimation />
     }
 
-    return <div style={{padding: '5px', width: '100%', justifyContent: 'flex-start'}} className='full_screen'>
+    return <div className='full_screen' style={{padding: '5px', width: '100%', justifyContent: 'flex-start'}}>
         <ProductsSearch items={products_names} set_current={handle_current} />
         {products.length > 0 && <ul className='rounded_border base_flex_column' style={{
             listStyleType: 'none',

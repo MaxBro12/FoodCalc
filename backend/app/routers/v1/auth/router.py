@@ -1,7 +1,9 @@
 import logging
 from random import randint
 
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Response
+
+from app.settings import settings
 
 from .models import Token, UserLogin, UserRegister
 from app.routers.misc_models import Ok
@@ -14,21 +16,34 @@ from app.core.trash import generate_trash_string
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])
 
 
-@auth_router_v1.post('/login', response_model=Token)
-async def login(user_data: UserLogin, session: SessionDep):
+@auth_router_v1.post('/login', response_model=Ok)
+async def login(response: Response, user_data: UserLogin, session: SessionDep):
     user = await DB.users.by_name(user_data.username, session)
     if not user or not verify_hashed(user_data.password, user.password):
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail="Некорректное имя пользователя или пароль",
         )
-    return {
-        "access_token": create_access_token(data={
+
+    response.set_cookie(
+        key='access_token',
+        value=create_access_token(data={
             "sub": user.name,
             generate_trash_string(randint(3, 6)): generate_trash_string(randint(5, 10))
         }),
-        "token_type": "Bearer"
-    }
+        httponly=True,
+        secure=False if settings.DEBUG else True,
+        samesite='strict',
+        max_age=settings.AUTH_TOKEN_LIFETIME_IN_MIN * 60
+    )
+    return {'ok': True}
+    #return {
+    #    "access_token": create_access_token(data={
+    #        "sub": user.name,
+    #        generate_trash_string(randint(3, 6)): generate_trash_string(randint(5, 10))
+    #    }),
+    #    "token_type": "Bearer"
+    #}
 
 
 @auth_router_v1.post('/register', response_model=Ok)
