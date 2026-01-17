@@ -2,14 +2,15 @@ import logging
 from random import randint
 
 from fastapi import APIRouter, HTTPException, status, Response
+from fastapi.requests import Request
 
 from app.settings import settings
 
 from .models import Token, UserLogin, UserRegister
 from app.routers.misc_models import Ok
-from app.depends import SessionDep
+from app.depends import SessionDep, TokenDep
 from app.database import DB
-from app.core.auth import verify_hashed, create_access_token, get_hash
+from app.core.auth import verify_hashed, create_access_token, get_hash, create_refresh_token
 from app.core.trash import generate_trash_string
 
 
@@ -25,6 +26,7 @@ async def login(response: Response, user_data: UserLogin, session: SessionDep):
             detail="Некорректное имя пользователя или пароль",
         )
 
+    # Передача обычного токена
     response.set_cookie(
         key='access_token',
         value=create_access_token(data={
@@ -36,14 +38,29 @@ async def login(response: Response, user_data: UserLogin, session: SessionDep):
         samesite='strict',
         max_age=settings.AUTH_TOKEN_LIFETIME_IN_MIN * 60
     )
+
+    # Передача токена для обновления
+    uni = generate_trash_string(6)
+    token = create_refresh_token(data={
+        "sub": user.name
+    })
+
+    await DB.users.set_tokens(user.id, uni, token, session=session)
+
+    response.set_cookie(
+        key='refresh_token',
+        value=uni + token,
+        httponly=True,
+        secure=False if settings.DEBUG else True,
+        samesite='strict',
+        max_age=settings.AUTH_REFRESH_LIFETIME_IN_DAYS * 24 * 60 * 60
+    )
     return {'ok': True}
-    #return {
-    #    "access_token": create_access_token(data={
-    #        "sub": user.name,
-    #        generate_trash_string(randint(3, 6)): generate_trash_string(randint(5, 10))
-    #    }),
-    #    "token_type": "Bearer"
-    #}
+
+
+@auth_router_v1.post('/refresh', response_model=Ok)
+async def refresh(request: Request, response: Response, session: SessionDep):
+    pass
 
 
 @auth_router_v1.post('/register', response_model=Ok)

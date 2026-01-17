@@ -50,7 +50,18 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     return token
 
 
-async def verify_token(
+def create_refresh_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now() + expires_delta
+    else:
+        expire = datetime.now() + timedelta(minutes=settings.AUTH_TOKEN_LIFETIME_IN_MIN)
+    to_encode.update({"exp": expire})
+    token = jwt.encode(to_encode, settings.AUTH_SECRET_KEY, algorithm=settings.AUTH_ALGORITHM)
+    return token
+
+
+async def verify_access_token(
     session: SessionDep,
     credentials: HTTPAuthorizationCredentials = Depends(security)
 ) -> TokenData:
@@ -62,11 +73,36 @@ async def verify_token(
             raise JWTError
 
         user = await DB.users.by_name(data['sub'], session=session)
-        if user is None:
+        if user is None or not user.is_active:
             logger.log(f'verify_token > {data['sub']} not exists', 'info')
             raise JWTError
 
         user.last_active = datetime.now()
+        return TokenData(user=user, exp=data['exp'])
+    except JWTError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+
+async def verify_refresh_token(
+    session: SessionDep,
+    raw_token: str
+) -> TokenData:
+    try:
+        data = jwt.decode(raw_token, settings.AUTH_SECRET_KEY, algorithms=[settings.AUTH_ALGORITHM])
+        if data['exp'] < time():
+            logger.log(f'verify_refresh_token > expired for {data['sub']}', 'info')
+            raise JWTError
+
+        user = await DB.users.by_name(data['sub'], session=session)
+        if user is None or not user.is_active:
+            logger.log(f'verify_refresh_token > {data['sub']} not exists', 'info')
+            raise JWTError
+
+        return await DB.users.verify_tokens(data['uni'], )
         return TokenData(user=user, exp=data['exp'])
     except JWTError:
         raise HTTPException(

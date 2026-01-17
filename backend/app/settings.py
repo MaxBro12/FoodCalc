@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     AUTH_SECRET_KEY: str
     AUTH_ALGORITHM: str
     AUTH_TOKEN_LIFETIME_IN_MIN: int
+    AUTH_REFRESH_LIFETIME_IN_DAYS: int
 
     FRONTEND_URL: str
     NCT_AUTH_URL: str

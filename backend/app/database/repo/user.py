@@ -50,3 +50,56 @@ class UserRepo(Repository):
             is_admin=is_admin,
             key_id=key_id,
         ), session=session, commit=commit)
+
+    async def deactivate(
+        self,
+        user_id: int,
+        session: AsyncSession,
+    ) -> bool:
+        user = await self.get(
+            f"{self.table_name}.id={user_id}",
+            session=session,
+        )
+        if user:
+            user.is_active = False
+            return True
+        return False
+
+    async def verify_tokens(
+        self,
+        user_id: int,
+        unique: str,
+        refresh_token: str,
+        session: AsyncSession,
+    ) -> bool:
+        user = await self.get(
+            f"{self.table_name}.id={user_id}",
+            session=session,
+        )
+        if user:
+            return True if user.unique == unique and user.refresh_token == refresh_token else False
+        return False
+
+    async def set_tokens(
+        self,
+        user_id: int,
+        unique: str,
+        refresh_token: str,
+        session: AsyncSession,
+    ) -> bool:
+        user = await self.get(
+            f"{self.table_name}.id={user_id}",
+            session=session,
+        )
+        if user:
+            user.unique = unique
+            user.refresh_token = refresh_token
+            return True
+        return False
+
+    async def clear_tokens(
+        self,
+        user_id: int,
+        session: AsyncSession,
+    ) -> bool:
+        return await self.set_tokens(user_id, '', '', session)
