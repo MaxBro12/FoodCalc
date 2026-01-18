@@ -9,6 +9,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic.v1.tools import T
 
 from app.core.debug import logger
 from app.database.models import User
@@ -92,7 +93,11 @@ async def verify_refresh_token(
     raw_token: str
 ) -> TokenData:
     try:
-        data = jwt.decode(raw_token, settings.AUTH_SECRET_KEY, algorithms=[settings.AUTH_ALGORITHM])
+        token = raw_token.split('.')
+        uni= token[1][0:6]
+        token = token[0] + '.' + token[1][6:] + '.' + token[2]
+
+        data = jwt.decode(token, settings.AUTH_SECRET_KEY, algorithms=[settings.AUTH_ALGORITHM])
         if data['exp'] < time():
             logger.log(f'verify_refresh_token > expired for {data['sub']}', 'info')
             raise JWTError
@@ -102,8 +107,12 @@ async def verify_refresh_token(
             logger.log(f'verify_refresh_token > {data['sub']} not exists', 'info')
             raise JWTError
 
-        return await DB.users.verify_tokens(data['uni'], )
+        if not await DB.users.verify_tokens(user.id, uni, token, session):
+            logger.log(f'verify_refresh_token > {data['sub']} token not verified', 'info')
+            raise JWTError
+
         return TokenData(user=user, exp=data['exp'])
+
     except JWTError:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

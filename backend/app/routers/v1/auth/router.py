@@ -10,7 +10,13 @@ from .models import Token, UserLogin, UserRegister
 from app.routers.misc_models import Ok
 from app.depends import SessionDep, TokenDep
 from app.database import DB
-from app.core.auth import verify_hashed, create_access_token, get_hash, create_refresh_token
+from app.core.auth import (
+    verify_hashed,
+    create_access_token,
+    get_hash,
+    create_refresh_token,
+    verify_refresh_token
+)
 from app.core.trash import generate_trash_string
 
 
@@ -43,13 +49,13 @@ async def login(response: Response, user_data: UserLogin, session: SessionDep):
     uni = generate_trash_string(6)
     token = create_refresh_token(data={
         "sub": user.name
-    })
+    }).split('.')
 
-    await DB.users.set_tokens(user.id, uni, token, session=session)
+    await DB.users.set_tokens(user.id, uni, '.'.join(token), session=session)
 
     response.set_cookie(
         key='refresh_token',
-        value=uni + token,
+        value=token[0] + '.' + uni + token[1] + '.' + token[2],
         httponly=True,
         secure=False if settings.DEBUG else True,
         samesite='strict',
@@ -60,7 +66,27 @@ async def login(response: Response, user_data: UserLogin, session: SessionDep):
 
 @auth_router_v1.post('/refresh', response_model=Ok)
 async def refresh(request: Request, response: Response, session: SessionDep):
-    pass
+    if not request.cookies.get('refresh_token'):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Refresh token not provided"
+        )
+    token_data = await verify_refresh_token(session, request.cookies['refresh_token'])
+    uni = generate_trash_string(6)
+    token = create_refresh_token(data={
+        "sub": token_data.user.name
+    }).split('.')
+    await DB.users.set_tokens(token_data.user.id, uni, '.'.join(token), session=session)
+
+    response.set_cookie(
+        key='refresh_token',
+        value=token[0] + '.' + uni + token[1] + '.' + token[2],
+        httponly=True,
+        secure=False if settings.DEBUG else True,
+        samesite='strict',
+        max_age=settings.AUTH_REFRESH_LIFETIME_IN_DAYS * 24 * 60 * 60
+    )
+    return {'ok': True}
 
 
 @auth_router_v1.post('/register', response_model=Ok)
