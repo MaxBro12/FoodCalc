@@ -13,42 +13,40 @@ export const auth_service = {
 
     // Логин
     login: async (username, password) => {
-        const response = await api.post('/v1/auth/login', {
+        return (await api.post('/v1/auth/login', {
             username: username,
             password: password,
-        });
+        })).data?.ok || false;
 
-        if (response.data.access_token) {
-            localStorage.setItem('token', response.data.access_token);
-            localStorage.setItem('name', username);
-            return true;
-        }
-        return false;
+        //if (response.data.access_token) {
+        //    localStorage.setItem('token', response.data.access_token);
+        //    localStorage.setItem('name', username);
+        //    return true;
+        //}
+        //return false;
     },
+
+    // Выход
+    logout: async () => {
+        //localStorage.removeItem('token');
+        //localStorage.removeItem('name');
+        await api.post('/v1/auth/logout')
+        window.location.href = '/auth/login';
+    },
+
     send_feedback: async (msg) => {
         await api.post('/v1/utils/feedback', {
             message: msg,
         })
     },
 
-    // Выход
-    logout: () => {
-        localStorage.removeItem('token');
-        localStorage.removeItem('name');
-        window.location.href = '/auth/login';
-    },
-
     user: () => {
-        const username = localStorage.getItem('name')
-        if (username === undefined || username === null) {
-            window.location.href = '/auth/login';
-        }
-        return username
+
     },
 
     // Проверка авторизации
     isAuthenticated: () => {
-        return !!localStorage.getItem('token');
+
     },
 };
 

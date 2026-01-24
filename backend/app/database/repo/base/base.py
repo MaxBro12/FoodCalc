@@ -6,20 +6,21 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.debug import logger
-from app.core.single import Singleton
 from app.database.session import new_session
 
 from .classes import T
-from .exeptions import GetMultiple
+from .exeptions import SessionNotFound, GetMultiple
 
 
-class Repository(ABC, Singleton):
+class Repository(ABC):
     table_name: str
 
-    def __init__(self, model: Type[T], relationships: List[str] | Tuple[str] | None = None):
+    def __init__(self, model: Type[T], session: AsyncSession, relationships: List[str] | Tuple[str] | None = None):
         self.model = model
         self.table_name = model.__tablename__
         self.relationships = relationships
+
+        self.session = session
 
     async def __get_object_from_db(
         self,
@@ -27,7 +28,6 @@ class Repository(ABC, Singleton):
         offset: int | None = None,
         limit: int | None = None,
         order_by_field: str | None = None,
-        session: AsyncSession | None = None,
         load_relations: bool = True,
     ) -> tuple[T]:
         query = select(self.model)
@@ -45,18 +45,17 @@ class Repository(ABC, Singleton):
         if order_by_field:
             query = query.order_by(text(order_by_field))
 
-        if session is None:
-            async with new_session() as session:
-                return tuple((await session.execute(query)).scalars().all())
-        return tuple((await session.execute(query)).scalars().all())
+        try:
+            return tuple((await self.session.execute(query)).scalars().all())
+        except AttributeError:
+            raise SessionNotFound()
 
     async def get(
         self,
         _filter: str,
-        session: AsyncSession | None = None,
         load_relations: bool = True,
     ) -> T | None:
-        objs = await self.__get_object_from_db(_filter=_filter, session=session, load_relations=load_relations)
+        objs = await self.__get_object_from_db(_filter=_filter, load_relations=load_relations)
         if len(objs) > 1:
             raise GetMultiple(self.model, len(objs))
         elif len(objs) == 0:
@@ -69,7 +68,6 @@ class Repository(ABC, Singleton):
         offset: int | None = None,
         limit: int | None = None,
         order_by_field: str | None = None,
-        session: AsyncSession | None = None,
         load_relations: bool = True,
     ) -> tuple[T, ...]:
         return await self.__get_object_from_db(
@@ -77,59 +75,50 @@ class Repository(ABC, Singleton):
             offset=offset,
             limit=limit,
             order_by_field=order_by_field,
-            session=session,
             load_relations=load_relations
         )
 
-    @staticmethod
-    async def __add(model: T, session: AsyncSession, commit: bool = False) -> bool:
+    async def __add(self, model: T, commit: bool = False) -> bool:
         try:
-            session.add(model)
+            self.session.add(model)
             if commit:
-                await session.commit()
+                await self.session.commit()
             return True
-        except IntegrityError as e:
-            logger.log(e, 'error')
+        except AttributeError as e:
+            raise SessionNotFound()
             return False
 
     async def add(
         self,
         model: T,
-        session: AsyncSession,
         commit: bool = False,
     ) -> bool:
-        return await self.__add(model, session, commit)
+        return await self.__add(model, commit)
 
-    @staticmethod
     async def add_many(
+        self,
         objs: tuple[Type[T]] | list[Type[T]],
-        session: AsyncSession,
         commit: bool = False
     ) -> None:
-        session.add_all(objs)
-        if commit:
-            await session.commit()
-
-    @staticmethod
-    async def delete(obj: T, session: AsyncSession | None, commit: bool = False) -> bool:
         try:
-            if session is None:
-                async with new_session() as session:
-                    await session.delete(obj)
-                    if commit:
-                        await session.commit()
-                    return True
-            await session.delete(obj)
+            self.session.add_all(objs)
             if commit:
-                await session.commit()
+                await self.session.commit()
+        except AttributeError as e:
+            raise SessionNotFound()
+
+    async def delete(self, obj: T, commit: bool = False) -> bool:
+        try:
+            await self.session.delete(obj)
+            if commit:
+                await self.session.commit()
             return True
-        except Exception as e:
-            logger.log(e, 'error')
+        except AttributeError as e:
+            raise SessionNotFound()
             return False
 
     async def all(
         self,
-        session: AsyncSession,
         skip: int | None = None,
         limit: int | None = None,
         order_by_field: str | None = None,
@@ -139,42 +128,39 @@ class Repository(ABC, Singleton):
             offset=skip,
             limit=limit,
             order_by_field=order_by_field,
-            session=session,
             load_relations=load_relations,
         )
 
-    async def clear_table(self, session: AsyncSession | None = None, commit: bool = False) -> bool:
-        if session is None:
-            async with new_session() as ss:
-                await ss.execute(delete(self.model))
-                if commit:
-                    await ss.commit()
-                return True
-        await session.execute(delete(self.model))
-        if commit:
-            await session.commit()
-        return True
+    async def clear_table(self, commit: bool = False) -> bool:
+        try:
+            await self.session.execute(delete(self.model))
+            if commit:
+                await self.session.commit()
+            return True
+        except AttributeError as e:
+            raise SessionNotFound()
 
-    async def _exists(self, _filter: str, session: AsyncSession) -> bool:
-        return bool(await session.scalar(select(exists().select_from(self.model).where(text(_filter)))))
+    async def _exists(self, _filter: str) -> bool:
+        try:
+            return bool(await self.session.scalar(select(exists().select_from(self.model).where(text(_filter)))))
+        except AttributeError as e:
+            raise SessionNotFound()
 
-    async def count(self, session: AsyncSession | None = None) -> int:
-        if session:
-            return (await session.execute(select(func.count()).select_from(self.model))).scalar()
-        async with new_session() as n_session:
-            return (await n_session.execute(select(func.count()).select_from(self.model))).scalar()
+    async def count(self) -> int:
+        try:
+            return (await self.session.execute(select(func.count()).select_from(self.model))).scalar()
+        except AttributeError as e:
+            raise SessionNotFound()
 
     async def all_gen(
         self,
-        session: AsyncSession | None = None,
         load_relations: bool = False, skip: int = 0,
         search_field: str = 'id'
     ) -> AsyncGenerator[Type[T]]:
-        for i in range(skip, await self.count(session=session)):
+        for i in range(skip, await self.count()):
             yield await self.get(
                 f'{self.model.__tablename__}.{search_field}={i}',
                 load_relations=load_relations,
-                session=session
             )
 
     async def pagination(
@@ -183,7 +169,6 @@ class Repository(ABC, Singleton):
         skip: int | None = None,
         limit: int | None = None,
         order_by_field: str | None = None,
-        session: AsyncSession | None = None,
         load_relations: bool = False,
     ) -> tuple[T, ...]:
         return await self.some(
@@ -191,6 +176,5 @@ class Repository(ABC, Singleton):
             offset=skip,
             limit=limit,
             order_by_field=order_by_field,
-            session=session,
             load_relations=load_relations,
         )

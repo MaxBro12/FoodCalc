@@ -7,6 +7,11 @@ class RepositoryException(Exception):
     pass
 
 
+class SessionNotFound(RepositoryException):
+    def __init__(self):
+        super().__init__(f'Session not found')
+
+
 class GetMultiple(RepositoryException):
     def __init__(self, model: Type[T], count: int):
         super().__init__(f'GET - {model} multiple {count} models found')

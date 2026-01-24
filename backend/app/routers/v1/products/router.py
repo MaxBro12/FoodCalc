@@ -1,8 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Body
 
-from app.depends import SessionDep, PaginationParams, TokenDep
+from app.depends import DBDep, PaginationParams, TokenDep
 from app.routers.misc_models import Ok
-from app.database.repo import DB
 from app.routers.v1.products.models import NewProduct
 from app.routers.decorators import admin_access
 from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
@@ -12,12 +11,11 @@ products_router_v1 = APIRouter(prefix='/v1/products', tags=['products'])
 
 
 @products_router_v1.get('/', response_model=MultipleProductsResponse)
-async def products_pagination(session: SessionDep, pagination: PaginationParams):
-    products = await DB.products.pagination(
+async def products_pagination(db: DBDep, pagination: PaginationParams):
+    products = await db.products.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
         order_by_field='id',
-        session=session,
         load_relations=True
     )
     return {'products': [{
@@ -39,10 +37,9 @@ async def products_pagination(session: SessionDep, pagination: PaginationParams)
 
 
 @products_router_v1.get('/details/{product_id}', response_model=ProductResponse)
-async def product_by_id(product_id: str, session: SessionDep):
-    product = await DB.products.by_id(
+async def product_by_id(product_id: str, db: DBDep):
+    product = await db.products.by_id(
         type_id=product_id,
-        session=session,
         load_relations=True
     )
     if product is None:
@@ -66,42 +63,41 @@ async def product_by_id(product_id: str, session: SessionDep):
 
 
 @products_router_v1.post('/search', response_model=ProductsNames)
-async def search_products(query: SearchProduct, session: SessionDep):
+async def search_products(query: SearchProduct, db: DBDep):
     return {'names': [{
         'id': i[0],
         'name': i[1],
         'search_index': i[2]
-    } for i in await DB.products.search(query=query.id_or_name, session=session)]}
+    } for i in await db.products.search(query=query.id_or_name)]}
 
 
 @products_router_v1.get('/names', response_model=ProductsNames)
-async def names(session: SessionDep, limit: int = 500):
+async def names(db: DBDep, limit: int = 500):
     return {'names': [{
         'id': i[0],
         'name': i[1],
         'search_index': i[2]
-    } for i in await DB.products.names(limit=limit, session=session)]}
+    } for i in await db.products.names(limit=limit)]}
 
 
 @products_router_v1.post('/new', response_model=Ok)
-async def save_new_product(new: NewProduct, session: SessionDep, token: TokenDep):
-    await DB.products.new(
+async def save_new_product(new: NewProduct, db: DBDep, token: TokenDep):
+    await db.products.new(
         pid=new.id,
         name=new.name,
         description=new.description,
         calories=new.calories,
         energy=new.energy,
         added_by_id=token.user.id,
-        session=session,
         commit=False,
     )
-    await session.flush()
+    await db.flush()
     for i in new.minerals:
-        await DB.products_minerals.new(new.id, i.id, content=i.content, session=session, commit=False)
+        await db.products_minerals.new(new.id, i.id, content=i.content, commit=False)
     return {'ok': True}
 
 
 @admin_access
 @products_router_v1.delete('/{product_id}', response_model=Ok)
-async def del_product(product_id: int, session: SessionDep, token: TokenDep):
-    return {'ok': await DB.products.del_by_id(product_id=product_id, session=session)}
+async def del_product(product_id: int, db: DBDep, token: TokenDep):
+    return {'ok': await db.products.del_by_id(product_id=product_id)}

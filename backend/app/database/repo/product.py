@@ -6,11 +6,11 @@ from app.database.models import Product
 
 
 class ProductRepo(Repository):
-    def __init__(self):
-        super().__init__(Product, ('type', 'minerals'))
+    def __init__(self, session: AsyncSession):
+        super().__init__(Product, session=session, relationships=('type', 'minerals'))
 
-    async def exists_by_id(self, mineral_id: int, session: AsyncSession) -> bool:
-        return await self._exists(f"{self.table_name}.id={mineral_id}", session=session)
+    async def exists_by_id(self, mineral_id: int) -> bool:
+        return await self._exists(f"{self.table_name}.id={mineral_id}")
 
     async def new(
         self,
@@ -20,7 +20,6 @@ class ProductRepo(Repository):
         calories: int,
         energy: int,
         added_by_id: int,
-        session: AsyncSession,
         commit: bool = False
     ) -> bool:
         return await self.add(
@@ -32,49 +31,44 @@ class ProductRepo(Repository):
                 energy=energy,
                 added_by_id=int(added_by_id)
             ),
-            session=session,
             commit=commit
         )
 
     async def by_id(
         self,
         type_id: str,
-        session: AsyncSession,
         load_relations: bool = False
     ) -> Product | None:
         return await self.get(
             f"{self.table_name}.id='{type_id}'",
-            session=session,
             load_relations=load_relations
         )
 
     async def by_name(
         self,
         name: str,
-        session: AsyncSession,
         load_relations: bool = False
     ) -> Product | None:
         return await self.get(
             f"{self.table_name}.name='{name}'",
-            session=session,
             load_relations=load_relations
         )
 
-    async def del_by_id(self, product_id: int, session: AsyncSession) -> bool:
-        obj = await self.by_id(type_id=product_id, session=session)
+    async def del_by_id(self, product_id: str) -> bool:
+        obj = await self.by_id(type_id=product_id)
         if obj is not None:
-            return await self.delete(obj=obj, session=session, commit=True)
+            return await self.delete(obj=obj, commit=True)
         return False
 
-    async def names(self, session: AsyncSession, limit: int = 500) -> list[tuple[str, str, float]]:
-        return (await session.execute(select(
+    async def names(self, limit: int = 500) -> list[tuple[str, str, float]]:
+        return (await self.session.execute(select(
             Product.id,
             Product.name,
             Product.search_index
         ).limit(limit))).all()
 
-    async def search(self, query: str, session: AsyncSession, limit: int = 500) -> list[tuple[str, str, float]]:
-        ans = (await session.execute(
+    async def search(self, query: str, limit: int = 500) -> list[tuple[str, str, float]]:
+        ans = (await self.session.execute(
             select(
                 Product.id,
                 Product.name,
@@ -82,7 +76,7 @@ class ProductRepo(Repository):
             ).where(func.lower(Product.name).like(f'%{query.lower()}%')).limit(limit)
         )).all()
         if len(ans) == 0:
-            return (await session.execute(select(
+            return (await self.session.execute(select(
                 Product.id,
                 Product.name,
                 Product.search_index

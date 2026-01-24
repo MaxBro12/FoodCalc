@@ -1,3 +1,4 @@
+from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,7 +7,8 @@ from .database import new_session
 from app.core.debug import logger
 
 
-async def get_session() -> AsyncGenerator[AsyncSession]:
+@asynccontextmanager
+async def get_session() -> AsyncGenerator[AsyncSession, None]:
     async with new_session() as session:
         try:
             session.begin()

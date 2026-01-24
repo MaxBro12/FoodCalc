@@ -5,33 +5,29 @@ from .base import Repository
 
 
 class UserRepo(Repository):
-    def __init__(self):
-        super().__init__(User, ('key',))
+    def __init__(self, session: AsyncSession):
+        super().__init__(User, session=session, relationships=('key',))
 
-    async def exists(self, username: str, session: AsyncSession) -> bool:
-        return await self._exists(f"{self.table_name}.name='{username}'", session=session)
+    async def exists(self, username: str) -> bool:
+        return await self._exists(f"{self.table_name}.name='{username}'")
 
     async def by_name(
         self,
         username: str,
-        session: AsyncSession,
         load_relations: bool = False
     ) -> User | None:
         return await super().get(
             f"{self.table_name}.name='{username}'",
-            session=session,
             load_relations=load_relations
         )
 
     async def by_id(
         self,
         user_id: int,
-        session: AsyncSession,
         load_relations: bool = False
     ) -> User | None:
         return await self.get(
             f"{self.table_name}.id={user_id}",
-            session=session,
             load_relations=load_relations
         )
 
@@ -41,7 +37,6 @@ class UserRepo(Repository):
         password: str,
         is_admin: bool,
         key_id: int,
-        session: AsyncSession,
         commit: bool = False
     ) -> bool:
         return await self.add(User(
@@ -49,57 +44,47 @@ class UserRepo(Repository):
             password=password,
             is_admin=is_admin,
             key_id=key_id,
-        ), session=session, commit=commit)
+        ), commit=commit)
 
     async def deactivate(
         self,
         user_id: int,
-        session: AsyncSession,
     ) -> bool:
         user = await self.get(
             f"{self.table_name}.id={user_id}",
-            session=session,
         )
         if user:
             user.is_active = False
             return True
         return False
 
-    async def verify_tokens(
+    async def verify_token(
         self,
         user_id: int,
-        unique: str,
         refresh_token: str,
-        session: AsyncSession,
     ) -> bool:
         user = await self.get(
-            f"{self.table_name}.id={user_id}",
-            session=session,
+            f"{self.table_name}.id={user_id} AND {self.table_name}.refresh_token='{refresh_token}'",
         )
         if user:
-            return True if user.unique == unique and user.refresh_token == refresh_token else False
+            return True
         return False
 
-    async def set_tokens(
+    async def set_token(
         self,
         user_id: int,
-        unique: str,
         refresh_token: str,
-        session: AsyncSession,
     ) -> bool:
         user = await self.get(
             f"{self.table_name}.id={user_id}",
-            session=session,
         )
         if user:
-            user.unique = unique
             user.refresh_token = refresh_token
             return True
         return False
 
-    async def clear_tokens(
+    async def clear_token(
         self,
         user_id: int,
-        session: AsyncSession,
     ) -> bool:
-        return await self.set_tokens(user_id, '', '', session)
+        return await self.set_token(user_id, '')

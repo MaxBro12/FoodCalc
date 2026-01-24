@@ -1,11 +1,11 @@
 from .database import Base
 from .init_db import init_db
 from .models import *
-from .repo import DB
+from .repo import DataBase
 
 
 __all__ = (
-    'DB',
+    'DataBase',
     'User',
     'Key',
     'init_db',

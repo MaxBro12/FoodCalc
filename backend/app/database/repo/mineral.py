@@ -5,14 +5,14 @@ from app.database.models import Mineral
 
 
 class MineralRepo(Repository):
-    def __init__(self):
-        super().__init__(Mineral, ('type', 'products'))
+    def __init__(self, session: AsyncSession):
+        super().__init__(Mineral, session=session, relationships=('type', 'products'))
 
-    async def exists_by_id(self, mineral_id: int, session: AsyncSession) -> bool:
-        return await self._exists(f"{self.table_name}.id={mineral_id}", session=session)
+    async def exists_by_id(self, mineral_id: int) -> bool:
+        return await self._exists(f"{self.table_name}.id={mineral_id}")
 
-    async def exists_by_name(self, name: str, session: AsyncSession) -> bool:
-        return await self._exists(f"{self.table_name}.name='{name}'", session=session)
+    async def exists_by_name(self, name: str) -> bool:
+        return await self._exists(f"{self.table_name}.name='{name}'")
 
     async def new(
         self,
@@ -21,37 +21,32 @@ class MineralRepo(Repository):
         description: str,
         intake: float,
         type_id: int,
-        session: AsyncSession,
         commit: bool = True
     ) -> bool:
         return await self.add(
             Mineral(name=name, compact_name=compact_name, description=description, intake=intake, type_id=type_id),
-            session=session,
             commit=commit
         )
 
     async def by_id(
         self, type_id: int,
-        session: AsyncSession,
         load_relations: bool = False
     ) -> Mineral | None:
         return await self.get(
             f'{self.table_name}.id={type_id}',
-            session=session,
             load_relations=load_relations
         )
 
     async def by_name(
-        self, name: str, session: AsyncSession, load_relation: bool = False
+        self, name: str, load_relation: bool = False
     ) -> Mineral | None:
         return await self.get(
             f"{self.table_name}.name='{name}'",
-            session=session,
             load_relations=load_relation
         )
 
-    async def del_by_id(self, mineral_id: int, session: AsyncSession) -> bool:
-        obj = await self.by_id(type_id=mineral_id, session=session)
+    async def del_by_id(self, mineral_id: int) -> bool:
+        obj = await self.by_id(type_id=mineral_id)
         if obj is not None:
-            return await self.delete(obj=obj, session=session, commit=True)
+            return await self.delete(obj=obj, commit=True)
         return False
