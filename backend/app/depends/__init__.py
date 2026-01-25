@@ -1,7 +1,6 @@
 from .auth import TokenDep, AuthDep
-from .session import SessionDep
 from .pagination import PaginationParams
-from .db import DBDep
+from .db import DBDep, SessionDep
 
 
 __all__ = (

@@ -21,7 +21,8 @@ import {Calculator} from "./pages/calculator/calculator.jsx";
 import {AboutPage} from "./pages/about/about.jsx";
 import {DebugPage} from "./pages/about/send_feedback.jsx";
 import {NewProductView} from "./pages/universe/new_product.jsx";
-import {WrongPage} from "./pages/about/wrong.jsx";
+import { WrongPage } from "./pages/about/wrong.jsx";
+import {TestPage} from "./utils/tests.jsx";
 
 
 function App() {
@@ -48,6 +49,10 @@ function App() {
         {
             path: '/about',
             label: 'О нас',
+        },
+        {
+            path: '/test',
+            label: 'ssss',
         },
         {
             path: '/debug',
@@ -77,7 +82,7 @@ function App() {
                 marginRight: '10px',
             }
         },
-        ...!auth_service.isAuthenticated() ? [{
+        ...username === '' ? [{
             path: '/auth',
             label: 'Вход',
             d_style: {
@@ -85,7 +90,7 @@ function App() {
             }
         }]:[{
             path: '/auth/logout',
-            label: 'Выход',
+            label: `Выход (${username})`,
             d_style: {
                 marginRight: '10px',
             }
@@ -108,13 +113,14 @@ function App() {
                 <Route path='/db/products' element={<Products />}/>
                 <Route path='/db/products/new' element={<NewProductView />}/>
                 <Route path="/auth" element={<AuthOutlet />}>
-                    <Route path="login" element={<Login />}/>
-                    <Route path="register" element={<Register />}/>
+                    <Route path="login" element={<Login set_username={set_username} />} />
+                    <Route path="register" element={<Register />} />
                     <Route path="logout" element={<Logout />}/>
                 </Route>
                 <Route path='/debug' element={<DebugPage />}/>
                 <Route path='/about' element={<AboutPage />}/>
-                <Route path='/wrong' element={<WrongPage />}/>
+                <Route path='/wrong' element={<WrongPage />} />
+                <Route path='/test' element={<TestPage />} />
             </Routes>
         </div>
     </BrowserRouter>

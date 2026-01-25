@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from typing import Annotated, Union
+from fastapi import APIRouter, Request, Cookie, Response
 
 from app.core import dispatcher
 from app.routers.misc_models import Ok
@@ -17,4 +18,9 @@ async def feedback_data(feedback: Feedback, token: TokenDep):
         level='info',
         logs=f'Пользователь {token.user.name}'
     )
+    return {"ok": True}
+
+
+@utils_router_v1.post('/test')
+async def test(request: Request, response: Response, token: TokenDep):
     return {"ok": True}

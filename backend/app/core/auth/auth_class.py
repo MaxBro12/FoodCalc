@@ -7,6 +7,7 @@ from jose import JWTError, jwt
 from app.database.repo import DataBase
 from app.database.models import User
 from app.core.debug import logger
+from app.core.spec_time import get_current_time
 
 from .data_classes import TokenData
 
@@ -47,11 +48,11 @@ class AuthService:
 
             token = self.__unhash_token(request.cookies[cookie_key])
             data = self.__decode_token(token)
-            if data['exp'] < datetime.now():
+            if data['exp'] < time():
                 logger.log(f'verify_{cookie_key} > expired for {data['sub']}', 'info')
                 raise JWTError
 
-            user = await self.__db.users.by_id(data['sub'])
+            user = await self.__db.users.by_name(data['sub'])
             if user is None or not user.is_active:
                 logger.log(
                     f'verify_{cookie_key} > user not found or inactive for {data['sub']}',
@@ -86,26 +87,26 @@ class AuthService:
     async def create_tokens(self, user: User, response: Response, adt_data: dict | None = None) -> Response:
         data = {
             'sub': user.name,
-            'exp': datetime.now() + timedelta(minutes=settings.AUTH_TOKEN_LIFETIME_IN_MIN)
+            'exp': time() + settings.AUTH_TOKEN_LIFETIME_IN_MIN * 60#(get_current_time() + timedelta(minutes=settings.AUTH_TOKEN_LIFETIME_IN_MIN)).isoformat()
         }
         response.set_cookie(
             key='access_token',
             value=self.__hash_token(self.__encode_token(data)),
-            httponly=True,
+            httponly=False if settings.DEBUG else True,
             secure=False if settings.DEBUG else True,
             samesite='lax',
-            max_age=settings.AUTH_TOKEN_LIFETIME_IN_MIN * 60
+            #max_age=settings.AUTH_TOKEN_LIFETIME_IN_MIN * 60
         )
 
-        data['exp'] = datetime.now() + timedelta(days=settings.AUTH_REFRESH_LIFETIME_IN_DAYS)
+        data['exp'] = time() + settings.AUTH_REFRESH_LIFETIME_IN_DAYS * 24 * 60 * 60#(get_current_time() + timedelta(days=settings.AUTH_REFRESH_LIFETIME_IN_DAYS)).isoformat()
         refresh_token = self.__encode_token(data)
         response.set_cookie(
             key='refresh_token',
             value=self.__hash_token(refresh_token),
-            httponly=True,
+            httponly=False if settings.DEBUG else True,
             secure=False if settings.DEBUG else True,
             samesite='lax',
-            max_age=settings.AUTH_REFRESH_LIFETIME_IN_DAYS * 24 * 60 * 60
+            #max_age=settings.AUTH_REFRESH_LIFETIME_IN_DAYS * 24 * 60 * 60
         )
         return response
 

@@ -7,7 +7,7 @@ import {
 import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
 
 
-export const Login = () => {
+export const Login = ({set_username}) => {
     const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: '',
@@ -30,6 +30,7 @@ export const Login = () => {
 
         try {
             if (await auth_service.login(formData.username, formData.password)) {
+                set_username(formData.username);
                 navigate('/calc')
             }
         } catch (error) {

@@ -7,14 +7,13 @@ from typing import AsyncGenerator
 from unittest.mock import patch
 from httpx import AsyncClient, ASGITransport
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, select
 
 from app.__main__ import app
-from app.database import Base, User, DB, MineralType, Mineral, Key
+from app.database import Base, User, MineralType, Mineral, Key, DataBase
 from app.database.init_db import create_tables
-from app.core.auth import get_hash, TokenData
-from app.depends.session import get_session
-from app.depends.auth import verify_token
+from app.core.auth import TokenData
+from app.depends.db import get_session, DBDep
 
 
 db_path = "sqlite+aiosqlite:///foodapp_test.sqlite3"
@@ -31,6 +30,12 @@ engine = create_async_engine(
 test_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 
 
+
+
+
+
+
+
 async def get_test_session() -> AsyncGenerator[AsyncSession]:
     async with test_session() as session:
         yield session
@@ -38,7 +43,7 @@ async def get_test_session() -> AsyncGenerator[AsyncSession]:
 
 async def verify_test_token() -> TokenData:
     async with test_session() as session:
-        user = await DB.users.by_id(1, session=session)
+        user = (await session.execute(select(User).where(User.id == 1))).scalars().all()
         return TokenData(
             user=user,
             exp=10

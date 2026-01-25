@@ -21,10 +21,11 @@ app = FastAPI(
     version='0.1.0',
     lifespan=lifespan
 )
-
+from datetime import datetime
+print(datetime.now())
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.FRONTEND_URL],
+    allow_origins=settings.FRONTEND_URL.split(','),
     allow_credentials=True,
     allow_methods=['GET', 'POST', 'DELETE'],
     allow_headers=["*"],
