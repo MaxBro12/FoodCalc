@@ -99,3 +99,18 @@ class Logger(Singleton):
             self.log(f'{func.__name__} -> {res}')
             return res
         return wrapper
+
+    def debug(self, message: Exception | str | HasStr | HasRepr, logger_name: str = '__all__'):
+        self.log(message, 'debug', logger_name)
+
+    def info(self, message: Exception | str | HasStr | HasRepr, logger_name: str = '__all__'):
+        self.log(message, 'info', logger_name)
+
+    def warning(self, message: Exception | str | HasStr | HasRepr, logger_name: str = '__all__'):
+        self.log(message, 'warning', logger_name)
+
+    def error(self, message: Exception | str | HasStr | HasRepr, logger_name: str = '__all__'):
+        self.log(message, 'error', logger_name)
+
+    def critical(self, message: Exception | str | HasStr | HasRepr, logger_name: str = '__all__'):
+        self.log(message, 'crit', logger_name)

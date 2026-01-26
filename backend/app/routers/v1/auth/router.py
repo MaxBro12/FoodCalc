@@ -1,14 +1,12 @@
-import logging
-from random import randint
-
 from fastapi import APIRouter, HTTPException, status, Response
 from fastapi.requests import Request
 
 from .models import UserLogin, UserRegister
 from app.routers.misc_models import Ok
-from app.depends import DBDep, AuthDep
+from app.depends import DBDep, AuthDep, TokenDep
 from app.core.auth import AuthService
 from app.core.security import verify_hashed, get_hash
+from app.core.debug import logger
 
 
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])
@@ -43,7 +41,7 @@ async def logout(request: Request, response: Response, auth: AuthDep):
 
 @auth_router_v1.post('/register', response_model=Ok)
 async def register(user_data: UserRegister, db: DBDep):
-    logging.info(f'register > {user_data.username} - {user_data.key}')
+    logger.info(f'register > {user_data.username} - {user_data.key}')
     if len(user_data.username) < 6 or len(user_data.password) < 6:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Логин или пароль должны быть больше 6")
     if await db.users.exists(user_data.username):
@@ -60,3 +58,8 @@ async def register(user_data: UserRegister, db: DBDep):
     ):
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Внутренняя ошибка приложения, свяжитесь с администрацией")
     return {'ok': True}
+
+
+@auth_router_v1.post('/authorized')
+async def test(request: Request, response: Response, token: TokenDep):
+    return {"ok": True}

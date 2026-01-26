@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.single import Singleton
 from app.database.session import get_session
 from .key import KeyRepo
 from .user import UserRepo

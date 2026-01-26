@@ -82,7 +82,7 @@ function App() {
                 marginRight: '10px',
             }
         },
-        ...username === '' ? [{
+        ...username === '' || username === null || username === undefined ? [{
             path: '/auth',
             label: 'Вход',
             d_style: {
@@ -112,15 +112,15 @@ function App() {
                 <Route path='/db/minerals' element={<Minerals />}/>
                 <Route path='/db/products' element={<Products />}/>
                 <Route path='/db/products/new' element={<NewProductView />}/>
-                <Route path="/auth" element={<AuthOutlet />}>
-                    <Route path="login" element={<Login set_username={set_username} />} />
-                    <Route path="register" element={<Register />} />
-                    <Route path="logout" element={<Logout />}/>
+                <Route path="/auth" element={<AuthOutlet/>}>
+                    <Route path="login" element={<Login set_username={set_username}/>}/>
+                    <Route path="register" element={<Register/>}/>
+                    <Route path="logout" element={<Logout set_username={set_username}/>}/>
                 </Route>
                 <Route path='/debug' element={<DebugPage />}/>
                 <Route path='/about' element={<AboutPage />}/>
-                <Route path='/wrong' element={<WrongPage />} />
-                <Route path='/test' element={<TestPage />} />
+                <Route path='/wrong' element={<WrongPage />}/>
+                <Route path='/test' element={<TestPage />}/>
             </Routes>
         </div>
     </BrowserRouter>
