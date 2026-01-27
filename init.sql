@@ -1,0 +1,3 @@
+CREATE DATABASE foodapp;
+CREATE DATABASE whitelist;
+CREATE DATABASE auth;
