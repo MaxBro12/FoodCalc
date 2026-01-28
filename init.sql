@@ -1,3 +1,3 @@
 CREATE DATABASE foodapp;
-CREATE DATABASE whitelist;
+CREATE DATABASE blocklist;
 CREATE DATABASE auth;

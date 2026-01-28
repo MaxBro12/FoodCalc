@@ -21,7 +21,18 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes --maxmemory 100mb
-    restart: always
+    restart: unless-stopped
+
+  blocklist:
+    build:
+      context: ./blocker_service
+      dockerfile: Dockerfile
+    container_name: blocklist
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "8002:8000"
 
 volumes:
   postgres_data:
