@@ -5,7 +5,7 @@ from .models import UserLogin, UserRegister
 from app.routers.misc_models import Ok
 from app.depends import DBDep, AuthDep, TokenDep
 from app.core.auth import AuthService
-from app.core.security import verify_hashed, get_hash
+from app.core.base import verify_hashed, get_hash
 from app.core.debug import logger
 
 

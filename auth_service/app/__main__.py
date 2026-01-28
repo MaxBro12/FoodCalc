@@ -55,7 +55,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     name='Auth Service',
-    description='Authentication service',
+    description='Union Authentication Service',
     version='0.0.1',
     lifespan=lifespan,
 )

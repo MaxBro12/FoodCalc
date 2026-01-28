@@ -54,7 +54,7 @@ dist-ssr
 *.sw?
 
 # Utils
-backend/tests/misc.py
+*/tests/misc.py
 old
 *old
 *old.*
