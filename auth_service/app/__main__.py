@@ -6,6 +6,7 @@ except ImportError:
     sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 
 
+import logging
 from contextlib import asynccontextmanager
 
 import uvicorn
@@ -14,9 +15,8 @@ import redis.asyncio as redis
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.core_old.debug import logger
 from app.database import init_db
-from app.redis_client import RedisClient
+from core.redis_client import RedisClient
 
 from app.routers.v1 import auth_router_v1
 from app.depends import DBDep
@@ -28,18 +28,20 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 
 
 async def auto_update():
-    logger.log('> Daily auto update', 'info')
+    logging.info('> Daily auto update')
     pass
 
 
 # ? Планеровщик
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Запускаем бд
     await init_db()
 
-    # Подключаю Redis
-    app.state.redis = RedisClient(redis_pool=redis_c)
+    app.state.redis = RedisClient(
+        redis_pool=redis_c,
+        prefix=settings.REDIS_PREFIX,
+        expire=settings.REDIS_EXPIRE
+    )
 
     # Автообновление
     scheduler = AsyncIOScheduler()
@@ -80,4 +82,4 @@ if __name__ == "__main__":
     try:
         uvicorn.run(app, host=settings.HOST, port=settings.PORT)
     except Exception as e:
-        logger.log(e, 'crit')
+        logging.critical(e)
