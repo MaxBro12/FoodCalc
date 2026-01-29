@@ -1,10 +1,11 @@
+import logging
+
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .database import new_session
-from app.core_old.debug import logger
 
 
 @asynccontextmanager
@@ -15,6 +16,6 @@ async def get_session() -> AsyncGenerator[AsyncSession, None]:
             yield session
             await session.commit()
         except Exception as e:
-            logger.log(e, 'crit')
+            logging.critical(e)
             await session.rollback()
             raise e

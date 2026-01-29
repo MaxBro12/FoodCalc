@@ -1,5 +1,6 @@
 __version__ = '0.1.0'
 
+
 from .security import (
     SecurityService,
     HashLengthException,
@@ -24,6 +25,8 @@ from .simplejwt import (
     InvalidToken,
     SimpleJWTException
 )
+from . import fast_decorators
+from . import pydantic_misc_models
 from .trash import generate_trash_string
 
 
@@ -45,4 +48,6 @@ __all__ = (
     'InvalidToken',
     'SimpleJWTException',
     'generate_trash_string',
+    'fast_decorators',
+    'pydantic_misc_models',
 )

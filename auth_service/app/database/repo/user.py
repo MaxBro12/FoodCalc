@@ -1,7 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.database.models import User
-from .base import Repository
+from core.sql_repository import Repository
+from core.security import SecurityService
 
 
 class UserRepo(Repository):
@@ -57,6 +58,15 @@ class UserRepo(Repository):
             user.is_active = False
             return True
         return False
+
+    async def check_password(
+        self,
+        user_name: str,
+        password: str,
+    ) -> User | None:
+        user = await self.by_name(user_name)
+        if user and SecurityService.verify(password, user.password):
+            return user
 
     async def verify_uni(
         self,
