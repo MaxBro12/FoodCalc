@@ -4,7 +4,7 @@ from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .database import new_session
-from app.core.debug import logger
+from app.core_old.debug import logger
 
 
 @asynccontextmanager

@@ -4,9 +4,9 @@ from fastapi.requests import Request
 from .models import UserLogin, UserRegister
 from app.routers.misc_models import Ok
 from app.depends import DBDep, AuthDep, TokenDep
-from app.core.auth import AuthService
-from app.core.base import verify_hashed, get_hash
-from app.core.debug import logger
+from app.core_old.auth import AuthService
+from app.core_old.base import verify_hashed, get_hash
+from app.core_old.debug import logger
 
 
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])

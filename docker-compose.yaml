@@ -24,13 +24,15 @@ services:
     restart: unless-stopped
 
   blocklist:
-    build:
-      context: ./blocker_service
-      dockerfile: Dockerfile
     container_name: blocklist
     depends_on:
       - db
       - redis
+    volumes:
+      - ./core:/app/core
+    build:
+      context: ./blocker_service
+      dockerfile: Dockerfile
     ports:
       - "8002:8000"
 

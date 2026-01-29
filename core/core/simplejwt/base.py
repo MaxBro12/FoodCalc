@@ -4,11 +4,18 @@ import hmac
 import hashlib
 import time
 from typing import Dict, Any
+from dataclasses import dataclass
 
 from .exceptions import WrongAlgorithm, InvalidToken, SimpleJWTException
 
 
 PayloadData = Dict[str, Any]
+
+
+@dataclass(frozen=True, slots=True)
+class TokenData:
+    headers: PayloadData
+    payload: PayloadData
 
 
 class SimpleJWT:
@@ -54,7 +61,7 @@ class SimpleJWT:
     ) -> str:
         header = {
             "alg": self.alg,
-            "typ": "SimpleJWT"
+            "typ": "SJWT"
         }
         if adt_header:
             header.update(adt_header)
@@ -72,7 +79,7 @@ class SimpleJWT:
         self, token: str,
         valid_time: int | None = None,
         with_signature: bool = True
-    ) -> Dict[str, Any] | None:
+    ) -> TokenData | None:
         try:
             header_encoded, payload_encoded, signature_encoded = token.split('.')
         except ValueError:
@@ -93,4 +100,7 @@ class SimpleJWT:
         if valid_time and payload['exp'] - payload['iat'] != valid_time:
             return None
 
-        return payload
+        return TokenData(
+            headers=json.loads(self.__base64_decode(header_encoded)),
+            payload=payload
+        )

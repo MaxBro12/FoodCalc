@@ -14,7 +14,7 @@ import redis.asyncio as redis
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.core.debug import logger
+from app.core_old.debug import logger
 from app.database import init_db
 from app.redis_client import RedisClient
 

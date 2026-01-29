@@ -1,15 +1,15 @@
 from abc import ABC
 from typing import Type, AsyncGenerator, Tuple, List
+
 from sqlalchemy import text, select, delete, exists, func
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.core.debug import logger
-from app.database.session import new_session
-
 from .classes import T
 from .exeptions import SessionNotFound, GetMultiple
+
+
+AddManyObjects = Tuple[T, ...] | List[T]
 
 
 class Repository(ABC):
@@ -97,13 +97,14 @@ class Repository(ABC):
 
     async def add_many(
         self,
-        objs: tuple[Type[T]] | list[Type[T]],
+        objs: AddManyObjects,
         commit: bool = False
-    ) -> None:
+    ) -> bool:
         try:
             self.session.add_all(objs)
             if commit:
                 await self.session.commit()
+            return True
         except AttributeError as e:
             raise SessionNotFound()
 

@@ -5,7 +5,7 @@ import hashlib
 from .exception import HashLengthException, SecurityException
 
 
-class Security:
+class SecurityService:
     @staticmethod
     def __create_salt(length: int):
         return os.urandom(length)
