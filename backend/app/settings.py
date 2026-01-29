@@ -14,8 +14,15 @@ class Settings(BaseSettings):
     AUTH_TOKEN_LIFETIME_IN_MIN: int
     AUTH_REFRESH_LIFETIME_IN_DAYS: int
 
+    REDIS_URL: str
+    REDIS_EXPIRE: int
+    REDIS_POOL_SIZE: int
+    REDIS_PREFIX: str
+
     FRONTEND_URL: str
-    NCT_AUTH_URL: str
+
+    BLOCKER_URL: str
+    BLOCKER_PREFIX: str
 
     DISPATCHER_URL: str
     DISPATCHER_CODE: str

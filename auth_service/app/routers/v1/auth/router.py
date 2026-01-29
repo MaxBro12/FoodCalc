@@ -41,7 +41,7 @@ async def login(user_data: UserLogin, db: DBDep, redis: RedisDep):
 
 
 @auth_router_v1.post('/refresh', response_model=AccessToken)
-async def refresh(request: Request, response: Response):
+async def refresh():
     return {'ok': True}
 
 

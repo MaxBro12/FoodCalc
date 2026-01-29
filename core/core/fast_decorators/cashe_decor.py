@@ -2,6 +2,9 @@ from time import time
 from typing import Callable
 from functools import wraps
 
+from pydantic import BaseModel
+from dataclasses import is_dataclass
+
 
 def cache(key: str, expire: int = 1800): # 30 минут
     def decorator(func: Callable):
@@ -20,6 +23,10 @@ def cache(key: str, expire: int = 1800): # 30 минут
                 return r_ans
 
             ans = await func(*args, **kwargs)
+            if is_dataclass(ans):
+                ans = ans.as_dict()
+            elif isinstance(ans, BaseModel):
+                ans = ans.model_dump()
             ans['exp'] = time() + expire
 
             await redis.set_dict(f'{key}:{keys}', ans)

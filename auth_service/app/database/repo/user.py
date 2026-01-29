@@ -97,4 +97,4 @@ class UserRepo(Repository):
         self,
         user_id: int,
     ) -> bool:
-        return await self.set_token(user_id, '')
+        return await self.set_uni(user_id, '')
