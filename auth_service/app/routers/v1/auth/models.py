@@ -18,5 +18,10 @@ class AccessToken(BaseModel):
     access_token: str
 
 
-class TokenFull(AccessToken):
+class RefreshToken(BaseModel):
+    refresh_token: str
+
+
+class TokenFull(BaseModel):
+    access_token: str
     refresh_token: str

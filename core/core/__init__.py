@@ -27,6 +27,7 @@ from .simplejwt import (
 )
 from . import fast_decorators
 from . import pydantic_misc_models
+from . import requests_makers
 from .trash import generate_trash_string
 
 
@@ -50,4 +51,5 @@ __all__ = (
     'generate_trash_string',
     'fast_decorators',
     'pydantic_misc_models',
+    'requests_makers',
 )

@@ -31,8 +31,8 @@ export const auth_service = {
         })
     },
 
-    test: async () => {
-        return (await api.post('/v1/utils/test', {}, {
+    status: async () => {
+        return (await api.post('/v1/utils/status', {}, {
             withCredentials: true,
         })).data?.ok || false
     },

@@ -48,6 +48,29 @@ services:
     ports:
       - "8003:8000"
 
+  backend:
+    container_name: backend
+    depends_on:
+      - auth_service
+      - blocklist
+    volumes:
+      - ./core:/app/core
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8000"
+
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - "8000:8000"
+
 volumes:
   postgres_data:
   redis_data:

@@ -4,7 +4,7 @@ import { auth_service } from "../api/auth";
 export const TestPage = () => {
 
     const handletest = async () => {
-        console.log(await auth_service.test())
+        console.log(await auth_service.status())
     }
 
     useEffect(() => {
