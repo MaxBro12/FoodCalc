@@ -1,21 +1,12 @@
-from typing import Annotated, AsyncGenerator
+from typing import Annotated
 
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Response
 
-from app.core.auth import AuthService, TokenData
-from .db import DBDep
-
-
-async def verify_access_token(db: DBDep, request: Request) -> TokenData:
-    auth = AuthService(db)
-    return await auth.verify_access_token(request)
+from app.handlers.auth import AuthHandler, User
 
 
-TokenDep = Annotated[TokenData, Depends(verify_access_token)]
+async def verify_access_token(request: Request, response: Response) -> User:
+    return await AuthHandler().verify_token(request, response)
 
 
-async def auth_service_dep(db: DBDep) -> AsyncGenerator[AuthService, None]:
-    yield AuthService(db)
-
-
-AuthDep = Annotated[AuthService, Depends(auth_service_dep)]
+UserDep = Annotated[User, Depends(verify_access_token)]

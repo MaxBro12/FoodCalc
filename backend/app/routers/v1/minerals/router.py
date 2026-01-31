@@ -1,10 +1,8 @@
 from fastapi import APIRouter, HTTPException, status
 
-from app.depends import SessionDep
-from app.depends.pagination import PaginationParams
-from app.routers.misc_models import Ok
-from app.depends import TokenDep, DBDep
-from app.routers.decorators import admin_access
+from core.pydantic_misc_models import Ok
+from core.fast_depends import PaginationParams
+from app.depends import UserDep, DBDep
 from .models import (
     NewMineral,
     MineralResponse,
@@ -55,15 +53,13 @@ async def mineral_by_id(mineral_id: int, db: DBDep):
     }
 
 
-@admin_access
 @mineral_router_v1.delete('/minerals/{mineral_id}', response_model=Ok)
-async def del_mineral(mineral_id: int, db: DBDep, token: TokenDep):
+async def del_mineral(mineral_id: int, db: DBDep, user: UserDep):
     return {'ok': await db.minerals.del_by_id(mineral_id=mineral_id)}
 
 
-@admin_access
 @mineral_router_v1.post('/minerals/new', response_model=Ok)
-async def save_new_mineral(new: NewMineral, db: DBDep, token: TokenDep):
+async def save_new_mineral(new: NewMineral, db: DBDep, user: UserDep):
     return {'ok': await db.minerals.new(
         name=new.name,
         compact_name=new.compact_name,
@@ -104,15 +100,13 @@ async def type_by_id(type_id: int, db: DBDep):
     return ans
 
 
-@admin_access
 @mineral_router_v1.delete('/types/{type_id}', response_model=Ok)
-async def del_type(type_id: int, db: DBDep, token: TokenDep):
+async def del_type(type_id: int, db: DBDep, user: UserDep):
     return {'ok': await db.mineral_types.del_by_id(type_id=type_id)}
 
 
-@admin_access
 @mineral_router_v1.post('/types/new', response_model=Ok)
-async def save_new_type(new: NewMineralType, db: DBDep, token: TokenDep):
+async def save_new_type(new: NewMineralType, db: DBDep, user: UserDep):
     return {'ok': await db.mineral_types.new(
         name=new.name,
         description=new.description,

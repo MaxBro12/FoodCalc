@@ -6,8 +6,6 @@ from .repo import DataBase
 
 __all__ = (
     'DataBase',
-    'User',
-    'Key',
     'init_db',
     'Base',
 )

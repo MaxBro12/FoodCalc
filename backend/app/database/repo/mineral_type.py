@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base import Repository
+from core.sql_repository import Repository
 from app.database.models import MineralType
 
 
@@ -50,3 +50,11 @@ class MineralTypeRepo(Repository):
         if obj is not None:
             return await self.delete(obj=obj, commit=True)
         return False
+
+    async def pagination(self, skip: int, limit: int = 10, load_relations: bool = False) -> list[MineralType]:
+        return await self._pagination(
+            skip=skip,
+            limit=limit,
+            order_by_field='id',
+            load_relations=load_relations
+        )

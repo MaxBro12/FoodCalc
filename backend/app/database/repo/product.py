@@ -1,7 +1,7 @@
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base import Repository
+from core.sql_repository import Repository
 from app.database.models import Product
 
 
@@ -29,7 +29,7 @@ class ProductRepo(Repository):
                 description=description,
                 calories=calories,
                 energy=energy,
-                added_by_id=int(added_by_id)
+                added_by=int(added_by_id)
             ),
             commit=commit
         )
@@ -82,3 +82,11 @@ class ProductRepo(Repository):
                 Product.search_index
             ).where(Product.id.like(f'%{query}%')).limit(limit))).all()
         return ans
+
+    async def pagination(self, skip: int = 0, limit: int = 10, load_relations: bool = False) -> list[tuple[str, str, float]]:
+        return await self._pagination(
+            skip=skip,
+            limit=limit,
+            order_by_field='id',
+            load_relations=load_relations
+        )

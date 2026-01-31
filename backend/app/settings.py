@@ -6,23 +6,28 @@ class Settings(BaseSettings):
 
     #.env
     DEBUG: bool
+    HOST: str
     PORT: int
     DB_PATH: str
 
+    AUTH_URL: str
     AUTH_SECRET_KEY: str
     AUTH_ALGORITHM: str
-    AUTH_TOKEN_LIFETIME_IN_MIN: int
-    AUTH_REFRESH_LIFETIME_IN_DAYS: int
+    AUTH_ACCESS_EXPIRE: int
+    AUTH_REFRESH_EXPIRE_DAYS: int
+    AUTH_REDIS_PREFIX: str
+    AUTH_ACCESS_CODE: str
 
     REDIS_URL: str
     REDIS_EXPIRE: int
     REDIS_POOL_SIZE: int
     REDIS_PREFIX: str
 
-    FRONTEND_URL: str
-
     BLOCKER_URL: str
-    BLOCKER_PREFIX: str
+    BLOCKER_REDIS_PREFIX: str
+    BLOCKER_ACCESS_CODE: str
+
+    FRONTEND_URL: str
 
     DISPATCHER_URL: str
     DISPATCHER_CODE: str

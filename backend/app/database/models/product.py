@@ -15,8 +15,7 @@ class Product(Base):
     calories: Mapped[int] = mapped_column(default=0)
     energy: Mapped[int] = mapped_column(default=0)
 
-    added_by_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
-    added_by: Mapped['User'] = relationship('User', back_populates='products', lazy='selectin')
+    added_by: Mapped[int]
 
     minerals: Mapped[List['ProductMineral']] = relationship(
         back_populates='product',

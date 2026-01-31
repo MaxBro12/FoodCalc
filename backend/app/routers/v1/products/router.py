@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException, status, Body
 
-from app.depends import DBDep, PaginationParams, TokenDep
-from app.routers.misc_models import Ok
+from core.pydantic_misc_models import Ok
+from core.fast_depends import PaginationParams
+from app.depends import DBDep, UserDep
 from app.routers.v1.products.models import NewProduct
-from app.routers.decorators import admin_access
 from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
 
 
@@ -15,7 +15,6 @@ async def products_pagination(db: DBDep, pagination: PaginationParams):
     products = await db.products.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
-        order_by_field='id',
         load_relations=True
     )
     return {'products': [{
@@ -31,8 +30,8 @@ async def products_pagination(db: DBDep, pagination: PaginationParams):
         } for mineral in product.minerals],
         'calories': product.calories,
         'energy': product.energy,
-        'added_by_id': product.added_by_id,
-        'added_by_name': product.added_by.name
+        'added_by_id': product.added_by,
+        'added_by_name': str(product.added_by)
     } for product in products]}
 
 
@@ -57,8 +56,8 @@ async def product_by_id(product_id: str, db: DBDep):
         } for mineral in product.minerals],
         'calories': product.calories,
         'energy': product.energy,
-        'added_by_id': product.added_by_id,
-        'added_by_name': product.added_by.name
+        'added_by_id': product.added_by,
+        'added_by_name': str(product.added_by)
     }
 
 
@@ -81,14 +80,14 @@ async def names(db: DBDep, limit: int = 500):
 
 
 @products_router_v1.post('/new', response_model=Ok)
-async def save_new_product(new: NewProduct, db: DBDep, token: TokenDep):
+async def save_new_product(new: NewProduct, db: DBDep, user: UserDep):
     await db.products.new(
         pid=new.id,
         name=new.name,
         description=new.description,
         calories=new.calories,
         energy=new.energy,
-        added_by_id=token.user.id,
+        added_by_id=user.id,
         commit=False,
     )
     await db.flush()
@@ -97,7 +96,6 @@ async def save_new_product(new: NewProduct, db: DBDep, token: TokenDep):
     return {'ok': True}
 
 
-@admin_access
 @products_router_v1.delete('/{product_id}', response_model=Ok)
-async def del_product(product_id: int, db: DBDep, token: TokenDep):
+async def del_product(product_id: int, db: DBDep, user: UserDep):
     return {'ok': await db.products.del_by_id(product_id=product_id)}

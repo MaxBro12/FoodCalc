@@ -1,7 +1,7 @@
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from .base import Repository
+from core.sql_repository import Repository
 from app.database.models import ProductMineral
 
 

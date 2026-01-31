@@ -1,12 +1,9 @@
-from .auth import TokenDep, AuthDep
-from .pagination import PaginationParams
+from .auth import UserDep
 from .db import DBDep, SessionDep
 
 
 __all__ = (
-    'TokenDep',
-    'AuthDep',
+    'UserDep',
     'SessionDep',
-    'PaginationParams',
     'DBDep',
 )
