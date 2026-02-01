@@ -15,7 +15,7 @@ from app.settings import settings
 
 
 engine = create_async_engine(
-    url="sqlite+aiosqlite:///backend_test.sqlite3",
+    url="sqlite+aiosqlite:///:memory:",
     echo=True,
     pool_pre_ping=True,
 )
@@ -48,6 +48,9 @@ async def test_redis_client(request: Request):
             return {}
 
         async def set_dict(self, *args, **kwargs):
+            pass
+
+        async def delete(self, *args, **kwargs):
             pass
 
     yield RedisClientMock()

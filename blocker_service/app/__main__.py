@@ -16,6 +16,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
 from core.redis_client import RedisClient
+from core.fast_routers import utils_router_v1
 from app.database import init_db
 from app.routers.v1 import bans_router_v1
 from app.depends import DBDep
@@ -64,6 +65,7 @@ app = FastAPI(
 )
 
 app.include_router(bans_router_v1)
+app.include_router(utils_router_v1)
 
 
 @app.middleware('http')

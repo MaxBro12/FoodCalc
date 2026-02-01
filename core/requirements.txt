@@ -3,3 +3,4 @@ redis
 pydantic
 fastapi
 aiohttp
+psutil

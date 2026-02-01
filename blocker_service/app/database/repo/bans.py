@@ -45,7 +45,7 @@ class BanRepo(Repository):
         )
 
     async def del_old_bans(self):
-        ans = await self.session.execute(
+        await self.session.execute(
             delete(Ban).where(
                 Ban.date < datetime.now(timezone.utc) - timedelta(days=settings.DAYS_IN_BAN)
             )

@@ -20,7 +20,7 @@ from core.redis_client import RedisClient
 from core.fast_routers import utils_router_v1
 
 from app.routers.v1 import auth_router_v1, users_router_v1
-from app.depends import DBDep
+from app.database.repo import DataBase
 
 from app.settings import settings
 
@@ -31,6 +31,8 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 async def auto_update():
     # Автоматическое обновление раз в день
     logging.info('> Daily auto update')
+    async with new_session() as session:
+        await DataBase(session).bans.del_old_bans()
     pass
 
 

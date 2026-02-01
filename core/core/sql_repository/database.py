@@ -17,3 +17,7 @@ class DataBaseRepo:
 
     async def close(self):
         await self.__session.close()
+
+    @property
+    def session(self) -> AsyncSession:
+        return self.__session
