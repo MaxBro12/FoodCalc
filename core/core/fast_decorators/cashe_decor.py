@@ -3,7 +3,7 @@ from typing import Callable
 from functools import wraps
 
 from pydantic import BaseModel
-from dataclasses import is_dataclass
+from dataclasses import is_dataclass, asdict
 
 
 def cache(key: str, expire: int = 1800): # 30 минут
@@ -24,7 +24,7 @@ def cache(key: str, expire: int = 1800): # 30 минут
 
             ans = await func(*args, **kwargs)
             if is_dataclass(ans):
-                ans = ans.as_dict()
+                ans = asdict(ans)
             elif isinstance(ans, BaseModel):
                 ans = ans.model_dump()
             ans['exp'] = time() + expire

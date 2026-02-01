@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, status
 
 from core.pydantic_misc_models import Ok
 from core.fast_depends import PaginationParams
+from core.fast_decorators import cache
+from core.redis_client import RedisDep
 from app.depends import UserDep, DBDep
 from .models import (
     NewMineral,
@@ -17,7 +19,8 @@ mineral_router_v1 = APIRouter(prefix='/v1/universe', tags=['minerals and types']
 
 
 @mineral_router_v1.get('/minerals/', response_model=MultipleMineralResponse)
-async def minerals_pagination(db: DBDep, pagination: PaginationParams):
+@cache(key='minerals_pagination')
+async def minerals_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
     minerals = await db.minerals.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
@@ -35,7 +38,8 @@ async def minerals_pagination(db: DBDep, pagination: PaginationParams):
 
 
 @mineral_router_v1.get('/minerals/{mineral_id}', response_model=MineralResponse)
-async def mineral_by_id(mineral_id: int, db: DBDep):
+@cache(key='mineral_by_id')
+async def mineral_by_id(mineral_id: int, db: DBDep, redis: RedisDep):
     ans = await db.minerals.by_id(
         type_id=mineral_id,
         load_relations=True
@@ -70,7 +74,8 @@ async def save_new_mineral(new: NewMineral, db: DBDep, user: UserDep):
 
 
 @mineral_router_v1.get('/types/', response_model=MultipleMineralTypeResponse)
-async def mineral_types_pagination(db: DBDep, pagination: PaginationParams):
+@cache(key='mineral_types_pagination')
+async def mineral_types_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
     types = await db.mineral_types.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
@@ -90,7 +95,8 @@ async def mineral_types_pagination(db: DBDep, pagination: PaginationParams):
 
 
 @mineral_router_v1.get('/types/{type_id}', response_model=MineralTypeResponse)
-async def type_by_id(type_id: int, db: DBDep):
+@cache(key='mineral_type_by_id')
+async def type_by_id(type_id: int, db: DBDep, redis: RedisDep):
     ans = await db.mineral_types.by_id(
         type_id=type_id,
         load_relations=True

@@ -59,6 +59,18 @@ class UserRepo(Repository):
             return True
         return False
 
+    async def activate(
+        self,
+        user_id: int,
+    ) -> bool:
+        user = await self.get(
+            f"{self.table_name}.id={user_id}",
+        )
+        if user:
+            user.is_active = True
+            return True
+        return False
+
     async def check_password(
         self,
         user_name: str,

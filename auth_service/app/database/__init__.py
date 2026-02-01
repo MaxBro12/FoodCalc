@@ -1,5 +1,6 @@
-from .database import init_db, Base
+from .database import Base
 from .session import get_session
+from .init_db import init_db
 
 
 __all__ = (

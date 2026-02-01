@@ -2,6 +2,8 @@ from fastapi import APIRouter, HTTPException, status, Body
 
 from core.pydantic_misc_models import Ok
 from core.fast_depends import PaginationParams
+from core.fast_decorators import cache
+from core.redis_client import RedisDep
 from app.depends import DBDep, UserDep
 from app.routers.v1.products.models import NewProduct
 from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
@@ -11,7 +13,8 @@ products_router_v1 = APIRouter(prefix='/v1/products', tags=['products'])
 
 
 @products_router_v1.get('/', response_model=MultipleProductsResponse)
-async def products_pagination(db: DBDep, pagination: PaginationParams):
+@cache(key='products_pagination')
+async def products_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
     products = await db.products.pagination(
         skip=pagination.skip,
         limit=pagination.limit,
@@ -36,7 +39,8 @@ async def products_pagination(db: DBDep, pagination: PaginationParams):
 
 
 @products_router_v1.get('/details/{product_id}', response_model=ProductResponse)
-async def product_by_id(product_id: str, db: DBDep):
+@cache(key='product_by_id')
+async def product_by_id(product_id: str, db: DBDep, redis: RedisDep):
     product = await db.products.by_id(
         type_id=product_id,
         load_relations=True
@@ -62,7 +66,8 @@ async def product_by_id(product_id: str, db: DBDep):
 
 
 @products_router_v1.post('/search', response_model=ProductsNames)
-async def search_products(query: SearchProduct, db: DBDep):
+@cache(key='search_products')
+async def search_products(query: SearchProduct, db: DBDep, redis: RedisDep):
     return {'names': [{
         'id': i[0],
         'name': i[1],
@@ -71,7 +76,8 @@ async def search_products(query: SearchProduct, db: DBDep):
 
 
 @products_router_v1.get('/names', response_model=ProductsNames)
-async def names(db: DBDep, limit: int = 500):
+@cache(key='product_names')
+async def names(db: DBDep, redis: RedisDep, limit: int = 500):
     return {'names': [{
         'id': i[0],
         'name': i[1],

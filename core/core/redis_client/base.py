@@ -34,6 +34,8 @@ class RedisClient:
                 return int(ans[1:])
             case 'f':
                 return float(ans[1:])
+            case 'L':
+                return str(ans[1:]).split("&")
         raise UnsupportedAnswer(ans)
 
     def __type_pointer(self, value) -> str:
@@ -48,6 +50,8 @@ class RedisClient:
             return f'f{value}'
         elif t is bool:
             return 'b1' if value else 'b0'
+        elif t is list or t is tuple:
+            return f'L{"&".join(map(str, value))}'
         raise UnsupportedType(value)
 
     async def get(self, key: str | int, spec_app_prefix: str | None = None):
