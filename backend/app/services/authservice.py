@@ -1,8 +1,10 @@
+from datetime import datetime
 from dataclasses import dataclass
 
 from fastapi import HTTPException
 
 from core.requests_makers import HttpMakerAsync
+from core.redis_client import RedisClient
 
 from app.settings import settings
 
@@ -13,6 +15,16 @@ class AuthToken:
     refresh_token: str
 
 
+@dataclass(frozen=True, slots=True)
+class User:
+    id: int
+    name: str
+    is_admin: str
+    is_active: str
+    last_active: datetime
+    key_id: int
+
+
 class AuthService(HttpMakerAsync):
     def __init__(self):
         super().__init__(
@@ -20,6 +32,13 @@ class AuthService(HttpMakerAsync):
             base_headers={
                 'X-Access-Code': settings.AUTH_ACCESS_CODE
             }
+        )
+
+    @staticmethod
+    async def __cache(redis: RedisClient, key: str):
+        return await redis.get_dict(
+            key=key,
+            spec_app_prefix=settings.BLOCKER_REDIS_PREFIX
         )
 
     async def login(self, name: str, password: str) -> AuthToken:
@@ -55,6 +74,18 @@ class AuthService(HttpMakerAsync):
             'password': password,
             'key': key
         })).json['ok']
+
+    async def user_by_id(self, user_id: int, redis: RedisClient) -> User:
+        redis = await self.__cache(redis, f'get_user:user_id:{user_id}')
+        if redis is not None:
+            return redis
+        ans = await self._make(f'/v1/auth/users/{user_id}')
+        if ans.status != 200:
+            raise HTTPException(
+                status_code=ans.status,
+                detail=ans.json.get('detail', 'Unknown error')
+            )
+        return User(**ans.json)
 
 
 auth_service = AuthService()

@@ -5,6 +5,7 @@ from app.database.models import Key
 
 
 class KeyRepo(Repository):
+    """Класс репозиторий для работы с ключами"""
     def __init__(self, session: AsyncSession):
         super().__init__(model=Key, session=session)
 

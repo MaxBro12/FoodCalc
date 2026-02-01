@@ -7,10 +7,13 @@ from dataclasses import is_dataclass, asdict
 
 
 def cache(key: str, expire: int = 1800): # 30 минут
+    """Кэширование результатов эндпоинта. Для работы в эндпойнте требуется redis: RedisDep"""
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             redis = kwargs['redis']
+            if redis is None:
+                return await func(*args, **kwargs)
 
             keys = ''
             for k, v in kwargs.items():

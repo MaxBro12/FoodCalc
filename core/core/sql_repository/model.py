@@ -13,6 +13,7 @@ AddManyObjects = Tuple[T, ...] | List[T]
 
 
 class Repository(ABC):
+    """Улучшенная версия базового репозитория для работы с базой данных"""
     table_name: str
 
     def __init__(self, model: Type[T], session: AsyncSession, relationships: List[str] | Tuple[str] | None = None):

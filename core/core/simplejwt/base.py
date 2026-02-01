@@ -19,6 +19,7 @@ class TokenData:
 
 
 class SimpleJWT:
+    """Собственная реализация JWT токенов валидирует только токены, созданные с помощью этой библиотеки"""
     def __init__(self, secret_key: str, algorithm: str = 'HS256'):
         self.secret = secret_key.encode('utf-8')
         self.alg = algorithm
@@ -59,6 +60,7 @@ class SimpleJWT:
         expire_delta: int = 3600,
         adt_header: PayloadData | None = None
     ) -> str:
+        """Создает SJWT токен"""
         header = {
             "alg": self.alg,
             "typ": "SJWT"
@@ -80,6 +82,7 @@ class SimpleJWT:
         valid_time: int | None = None,
         with_signature: bool = True
     ) -> TokenData | None:
+        """Валидирует SJWT токен. Не забудьте добавить параметр valid_time для проверки времени жизни токена"""
         try:
             header_encoded, payload_encoded, signature_encoded = token.split('.')
         except ValueError:

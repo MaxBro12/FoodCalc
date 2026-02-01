@@ -3,9 +3,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.models import User
 from core.sql_repository import Repository
 from core.security import SecurityService
+from core.spec_time import get_current_time
 
 
 class UserRepo(Repository):
+    """Класс репозиторий для работы с пользователями"""
     def __init__(self, session: AsyncSession):
         super().__init__(User, session=session, relationships=('key',))
 
@@ -76,8 +78,11 @@ class UserRepo(Repository):
         user_name: str,
         password: str,
     ) -> User | None:
+        """Проверка пароля пользователя, для этого пользователь должен быть активен"""
         user = await self.by_name(user_name)
-        if user and SecurityService.verify(password, user.password):
+        if user and user.is_active \
+        and SecurityService.verify(password, user.password):
+            user.last_active = get_current_time()
             return user
 
     async def verify_uni(
@@ -85,6 +90,7 @@ class UserRepo(Repository):
         user_id: int,
         uni: str,
     ) -> bool:
+        """Проверка уникального идентификатора пользователя"""
         user = await self.get(
             f"{self.table_name}.id={user_id} AND {self.table_name}.unique='{uni}'",
         )
@@ -97,6 +103,7 @@ class UserRepo(Repository):
         user_id: int,
         uni: str,
     ) -> bool:
+        """Установка уникального идентификатора пользователя"""
         user = await self.get(
             f"{self.table_name}.id={user_id}",
         )
@@ -109,4 +116,5 @@ class UserRepo(Repository):
         self,
         user_id: int,
     ) -> bool:
+        """Очистка уникального идентификатора пользователя"""
         return await self.set_uni(user_id, '')

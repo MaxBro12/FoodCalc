@@ -10,6 +10,8 @@ class AuthHandler:
     jwt = SimpleJWT(settings.AUTH_SECRET_KEY, settings.AUTH_ALGORITHM)
 
     def create_tokens(self, user: User):
+        # Создаем уникальную строку и сохраняем её в бд
+        # Это поле проверяется при обновлении токена для защиты от подмены пользователя
         uni = generate_trash_string(6)
         user.unique = uni
         return TokenFull(

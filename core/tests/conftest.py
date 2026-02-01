@@ -1,11 +1,11 @@
-from typing import AsyncGenerator
 import pytest
+from typing import AsyncGenerator
 
-from sqlalchemy.orm import DeclarativeBase
+from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
-from core.sql_repository import Repository, DataBaseRepo
 from .adt_classes.db import SpecDataBase, SpecModel, Base
+from .adt_classes.fast_api_app import app
 
 
 engine = create_async_engine(
@@ -48,3 +48,9 @@ async def init_db():
                 SpecModel(name='t10')
             ])
             await session.commit()
+
+
+@pytest.fixture(scope='module')
+async def test_client() -> AsyncGenerator[AsyncClient]:
+    async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
+        yield client

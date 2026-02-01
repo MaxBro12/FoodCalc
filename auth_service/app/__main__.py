@@ -15,7 +15,7 @@ import redis.asyncio as redis
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.database import init_db
+from app.database import init_db, new_session
 from core.redis_client import RedisClient
 from core.fast_routers import utils_router_v1
 
@@ -29,6 +29,7 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 
 
 async def auto_update():
+    # Автоматическое обновление раз в день
     logging.info('> Daily auto update')
     pass
 
@@ -36,8 +37,10 @@ async def auto_update():
 # ? Планеровщик
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Создаем бд
     await init_db()
 
+    # Добавляем редис
     app.state.redis = RedisClient(
         redis_pool=redis_c,
         prefix=settings.REDIS_PREFIX,
@@ -70,15 +73,13 @@ app.include_router(utils_router_v1)
 
 @app.middleware('http')
 async def check_access_code(request: Request, call_next):
+    """Middleware для проверки access code. Без него доступ к API не будет."""
     if not settings.DEBUG and request.headers.get('X-Access-Code') != settings.ACCESS_CODE:
-        #if request.client is not None:
-        #    await db.bans.new(ip_address=request.client.host, reason='Invalid access code')
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail='Goodbye!'
         )
-    response = await call_next(request)
-    return response
+    return await call_next(request)
 
 
 if __name__ == "__main__":

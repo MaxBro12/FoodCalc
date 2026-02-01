@@ -6,6 +6,7 @@ from .exception import HashLengthException, SecurityException
 
 
 class SecurityService:
+    """Собственная реализация хеширования и безопасного хранения паролей"""
     @staticmethod
     def __create_salt(length: int):
         return os.urandom(length)
@@ -20,6 +21,7 @@ class SecurityService:
 
     @classmethod
     def verify(cls, password: str, hashed_password: str, encode: str = 'utf-8') -> bool:
+        """Совпадает ли пароль с хэшем"""
         try:
             algorithm, iterations, stored_hash, salt = hashed_password.split('$')
         except ValueError:
@@ -46,6 +48,7 @@ class SecurityService:
         encode: str = 'utf-8',
         salt_length: int = 16
     ) -> str:
+        """Хэшировать данные"""
         if salt is None:
             salt = cls.__create_salt(salt_length)
         hashed_password = hashlib.pbkdf2_hmac(
