@@ -126,5 +126,10 @@ export const Register = () => {
             userSelect: 'none',
             marginTop: 10
         }} className='mobile'>Есть аккаунт</Link>
+        {import.meta.env.VITE_DEBUG && (
+            <div>
+                В режиме разработки используйте ключ "123" для регистрации.
+            </div>
+        )}
     </form>
 };

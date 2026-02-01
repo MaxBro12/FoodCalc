@@ -10,8 +10,11 @@ async def init_db():
     async with engine.begin() as conn:
         #await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
-    if settings.DEBUG:
-        async with new_session() as session:
-            if not await session.scalar(select(exists().select_from(Key).where(Key.id == 1))):
-                session.add(Key(id=1, value="123"))
-                await session.commit()
+    async with new_session() as session:
+        db_ans = await session.scalar(select(exists().select_from(Key).where(Key.id == 1)))
+        if settings.DEBUG and not db_ans:
+            session.add(Key(id=1, value="123"))
+            await session.commit()
+        elif not settings.DEBUG and db_ans:
+            await session.delete(await session.execute(select(Key).where(Key.id == 1)))
+            await session.commit()
