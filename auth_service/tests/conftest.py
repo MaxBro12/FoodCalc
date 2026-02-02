@@ -91,6 +91,7 @@ async def init_db():
                 username='test_deactive_user',
                 password='test_deactive_password',
                 is_admin=True,
+                is_active=False,
                 key_id=1
             )
             await session.commit()

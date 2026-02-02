@@ -40,6 +40,7 @@ class UserRepo(Repository):
         password: str,
         is_admin: bool,
         key_id: int,
+        is_active: bool = True,
         commit: bool = False
     ) -> bool:
         return await self.add(User(
@@ -47,6 +48,7 @@ class UserRepo(Repository):
             password=SecurityService.hash(password),
             is_admin=is_admin,
             key_id=key_id,
+            is_active=is_active
         ), commit=commit)
 
     async def deactivate(

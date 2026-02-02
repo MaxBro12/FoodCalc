@@ -22,7 +22,7 @@ def cache(key: str, expire: int = 1800): # 30 минут
                     continue
                 keys += f'{k}:{v}'
 
-            r_ans = await redis.get_dict(f'{key}:{keys}')
+            r_ans = await redis.get_json(f'{key}:{keys}')
             if r_ans.get('exp') and time() < r_ans['exp']:
                 return r_ans
 
@@ -35,7 +35,7 @@ def cache(key: str, expire: int = 1800): # 30 минут
                 ans = ans.__dict__
             ans['exp'] = time() + expire
 
-            await redis.set_dict(f'{key}:{keys}', ans)
+            await redis.set_json(f'{key}:{keys}', ans)
             return ans
         return wrapper
     return decorator

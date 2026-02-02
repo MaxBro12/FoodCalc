@@ -1,4 +1,6 @@
 from typing import Any, List, Tuple
+import json
+
 import redis.asyncio as redis
 
 from .exceptions import RedisConnectionError, UnsupportedAnswer, UnsupportedType
@@ -9,7 +11,7 @@ KeysType = List[str | int] | Tuple[str | int]
 
 
 class RedisClient:
-    def __init__(self, redis_pool: redis.ConnectionPool, prefix: str, expire: int):
+    def __init__(self, redis_pool: redis.ConnectionPool, prefix: str, expire: int = 3600):
         self.__client = redis.Redis(connection_pool=redis_pool)
 
         self.__prefix = prefix
@@ -88,3 +90,18 @@ class RedisClient:
             self.__insert_prefix_key(key),
             mapping=data_to_save
         )
+
+    async def set_json(self, key: str, data: dict):
+        await self.__client.set(
+            self.__insert_prefix_key(key),
+            json.dumps(data),
+            ex=self.__expire
+        )
+
+    async def get_json(self, key: str, spec_app_prefix: str | None = None) -> dict | None:
+        data = await self.__client.get(
+            self.__insert_prefix_key(key, spec_app_prefix=spec_app_prefix)
+        )
+        if data is None:
+            return None
+        return json.loads(data)

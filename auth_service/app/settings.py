@@ -22,5 +22,4 @@ class Settings(BaseSettings):
     REDIS_PREFIX: str
 
 
-
 settings = Settings()

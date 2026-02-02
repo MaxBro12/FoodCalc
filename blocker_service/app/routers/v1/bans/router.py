@@ -1,8 +1,9 @@
 from fastapi import APIRouter, HTTPException, status
 
 from .models import Ok, Bans, NewBan
-from app.depends import DBDep, RedisDep
+from app.depends import DBDep
 from app.routers.decorators.cashe_decor import cache
+from core.redis_client import RedisDep
 
 
 bans_router_v1 = APIRouter(prefix='/v1/bans', tags=['bans'])
@@ -14,6 +15,11 @@ async def add_ban(db: DBDep, data: NewBan, redis: RedisDep):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='Invalid IP address'
+        )
+    if await db.bans.exists(data.ip):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='IP address already in ban'
         )
     db_ans = await db.bans.new(ip_address=data.ip, reason=data.reason)
     if db_ans:

@@ -40,3 +40,9 @@ async def test_wrong_login(test_client: AsyncClient):
     ans = await test_client.post('/v1/auth/login', json={'name': 'test_user', 'password': 'not_correct_pass'})
     assert ans.status_code == 404
     assert ans.json()['detail'] == 'Invalid user'
+
+
+async def test_login_inactive_user(test_client: AsyncClient):
+    ans = await test_client.post('/v1/auth/login', json={'name': 'test_deactive_user', 'password': 'test_deactive_password'})
+    assert ans.status_code == 404
+    assert ans.json()['detail'] == 'Invalid user'
