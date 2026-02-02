@@ -4,6 +4,7 @@ from functools import wraps
 
 from pydantic import BaseModel
 from dataclasses import is_dataclass, asdict
+from sqlalchemy.orm import DeclarativeBase
 
 
 def cache(key: str, expire: int = 1800): # 30 минут
@@ -30,6 +31,8 @@ def cache(key: str, expire: int = 1800): # 30 минут
                 ans = asdict(ans)
             elif isinstance(ans, BaseModel):
                 ans = ans.model_dump()
+            elif isinstance(ans, DeclarativeBase):
+                ans = ans.__dict__
             ans['exp'] = time() + expire
 
             await redis.set_dict(f'{key}:{keys}', ans)

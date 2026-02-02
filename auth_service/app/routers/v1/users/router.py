@@ -15,9 +15,9 @@ users_router_v1 = APIRouter(prefix='/v1/users', tags=['users'])
 @cache(key='get_users')
 async def get_users(db: DBDep, redis: RedisDep, pagination_params: PaginationParams):
     """Получение списка пользователей, если есть параметры пагинации тогда ответ с пагинацией"""
-    if pagination_params.skip and pagination_params.limit:
-        return await db.users.pagination(skip=pagination_params.skip, limit=pagination_params.limit)
-    return await db.users.all()
+    if pagination_params.skip is not None and pagination_params.limit is not None:
+        return {'users': await db.users.pagination(skip=pagination_params.skip, limit=pagination_params.limit)}
+    return {'users': await db.users.all()}
 
 
 @users_router_v1.get('/{user_id}', response_model=UserResponse)
@@ -25,7 +25,7 @@ async def get_users(db: DBDep, redis: RedisDep, pagination_params: PaginationPar
 @cache(key='get_user')
 async def get_user(user_id: int, db: DBDep, redis: RedisDep):
     """Получение пользователя по id"""
-    user = await db.get_user(user_id)
+    user = await db.users.by_id(user_id)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

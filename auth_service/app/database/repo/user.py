@@ -44,7 +44,7 @@ class UserRepo(Repository):
     ) -> bool:
         return await self.add(User(
             name=username,
-            password=password,
+            password=SecurityService.hash(password),
             is_admin=is_admin,
             key_id=key_id,
         ), commit=commit)
@@ -118,3 +118,24 @@ class UserRepo(Repository):
     ) -> bool:
         """Очистка уникального идентификатора пользователя"""
         return await self.set_uni(user_id, '')
+
+    async def delete_by_name(
+        self,
+        user_name: str,
+        commit: bool = False
+    ) -> bool:
+        """Удаление пользователя по имени"""
+        user = await self.by_name(user_name)
+        return await self.delete(user, commit=commit)
+
+    async def pagination(
+        self,
+        skip: int = 0,
+        limit: int = 100,
+    ) -> list[User]:
+        """Получение списка пользователей с пагинацией"""
+        return await self._pagination(
+            skip=skip,
+            limit=limit,
+            order_by_field=f"{self.table_name}.id ASC",
+        )

@@ -1,4 +1,4 @@
-from core.simplejwt import SimpleJWT
+from core.simplejwt import SimpleJWT, InvalidToken, TokenData
 from core.trash import generate_trash_string
 from app.database.models import User
 from app.routers.v1.auth.models import TokenFull
@@ -9,7 +9,7 @@ from app.settings import settings
 class AuthHandler:
     jwt = SimpleJWT(settings.AUTH_SECRET_KEY, settings.AUTH_ALGORITHM)
 
-    def create_tokens(self, user: User):
+    def create_tokens(self, user: User) -> TokenFull:
         # Создаем уникальную строку и сохраняем её в бд
         # Это поле проверяется при обновлении токена для защиты от подмены пользователя
         uni = generate_trash_string(6)
@@ -26,10 +26,14 @@ class AuthHandler:
             }, expire_delta=settings.AUTH_REFRESH_EXPIRE_DAYS * 24 * 60 * 60)
         )
 
-    def verify_refresh_token(self, token: str):
-        return self.jwt.verify_token(
-            token=token,
-            valid_time=settings.AUTH_REFRESH_EXPIRE_DAYS * 24 * 60 * 60
-        )
+    def verify_refresh_token(self, token: str) -> TokenData | None:
+        try:
+            return self.jwt.verify_token(
+                token=token,
+                valid_time=settings.AUTH_REFRESH_EXPIRE_DAYS * 24 * 60 * 60
+            )
+        except InvalidToken:
+            return None
+
 
 auth_handler = AuthHandler()

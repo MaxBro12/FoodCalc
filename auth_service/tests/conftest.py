@@ -11,7 +11,7 @@ from app.depends.db import get_db
 from core.redis_client import get_redis
 from app.__main__ import app
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 
 engine = create_async_engine(
@@ -25,6 +25,7 @@ test_session = async_sessionmaker(bind=engine, expire_on_commit=False)
 async def get_test_db() -> AsyncGenerator[DataBase]:
     async with test_session() as session:
         yield DataBase(session)
+        await session.commit()
 
 
 @pytest.fixture(scope='function')
@@ -74,8 +75,8 @@ async def init_db():
 
         async with test_session() as session:
             session.add_all([
-                Key(id=1, hash='123'),
-                Key(id=2, hash='456'),
+                Key(id=1, hash='123', app_name='test_app'),
+                Key(id=2, hash='456', app_name='another_test_app'),
             ])
             await session.commit()
 

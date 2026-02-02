@@ -6,13 +6,7 @@ from .models import UserLogin, UserRegister, TokenFull, RefreshToken, UserName
 from app.depends import DBDep
 from app.handlers.auth import auth_handler
 from core.pydantic_misc_models import Ok
-from core.redis_client.dependency import RedisDep
-from core.fast_decorators import cache
 from core.security import SecurityService
-from core.simplejwt import SimpleJWT
-from core.trash import generate_trash_string
-
-from app.settings import settings
 
 
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])
@@ -81,7 +75,7 @@ async def register(user_data: UserRegister, db: DBDep):
     key = await db.keys.by_hash(user_data.key)
     if key is None or not await db.users.new(
         username=user_data.name,
-        password=SecurityService.hash(user_data.password),
+        password=user_data.password,
         is_admin=False,
         key_id=key.id,
     ):
