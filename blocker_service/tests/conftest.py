@@ -6,10 +6,11 @@ from httpx import AsyncClient, ASGITransport
 from unittest.mock import AsyncMock, patch, MagicMock
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from fastapi import Request
+
+from core.redis_client import get_redis
 from app.database.database import Base
 from app.database.repo import DataBase
 from app.depends.db import get_db
-from app.depends.redis_dep import get_redis
 from app.__main__ import app
 from app.settings import settings
 

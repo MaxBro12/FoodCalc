@@ -1,38 +1,29 @@
 import pytest
 from httpx import AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession
 from app.database.repo import DataBase
 
 
-@pytest.mark.asyncio
-async def test_post(test_client: AsyncClient):
-    res = await test_client.post('v1/bans', json={'ip': '123.4.5.6', 'reason': 'test'})
-    assert res.json()['ok'] == True
+async def test_correct(test_client: AsyncClient, test_db: DataBase):
+    await test_db.bans.clear_table()
+    await test_db.bans.new('123.4.5.6')
+    await test_db.bans.new('123.4.5.7')
+    await test_db.bans.new('123.4.5.8')
+    await test_db.bans.new('123.4.5.9')
+    await test_db.bans.new('123.4.5.0')
+    await test_db.commit()
+
+    res = await test_client.get('v1/bans')
+    assert res.status_code == 200
+    assert len(res.json()['bans']) == 5
 
 
-@pytest.mark.asyncio
-async def test_post_wrong(test_client: AsyncClient):
-    res = await test_client.post('v1/bans', json={'ip': '123'})
-    assert res.status_code == 400
+async def test_pagination_small(test_client: AsyncClient, test_db: DataBase):
+    res = await test_client.get('v1/bans', params={'skip': 0, 'limit': 2})
+    assert res.status_code == 200
+    assert len(res.json()['bans']) == 2
 
 
-@pytest.mark.asyncio
-async def test_in(test_client: AsyncClient, test_db: DataBase):
-    await test_db.bans.new(ip_address='123.4.5.6', reason='test', commit=True)
-    res = await test_client.get('v1/bans/123.4.5.6')
-    assert res.json()['ok'] == True
-    await test_db.bans.delete_by_ip('123.4.5.6', commit=True)
-
-
-@pytest.mark.asyncio
-async def test_in_wrong(test_client: AsyncClient):
-    res = await test_client.get('v1/bans/123')
-    assert res.status_code == 400
-    assert res.json()['detail'] == 'Invalid IP address'
-
-
-@pytest.mark.asyncio
-async def test_delete(test_client: AsyncClient, test_db: DataBase):
-    await test_db.bans.new(ip_address='123.4.5.6', reason='test', commit=True)
-    res = await test_client.delete('v1/bans/123.4.5.6')
-    assert res.json()['ok'] == True
+async def test_pagination_big(test_client: AsyncClient, test_db: DataBase):
+    res = await test_client.get('v1/bans', params={'skip': 1, 'limit': 5})
+    assert res.status_code == 200
+    assert len(res.json()['bans']) == 4

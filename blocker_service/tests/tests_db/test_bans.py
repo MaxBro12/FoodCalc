@@ -7,7 +7,6 @@ from app.database.repo import DataBase
 from app.database.models import Ban
 
 
-@pytest.mark.asyncio
 async def test_add(test_db: DataBase):
     await test_db.bans.clear_table()
     await test_db.bans.new('123.4.5.6', 'test', True)
@@ -17,7 +16,6 @@ async def test_add(test_db: DataBase):
     assert res.reason == 'test'
 
 
-@pytest.mark.asyncio
 async def test_add_wrong_ip(test_db: DataBase):
     await test_db.bans.new('123.4.5', 'test', False)
     await test_db.flush()
@@ -25,7 +23,6 @@ async def test_add_wrong_ip(test_db: DataBase):
     await test_db.rollback()
 
 
-@pytest.mark.asyncio
 async def test_auto_reason(test_db: DataBase):
     await test_db.bans.clear_table()
     await test_db.bans.new('123.4.5.6', commit=False)
@@ -37,7 +34,6 @@ async def test_auto_reason(test_db: DataBase):
     await test_db.rollback()
 
 
-@pytest.mark.asyncio
 async def test_delete(test_db: DataBase):
     await test_db.bans.clear_table()
     await test_db.bans.new('123.4.5.6', 'test', False)
