@@ -53,6 +53,12 @@ async def test_redis_client(request: Request):
 
         async def delete(self, *args, **kwargs):
             pass
+
+        async def set_json(self, *args, **kwargs):
+            pass
+
+        async def get_json(self, *args, **kwargs):
+            pass
     yield RedisClientMock()
 
 

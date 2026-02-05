@@ -23,11 +23,13 @@ def cache(key: str, expire: int = 1800): # 30 минут
                 keys += f'{k}:{v}'
 
             r_ans = await redis.get_json(f'{key}:{keys}')
-            if r_ans.get('exp') and time() < r_ans['exp']:
+            if r_ans is not None and r_ans.get('exp') and time() < r_ans['exp']:
                 return r_ans
 
             ans = await func(*args, **kwargs)
-            if is_dataclass(ans):
+            if ans is None:
+                return None
+            elif is_dataclass(ans):
                 ans = asdict(ans)
             elif isinstance(ans, BaseModel):
                 ans = ans.model_dump()
