@@ -3,6 +3,7 @@ from typing import AsyncGenerator
 
 from fastapi import Request, Response
 from httpx import AsyncClient, ASGITransport
+from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from app.database.repo import DataBase
 from app.database.models import User, Key
@@ -11,7 +12,6 @@ from app.depends.db import get_db
 from core.redis_client import get_redis
 from app.__main__ import app
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 
 engine = create_async_engine(

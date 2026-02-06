@@ -1,12 +1,10 @@
 import logging
-from fastapi import APIRouter, HTTPException, status, Response
-from fastapi.requests import Request
+from fastapi import APIRouter, HTTPException, status
 
 from .models import UserLogin, UserRegister, TokenFull, RefreshToken, UserName
 from app.depends import DBDep
 from app.handlers.auth import auth_handler
 from core.pydantic_misc_models import Ok
-from core.security import SecurityService
 
 
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])

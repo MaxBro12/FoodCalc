@@ -1,4 +1,5 @@
 import json
+import logging
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
@@ -48,10 +49,9 @@ async def create_tables(session: AsyncSession):
                     await session.flush()
             if settings.DEBUG:
                 db = DataBase(session)
-                await session.flush()
                 for product in products['products']:
                     session.add(Product(
-                        id=product['id'],
+                        id=str(product['id']),
                         name=product['name'],
                         description=product['description'],
                         calories=product['calories'],
@@ -62,8 +62,8 @@ async def create_tables(session: AsyncSession):
 
                     for mineral in product['minerals']:
                         await db.products_minerals.new(
-                            product_id=product['id'],
-                            mineral_id=mineral['id'],
+                            product_id=str(product['id']),
+                            mineral_id=mineral['mineral_id'],
                             content=mineral['content']
                         )
                 await session.commit()
@@ -79,4 +79,3 @@ async def init_db():
 
     async with new_session() as session:
         await create_tables(session)
-        await session.commit()

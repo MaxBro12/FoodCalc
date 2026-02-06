@@ -1,9 +1,10 @@
 import pytest
+from httpx import AsyncClient
 
-from app.database import DB
+from app.database.repo import DataBase
 
 
-async def test_product_new(test_client, test_db):
+async def test_product_new(test_client: AsyncClient, test_db: DataBase):
     ans = await test_client.post('/v1/products/new', json={
         'id': 1234567890123,
         'name': 'Test Product',
@@ -29,7 +30,7 @@ async def test_product_new(test_client, test_db):
     assert ans.status_code == 200
     assert ans.json().get('ok') == True
 
-    test_min = await DB.products.by_name('Test Product', session=test_db)
+    test_min = await test_db.products.by_name('Test Product')
     assert test_min is not None
     assert test_min.id == 1234567890123
     assert test_min.description == 'Test Product Description'

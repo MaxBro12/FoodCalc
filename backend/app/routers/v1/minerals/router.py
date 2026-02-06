@@ -1,10 +1,10 @@
 from fastapi import APIRouter, HTTPException, status
 
+from app.depends import UserDep, DBDep
 from core.pydantic_misc_models import Ok
 from core.fast_depends import PaginationParams
 from core.fast_decorators import cache
 from core.redis_client import RedisDep
-from app.depends import UserDep, DBDep
 from .models import (
     NewMineral,
     MineralResponse,
@@ -18,14 +18,17 @@ from .models import (
 mineral_router_v1 = APIRouter(prefix='/v1/universe', tags=['minerals and types'])
 
 
-@mineral_router_v1.get('/minerals/', response_model=MultipleMineralResponse)
+@mineral_router_v1.get('/minerals', response_model=MultipleMineralResponse)
 @cache(key='minerals_pagination')
 async def minerals_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
-    minerals = await db.minerals.pagination(
-        skip=pagination.skip,
-        limit=pagination.limit,
-        load_relations=True
-    )
+    if pagination.skip is None or pagination.limit is None:
+        minerals = await db.minerals.all(load_relations=True)
+    else:
+        minerals = await db.minerals.pagination(
+            skip=pagination.skip,
+            limit=pagination.limit,
+            load_relations=True
+        )
     return {'minerals': [{
         'id': mineral.id,
         'name': mineral.name,
@@ -73,7 +76,7 @@ async def save_new_mineral(new: NewMineral, db: DBDep, user: UserDep):
     )}
 
 
-@mineral_router_v1.get('/types/', response_model=MultipleMineralTypeResponse)
+@mineral_router_v1.get('/types', response_model=MultipleMineralTypeResponse)
 @cache(key='mineral_types_pagination')
 async def mineral_types_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
     types = await db.mineral_types.pagination(

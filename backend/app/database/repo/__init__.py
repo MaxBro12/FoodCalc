@@ -15,3 +15,5 @@ class DataBase(DataBaseRepo):
 
         self.products = ProductRepo(session=session)
         self.products_minerals = ProductMineralRepo(session=session)
+
+        super().__init__(session=session)

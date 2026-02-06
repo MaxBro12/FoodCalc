@@ -19,8 +19,8 @@ class RedisClient:
 
     def __insert_prefix_key(self, key: str | int, spec_app_prefix: str | None = None) -> str:
         if spec_app_prefix is None:
-            return f'{self.__prefix}_{str(key)}'
-        return f'{spec_app_prefix}_{str(key)}'
+            return f'{str(self.__prefix)}_{str(key)}'
+        return f'{str(spec_app_prefix)}_{str(key)}'
 
     def __parse_ans(self, ans: str | bytes):
         if ans is None:
@@ -99,8 +99,9 @@ class RedisClient:
         )
 
     async def get_json(self, key: str, spec_app_prefix: str | None = None) -> dict | None:
+        key = self.__insert_prefix_key(key, spec_app_prefix=spec_app_prefix)
         data = await self.__client.get(
-            self.__insert_prefix_key(key, spec_app_prefix=spec_app_prefix)
+            key
         )
         if data is None:
             return None

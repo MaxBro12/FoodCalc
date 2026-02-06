@@ -3,9 +3,8 @@ from fastapi.requests import Request
 
 from core.pydantic_misc_models import Ok
 from app.services import auth_service
-from app.handlers import AuthHandler
+from app.handlers.auth import AuthHandler, UserLogin, UserRegister
 from app.depends import DBDep, UserDep
-from .models import UserLogin, UserRegister
 
 
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])

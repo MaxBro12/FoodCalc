@@ -31,8 +31,6 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 async def auto_update():
     # Автоматическое обновление раз в день
     logging.info('> Daily auto update')
-    async with new_session() as session:
-        await DataBase(session).bans.del_old_bans()
     pass
 
 

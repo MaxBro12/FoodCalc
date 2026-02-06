@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, status, Body
 
+from app.depends import DBDep, UserDep
+from app.routers.v1.products.models import NewProduct
 from core.pydantic_misc_models import Ok
 from core.fast_depends import PaginationParams
 from core.fast_decorators import cache
 from core.redis_client import RedisDep
-from app.depends import DBDep, UserDep
-from app.routers.v1.products.models import NewProduct
 from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
 
 

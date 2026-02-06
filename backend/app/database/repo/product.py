@@ -83,7 +83,10 @@ class ProductRepo(Repository):
             ).where(Product.id.like(f'%{query}%')).limit(limit))).all()
         return ans
 
-    async def pagination(self, skip: int = 0, limit: int = 10, load_relations: bool = False) -> list[tuple[str, str, float]]:
+    async def pagination(
+        self, skip: int = 0, limit: int = 10,
+        load_relations: bool = False
+    ) -> list[Product]:
         return await self._pagination(
             skip=skip,
             limit=limit,

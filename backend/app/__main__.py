@@ -16,9 +16,10 @@ import redis.asyncio as redis
 from app.database.init_db import init_db
 from app.routers.v1 import auth_router_v1, mineral_router_v1, products_router_v1, utils_router_v1
 from app.services import blocklist_service
-from core.redis_client import RedisClient, RedisDep
+from core.redis_client import RedisClient
 
 from app.settings import settings
+
 
 redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=True)
 

@@ -1,13 +1,24 @@
 from dataclasses import dataclass
 from typing import Literal
+from pydantic import BaseModel
 
 from fastapi import Request, Response, HTTPException, status
 
 from app.services import auth_service, blocklist_service
-from app.routers.v1.auth.models import UserLogin, UserRegister
 from core.simplejwt import SimpleJWT, TokenData
 
 from app.settings import settings
+
+
+class UserLogin(BaseModel):
+    username: str
+    password: str
+
+
+class UserRegister(BaseModel):
+    username: str
+    password: str
+    key: str
 
 
 @dataclass(frozen=True, slots=True)

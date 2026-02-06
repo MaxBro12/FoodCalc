@@ -18,6 +18,8 @@ from apscheduler.triggers.cron import CronTrigger
 from core.redis_client import RedisClient
 from core.fast_routers import utils_router_v1
 from app.database import init_db
+from app.database.session import new_session
+from app.database.repo import DataBase
 from app.routers.v1 import bans_router_v1
 from app.depends import DBDep
 
@@ -29,7 +31,8 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 
 async def auto_update():
     logging.info('> Daily auto update')
-    pass
+    async with new_session() as session:
+        await DataBase(session).bans.del_old_bans()
 
 
 # ? Планеровщик

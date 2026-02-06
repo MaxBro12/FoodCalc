@@ -50,3 +50,11 @@ class MineralRepo(Repository):
         if obj is not None:
             return await self.delete(obj=obj, commit=True)
         return False
+
+    async def pagination(self, skip: int = 0, limit: int = 10, load_relations: bool = False):
+        return await self._pagination(
+            skip=skip,
+            limit=limit,
+            order_by_field='id',
+            load_relations=load_relations
+        )

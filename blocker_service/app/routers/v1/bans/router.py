@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 
 from .models import Ok, Bans, NewBan
 from app.depends import DBDep
-from app.routers.decorators.cashe_decor import cache
+from core.fast_decorators import cache
 from core.redis_client import RedisDep
 
 
@@ -46,5 +46,6 @@ async def in_ban(ip_address: str, db: DBDep, redis: RedisDep):
 
 
 @bans_router_v1.delete('/{ip_address}', response_model=Ok)
-async def del_ban(ip_address: str, db: DBDep):
+async def del_ban(ip_address: str, db: DBDep, redis: RedisDep):
+    await redis.delete(f'in_ban:ip_address:{ip_address}')
     return {'ok': await db.bans.delete_by_ip(ip_address)}

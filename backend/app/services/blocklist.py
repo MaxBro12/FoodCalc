@@ -14,19 +14,19 @@ class BlocklistService(HttpMakerAsync):
         )
 
     async def in_ban(self, ip: str, redis: RedisClient) -> bool:
-        redis = await redis.get_dict(
+        data = await redis.get_json(
             key=f'in_ban:ip_address:{ip}',
             spec_app_prefix=settings.BLOCKER_REDIS_PREFIX
         )
-        if redis is not None:
-            return redis
-        return await self._make(f'/v1/bans/{ip}', method='GET').json().get('ok', False)
+        if data is not None:
+            return data.get('ok', False)
+        return (await self._make(f'/v1/bans/{ip}', method='GET')).json.get('ok', False)
 
     async def ban(self, ip: str, reason: str = 'no reason') -> bool:
-        return await self._make(f'/v1/bans', method='POST', json={
+        return (await self._make(f'/v1/bans', method='POST', json={
             'ip': ip,
             'reason': reason
-        }).json().get('ok', False)
+        })).json.get('ok', False)
 
 
 blocklist_service = BlocklistService()
