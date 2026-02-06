@@ -18,8 +18,8 @@ class BlocklistService(HttpMakerAsync):
             key=f'in_ban:ip_address:{ip}',
             spec_app_prefix=settings.BLOCKER_REDIS_PREFIX
         )
-        if data is not None:
-            return data.get('ok', False)
+        if data is not None and type(data.get('ok')) == bool:
+            return data['ok']
         return (await self._make(f'/v1/bans/{ip}', method='GET')).json.get('ok', False)
 
     async def ban(self, ip: str, reason: str = 'no reason') -> bool:
