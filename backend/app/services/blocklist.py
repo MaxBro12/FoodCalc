@@ -22,10 +22,19 @@ class BlocklistService(HttpMakerAsync):
             return data['ok']
         return (await self._make(f'/v1/bans/{ip}', method='GET')).json.get('ok', False)
 
-    async def ban(self, ip: str, reason: str = 'no reason') -> bool:
+    async def ban(
+        self, ip: str,
+        reason: str = 'no reason',
+        duration_days: int = 3,
+        permanent: bool = False,
+        white: bool = False
+    ) -> bool:
         return (await self._make(f'/v1/bans', method='POST', json={
             'ip': ip,
-            'reason': reason
+            'reason': reason,
+            'duration_days': duration_days,
+            'permanent': permanent,
+            'white': white
         })).json.get('ok', False)
 
 

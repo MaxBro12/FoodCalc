@@ -6,4 +6,4 @@ def get_current_time():
 
 
 def time_with_shift(duration_days: int):
-    return get_current_time() + timedelta(days=duration_days)
+    return datetime.now() + timedelta(days=duration_days)

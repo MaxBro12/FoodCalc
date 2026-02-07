@@ -58,13 +58,35 @@ app.include_router(utils_router_v1)
 
 @app.middleware('http')
 async def blocker(request: Request, call_next):
+    # Проверяем в бане ли пользователь
     if await blocklist_service.in_ban(request.client.host, RedisClient(
         redis_pool=redis_c,
         prefix=settings.REDIS_PREFIX,
         expire=settings.REDIS_EXPIRE
     )):
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=status.HTTP_403_FORBIDDEN,
+        )
+    # Проверяем не ведет ли эндпойнт в никуда
+    exceptions_routes = [ # список эндпоинтов, которые сразу получают бан
+        '/.env',
+    ]
+    if not settings.DEBUG:
+        exceptions_routes.extend([
+            '/openapi.json',
+            '/docs',
+            '/redoc',
+            '/swagger',
+        ])
+    routes = tuple([i.path.split('{')[0] for i in app.routes if i not in exceptions_routes])
+    if not request.url.path.startswith(routes):
+        await blocklist_service.ban(
+            ip=request.client.host,
+            reason='FoodApp > Endpoint not found',
+            duration_days=3,
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
         )
     response = await call_next(request)
     return response
