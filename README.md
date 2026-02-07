@@ -13,7 +13,7 @@
 - redis - для кэширования результатов некоторых эндпойнтов
 - postgres - для хранения данных, используется единая база данных для всех микросервисов, скрипт инициализации `init.sql`
 
-Для упрощения работы с микросервисной архитектурой многие методы были вынесены в пакет core. Для работы backend, backend_service и auth_service требуется установить пакет core. Подробнее можно узнать в [README.md](https://github.com/MaxBro12/FoodCalc/blob/master/core/README.md)
+Для упрощения работы с микросервисной архитектурой многие методы были вынесены в пакет core. Для работы backend, blocker_service и auth_service требуется установить пакет core. Подробнее можно узнать в [README.md](https://github.com/MaxBro12/FoodCalc/blob/master/core/README.md)
 
 ## Запуск
 
