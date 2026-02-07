@@ -21,7 +21,14 @@ async def add_ban(db: DBDep, data: NewBan, redis: RedisDep):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='IP address already in ban'
         )
-    db_ans = await db.bans.new(ip_address=data.ip, reason=data.reason)
+    db_ans = await db.bans.new(
+        ip=data.ip,
+        reason=data.reason,
+        duration_days=data.duration_days,
+        permanent=data.permanent,
+        white=data.white,
+        commit=False
+    )
     if db_ans:
         await redis.delete(f'in_ban:ip_address:{data.ip}')
     return {'ok': db_ans}

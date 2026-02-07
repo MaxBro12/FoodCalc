@@ -10,7 +10,9 @@ class Ok(BaseModel):
 class Ban(BaseModel):
     ip: str
     reason: str
-    date: datetime
+    date_unban: datetime
+    permanent: bool
+    white: bool
 
 
 class Bans(BaseModel):
@@ -20,3 +22,6 @@ class Bans(BaseModel):
 class NewBan(BaseModel):
     ip: str
     reason: str = 'no reason'
+    duration_days: int = 3
+    permanent: bool = False
+    white: bool = False
