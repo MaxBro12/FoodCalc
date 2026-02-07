@@ -24,10 +24,15 @@ async def test_names_low_limit(test_client: AsyncClient, test_db: DataBase):
 
 async def test_search_correct(test_client: AsyncClient, test_db: DataBase):
     names = await test_db.products.names(limit=10)
-    print('!!!!!!!!!!!!!!!', names[0][1][:6])
-    ans = await test_client.post('/v1/products/search', json={'id_or_name': names[0][1][:5]})
+    ans = await test_client.post('/v1/products/search', json={'id_or_name': names[0][0]})
     assert ans.status_code == 200
     assert len(ans.json().get('names')) == 1
-    assert ans.json().get('names')[0].id == names[0].id
-    assert ans.json().get('names')[0].name == names[0].name
-    assert ans.json().get('names')[0].search_index == names[0].search_index
+    assert ans.json().get('names')[0]['id'] == names[0][0]
+    assert ans.json().get('names')[0]['name'] == names[0][1]
+    assert ans.json().get('names')[0]['search_index'] == names[0][2]
+
+
+async def test_search_not_exists(test_client: AsyncClient, test_db: DataBase):
+    ans = await test_client.post('/v1/products/search', json={'id_or_name': '321'})
+    assert ans.status_code == 200
+    assert len(ans.json().get('names')) == 0

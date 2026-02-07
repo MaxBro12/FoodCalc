@@ -87,21 +87,36 @@ async def names(db: DBDep, redis: RedisDep, limit: int = 500):
 
 @products_router_v1.post('/new', response_model=Ok)
 async def save_new_product(new: NewProduct, db: DBDep, user: UserDep):
-    await db.products.new(
-        pid=new.id,
-        name=new.name,
-        description=new.description,
-        calories=new.calories,
-        energy=new.energy,
-        added_by_id=user.id,
-        commit=False,
-    )
-    await db.flush()
-    for i in new.minerals:
-        await db.products_minerals.new(new.id, i.id, content=i.content, commit=False)
-    return {'ok': True}
+    if await db.products.exists_by_id(new.id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Продукт уже существует'
+        )
+    try:
+        if await db.products.new(
+            pid=new.id,
+            name=new.name,
+            description=new.description,
+            calories=new.calories,
+            energy=new.energy,
+            added_by_id=user.id,
+            commit=False,
+        ):
+            await db.flush()
+            for i in new.minerals:
+                await db.products_minerals.new(
+                    product_id=new.id,
+                    mineral_id=i.id,
+                    content=i.content
+                )
+            return {'ok': True}
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Не удалось сохранить продукт'
+        )
 
 
 @products_router_v1.delete('/{product_id}', response_model=Ok)
-async def del_product(product_id: int, db: DBDep, user: UserDep):
+async def del_product(product_id: str, db: DBDep, user: UserDep):
     return {'ok': await db.products.del_by_id(product_id=product_id)}

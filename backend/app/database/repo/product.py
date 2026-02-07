@@ -9,8 +9,8 @@ class ProductRepo(Repository):
     def __init__(self, session: AsyncSession):
         super().__init__(Product, session=session, relationships=('type', 'minerals'))
 
-    async def exists_by_id(self, mineral_id: int) -> bool:
-        return await self._exists(f"{self.table_name}.id={mineral_id}")
+    async def exists_by_id(self, product_id: str) -> bool:
+        return await self._exists(f"{self.table_name}.id='{product_id}'")
 
     async def new(
         self,

@@ -63,8 +63,8 @@ async def test_client() -> AsyncGenerator[AsyncClient]:
     app.dependency_overrides[verify_access_token] = verify_mock_token
     app.dependency_overrides[get_redis] = test_redis_client
 
-    logging.error("PATCHIIIINNGGGG")
     with patch('app.__main__.RedisClient', return_value=RedisClientMock()): # app.services.blocklist.BlocklistService
+        #with patch('app.__main__.blocklist_service', return_value=BlockListMock()):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             yield client
             app.dependency_overrides.clear()
