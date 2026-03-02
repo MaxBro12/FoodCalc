@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.session import get_session
 from core.sql_repository import DataBaseRepo
 from .mineral_type import MineralTypeRepo
 from .mineral import MineralRepo
