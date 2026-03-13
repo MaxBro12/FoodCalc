@@ -1,9 +1,9 @@
 import pytest
 from httpx import AsyncClient
-from app.database.repo import DataBase
+from src.database.repo import DataBase
 
 from core.simplejwt import SimpleJWT
-from app.settings import settings
+from src.settings import settings
 
 
 jwt = SimpleJWT(settings.AUTH_SECRET_KEY, settings.AUTH_ALGORITHM)

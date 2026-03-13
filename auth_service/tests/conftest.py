@@ -5,12 +5,12 @@ from fastapi import Request, Response
 from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
-from app.database.repo import DataBase
-from app.database.models import User, Key
-from app.database import Base
-from app.depends.db import get_db
+from src.database.repo import DataBase
+from src.database.models import User, Key
+from src.database import Base
+from src.depends.db import get_db
 from core.redis_client import get_redis
-from app.__main__ import app
+from src.__main__ import app
 
 
 
@@ -64,12 +64,12 @@ async def test_redis_client(request: Request):
 
 @pytest.fixture(scope='module')
 async def test_client() -> AsyncGenerator[AsyncClient]:
-    app.dependency_overrides[get_db] = get_test_db
-    app.dependency_overrides[get_redis] = test_redis_client
+    src.dependency_overrides[get_db] = get_test_db
+    src.dependency_overrides[get_redis] = test_redis_client
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
-        app.dependency_overrides.clear()
+        src.dependency_overrides.clear()
 
 
 

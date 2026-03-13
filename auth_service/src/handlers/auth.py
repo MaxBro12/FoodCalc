@@ -1,9 +1,9 @@
 from core.simplejwt import SimpleJWT, InvalidToken, TokenData
 from core.trash import generate_trash_string
-from app.database.models import User
-from app.routers.v1.auth.models import TokenFull
+from src.database.models import User
+from src.routers.v1.auth.models import TokenFull
 
-from app.settings import settings
+from src.settings import settings
 
 
 class AuthHandler:

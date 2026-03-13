@@ -3,6 +3,8 @@ import logging
 
 import aiohttp
 
+from core.redis_client import RedisClient
+
 from .exceptions import OutOfTries, UnableToAccess, RequestMethodNotFoundException
 from .response import ResponseData, Method
 
@@ -63,6 +65,13 @@ class HttpMakerAsync:
         if path == '':
             return self.__base_url
         return f'{self.__base_url}/{path if not path.startswith('/') else path[1:]}'
+
+    @staticmethod
+    async def redis_cache(redis: RedisClient, key: str, spec_app_prefix: str) -> dict | None:
+        return await redis.get_dict(
+            key=key,
+            spec_app_prefix=spec_app_prefix
+        )
 
     async def __execute(
         self,
@@ -187,3 +196,117 @@ class HttpMakerAsync:
         except aiohttp.ContentTypeError as e:
             logging.error(e)
             raise UnableToAccess(response.url)
+
+    async def get(
+        self,
+        url: str = '',
+        data: dict | str | None = None,
+        json: dict | None = None,
+        params: dict | None = None,
+        headers: dict | None = None,
+        try_wait_if_error: bool = True,
+    ) -> ResponseData:
+        return await self._make(
+            url=url,
+            method='GET',
+            data=data,
+            json=json,
+            params=params,
+            headers=headers,
+            try_wait_if_error=try_wait_if_error
+        )
+
+    async def post(
+        self,
+        url: str = '',
+        data: dict | str | None = None,
+        json: dict | None = None,
+        params: dict | None = None,
+        headers: dict | None = None,
+        try_wait_if_error: bool = True,
+    ) -> ResponseData:
+        return await self._make(
+            url=url,
+            method='POST',
+            data=data,
+            json=json,
+            params=params,
+            headers=headers,
+            try_wait_if_error=try_wait_if_error
+        )
+
+    async def put(
+        self,
+        url: str = '',
+        data: dict | str | None = None,
+        json: dict | None = None,
+        params: dict | None = None,
+        headers: dict | None = None,
+        try_wait_if_error: bool = True,
+    ) -> ResponseData:
+        return await self._make(
+            url=url,
+            method='PUT',
+            data=data,
+            json=json,
+            params=params,
+            headers=headers,
+            try_wait_if_error=try_wait_if_error
+        )
+
+    async def delete(
+        self,
+        url: str = '',
+        data: dict | str | None = None,
+        json: dict | None = None,
+        params: dict | None = None,
+        headers: dict | None = None,
+        try_wait_if_error: bool = True,
+    ) -> ResponseData:
+        return await self._make(
+            url=url,
+            method='DELETE',
+            data=data,
+            json=json,
+            params=params,
+            headers=headers,
+            try_wait_if_error=try_wait_if_error
+        )
+
+    async def patch(
+        self,
+        url: str = '',
+        data: dict | str | None = None,
+        json: dict | None = None,
+        params: dict | None = None,
+        headers: dict | None = None,
+        try_wait_if_error: bool = True,
+    ) -> ResponseData:
+        return await self._make(
+            url=url,
+            method='PATCH',
+            data=data,
+            json=json,
+            params=params,
+            headers=headers,
+            try_wait_if_error=try_wait_if_error
+        )
+
+    async def head(
+        self,
+        url: str = '',
+        data: dict | str | None = None,
+        json: dict | None = None,
+        params: dict | None = None,
+        headers: dict | None = None,
+        try_wait_if_error: bool = True,
+    ) -> ResponseData:
+        return await self._make(
+            url=url,
+            method='HEAD',
+            data=data,
+            json=json,
+            params=params,
+            headers=headers,
+            try_wait_if_error=try_wait_if_error
+        )

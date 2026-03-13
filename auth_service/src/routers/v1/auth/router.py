@@ -2,8 +2,9 @@ import logging
 from fastapi import APIRouter, HTTPException, status
 
 from .models import UserLogin, UserRegister, TokenFull, RefreshToken, UserName
-from app.depends import DBDep
-from app.handlers.auth import auth_handler
+from src.depends import DBDep
+from src.handlers.auth import auth_handler
+
 from core.pydantic_misc_models import Ok
 
 
@@ -62,13 +63,23 @@ async def register(user_data: UserRegister, db: DBDep):
     """Регистрация пользователя"""
     # Проверки на валидность полей регистрации
     if len(user_data.name) < 6 or len(user_data.password) < 6:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Логин или пароль должны быть больше 6")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Логин или пароль должны быть больше 6"
+        )
     if await db.users.exists(user_data.name):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Имя пользователя уже существует")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Имя пользователя уже существует"
+        )
     if not await db.keys.exists(user_data.key):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Ввели неправильный ключ")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ввели неправильный ключ"
+        )
 
-    # Получаем ключ и создаем пользователя. Если пользователь не создан или ключ не найден, то возвращаем ошибку.
+    # Получаем ключ и создаем пользователя.
+    # Если пользователь не создан или ключ не найден, то возвращаем ошибку.
     # Ключ может быть не найден, если на этот момент администратор удалил его
     key = await db.keys.by_hash(user_data.key)
     if key is None or not await db.users.new(

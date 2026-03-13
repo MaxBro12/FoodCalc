@@ -1,5 +1,5 @@
 try:
-    import app
+    import src
 except ImportError:
     import sys
     import os
@@ -15,14 +15,14 @@ import redis.asyncio as redis
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from apscheduler.triggers.cron import CronTrigger
 
-from app.database import init_db, new_session
 from core.redis_client import RedisClient
 from core.fast_routers import utils_router_v1
 
-from app.routers.v1 import auth_router_v1, users_router_v1
-from app.database.repo import DataBase
+from src.routers.v1 import auth_router_v1, users_router_v1
+from src.database import init_db, new_session
+from src.database.repo import DataBase
 
-from app.settings import settings
+from src.settings import settings
 
 
 redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=True)

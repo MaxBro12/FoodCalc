@@ -1,9 +1,9 @@
 from sqlalchemy import select, exists
 
-from app.database.models import Key
-from app.database.database import Base, engine, new_session
+from src.database.models import Key
+from src.database.database import Base, engine, new_session
 
-from app.settings import settings
+from src.settings import settings
 
 
 async def init_db():

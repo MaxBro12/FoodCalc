@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from app.depends import DBDep
+from src.depends import DBDep
 from core.pydantic_misc_models import Ok
 from core.redis_client import RedisDep
 from core.fast_decorators import cache, rate_limiter
@@ -16,7 +16,10 @@ users_router_v1 = APIRouter(prefix='/v1/users', tags=['users'])
 async def get_users(db: DBDep, redis: RedisDep, pagination_params: PaginationParams):
     """Получение списка пользователей, если есть параметры пагинации тогда ответ с пагинацией"""
     if pagination_params.skip is not None and pagination_params.limit is not None:
-        return {'users': await db.users.pagination(skip=pagination_params.skip, limit=pagination_params.limit)}
+        return {'users': await db.users.pagination(
+            skip=pagination_params.skip,
+            limit=pagination_params.limit,
+        )}
     return {'users': await db.users.all()}
 
 

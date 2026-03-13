@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.database.models import User
+from src.database.models import User
 from core.sql_repository import Repository
 from core.security import SecurityService
 from core.spec_time import get_current_time

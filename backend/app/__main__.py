@@ -26,8 +26,10 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    # Инициализация базы данных
     await init_db()
 
+    # Подключаем Redis
     app.state.redis = RedisClient(
         redis_pool=redis_c,
         prefix=settings.REDIS_PREFIX,
@@ -78,8 +80,9 @@ async def blocker(request: Request, call_next):
             '/redoc',
             '/swagger',
         ])
+    # Получаем чистые пути без параметров
     routes = tuple([i.path.split('{')[0] for i in app.routes if i not in exceptions_routes])
-    if not request.url.path.startswith(routes):
+    if not request.url.path.startswith(routes): # Проверяем не ведет ли эндпойнт в никуда
         await blocklist_service.ban(
             ip=request.client.host,
             reason='FoodApp > Endpoint not found',
@@ -88,8 +91,7 @@ async def blocker(request: Request, call_next):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
         )
-    response = await call_next(request)
-    return response
+    return await call_next(request)
 
 
 if __name__ == '__main__':

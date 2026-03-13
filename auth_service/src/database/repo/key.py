@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.sql_repository import Repository
-from app.database.models import Key
+from src.database.models import Key
 
 
 class KeyRepo(Repository):

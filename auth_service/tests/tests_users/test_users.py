@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient
-from app.database.repo import DataBase
+from src.database.repo import DataBase
 
 
 async def test_all_users(test_client: AsyncClient, test_db: DataBase):

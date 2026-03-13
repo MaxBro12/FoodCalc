@@ -1,6 +1,6 @@
 import pytest
 from httpx import AsyncClient
-from app.database.repo import DataBase
+from src.database.repo import DataBase
 from core.security import SecurityService
 
 

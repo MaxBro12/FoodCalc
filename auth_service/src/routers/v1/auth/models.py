@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
-
 class UserName(BaseModel):
     name: str
 
