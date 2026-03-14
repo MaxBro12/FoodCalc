@@ -9,12 +9,12 @@ from httpx import AsyncClient, ASGITransport
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 
 from core.redis_client import get_redis
-from app.database import Base, DataBase
-from app.database.init_db import create_tables
-from app.depends.db import get_db
-from app.depends.auth import verify_access_token
-from app.handlers.auth import User
-from app.__main__ import app
+from src.database import Base, DataBase
+from src.database.init_db import create_tables
+from src.depends.db import get_db
+from src.depends.auth import verify_access_token
+from src.handlers.auth import User
+from src.__main__ import app
 from .adt_test_classes import RedisClientMock, BlockListMock
 
 
@@ -50,7 +50,7 @@ def test_blocklist_client():
 
 async def verify_mock_token():
     #session = Mock(spec=get_test_session)
-    #with patch('app.depends.auth.verify_token') as verify_test_mock_token:
+    #with patch('src.depends.auth.verify_token') as verify_test_mock_token:
     #    verify_test_mock_token.return_value = await verify_test_token()
     #    verify_test_mock_token.side_effect = await verify_test_token()
     #    return verify_test_mock_token
@@ -63,8 +63,8 @@ async def test_client() -> AsyncGenerator[AsyncClient]:
     app.dependency_overrides[verify_access_token] = verify_mock_token
     app.dependency_overrides[get_redis] = test_redis_client
 
-    with patch('app.__main__.RedisClient', return_value=RedisClientMock()): # app.services.blocklist.BlocklistService
-        #with patch('app.__main__.blocklist_service', return_value=BlockListMock()):
+    with patch('src.__main__.RedisClient', return_value=RedisClientMock()): # src.services.blocklist.BlocklistService
+        #with patch('src.__main__.blocklist_service', return_value=BlockListMock()):
         async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
             yield client
             app.dependency_overrides.clear()

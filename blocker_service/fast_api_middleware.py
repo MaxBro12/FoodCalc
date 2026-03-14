@@ -6,7 +6,7 @@ import redis.asyncio as redis
 from core.requests_makers import HttpMakerAsync
 from core.redis_client import RedisClient
 
-from app.settings import settings
+from src.settings import settings
 # Файл настроек с url сервиса, ключа приложения к redis и ключа приложения
 
 # Сервис связи с API блокировки
@@ -55,7 +55,7 @@ redis_c = redis.ConnectionPool.from_url(settings.REDIS_URL, decode_responses=Tru
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # код до устновки redis
-    app.state.redis = RedisClient(
+    src.state.redis = RedisClient(
         redis_pool=redis_c,
         prefix=settings.REDIS_PREFIX,
         expire=settings.REDIS_EXPIRE
@@ -70,7 +70,7 @@ app = FastAPI(
 )
 
 # И middleware для блокировки
-@app.middleware('http')
+@src.middleware('http')
 async def blocker(request: Request, call_next):
     # Проверяем в бане ли пользователь
     if await blocklist_service.in_ban(request.client.host, RedisClient(
@@ -92,7 +92,7 @@ async def blocker(request: Request, call_next):
             '/redoc',
             '/swagger',
         ])
-    routes = tuple([i.path.split('{')[0] for i in app.routes if i not in exceptions_routes])
+    routes = tuple([i.path.split('{')[0] for i in src.routes if i not in exceptions_routes])
     if not request.url.path.startswith(routes):
         await blocklist_service.ban(
             ip=request.client.host,

@@ -1,7 +1,7 @@
 import pytest
 from httpx import AsyncClient
 
-from app.database.repo import DataBase
+from src.database.repo import DataBase
 
 
 async def test_mineral_correct(test_db: DataBase, test_client: AsyncClient):

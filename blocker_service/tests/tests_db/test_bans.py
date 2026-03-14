@@ -4,8 +4,8 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.spec_time import time_with_shift
-from app.database.repo import DataBase
-from app.database.models import Ban
+from src.database.repo import DataBase
+from src.database.models import Ban
 
 
 async def test_add(test_db: DataBase):

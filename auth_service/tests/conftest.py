@@ -64,12 +64,12 @@ async def test_redis_client(request: Request):
 
 @pytest.fixture(scope='module')
 async def test_client() -> AsyncGenerator[AsyncClient]:
-    src.dependency_overrides[get_db] = get_test_db
-    src.dependency_overrides[get_redis] = test_redis_client
+    app.dependency_overrides[get_db] = get_test_db
+    app.dependency_overrides[get_redis] = test_redis_client
 
     async with AsyncClient(transport=ASGITransport(app=app), base_url="http://test") as client:
         yield client
-        src.dependency_overrides.clear()
+        app.dependency_overrides.clear()
 
 
 
