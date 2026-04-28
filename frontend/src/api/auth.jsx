@@ -1,11 +1,11 @@
-import api from './main.jsx'
+import api from './base.jsx'
 
 
 export const auth_service = {
     // Регистрация
     register: async (username, password, key) => {
         return (await api.post('/v1/auth/register', {
-            username: username,
+            name: username,
             password: password,
             key: key,
         })).data;
@@ -14,9 +14,9 @@ export const auth_service = {
     // Логин
     login: async (username, password) => {
         return (await api.post('/v1/auth/login', {
-            username: username,
+            name: username,
             password: password,
-        })).data?.ok || false;
+        })).data || null;
     },
 
     // Выход
@@ -25,25 +25,19 @@ export const auth_service = {
         window.location.href = '/auth/login';
     },
 
-    send_feedback: async (msg) => {
-        await api.post('/v1/utils/feedback', {
-            message: msg,
-        })
-    },
-
-    status: async () => {
-        return (await api.post('/v1/utils/status', {}, {
-            withCredentials: true,
-        })).data?.ok || false
-    },
-
-    user: () => {
-
+    user: async () => {
+        if (window.location.pathname.startsWith('/auth')){
+            return {name: null}
+        }
+        return (await api.get('/v1/auth/who_am_i'))?.data || {name: null}
     },
 
     // Проверка авторизации
-    isAuthenticated: () => {
-
+    isAuthenticated: async () => {
+        if (window.location.pathname.startsWith('/auth')) {
+            return ''
+        }
+        return await api.get('/v1/auth/who_am_i') || ''
     },
 };
 

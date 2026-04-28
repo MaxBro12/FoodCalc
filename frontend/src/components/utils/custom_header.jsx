@@ -1,5 +1,10 @@
-import {Link, useNavigate} from "react-router-dom";
+import {Link, useNavigate, useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
+import {useAuth} from "@/context/auth.jsx";
+import {useTheme} from "@/context/theme.jsx";
+import dark from '/dark.svg'
+import light from '/light.svg'
+import useDevice from "@/context/mobile.jsx";
 
 
 function is_current_window(path) {
@@ -15,7 +20,7 @@ function get_current_window(headers) {
 }
 
 
-const MobileHeaderView = ({headers, set_show, change_theme}) => {
+const MobileHeaderView = ({headers, set_show, theme, handle_theme, user}) => {
     const navigate = useNavigate();
     const mobile_headers = parse_mobile_headers(headers);
 
@@ -42,87 +47,121 @@ const MobileHeaderView = ({headers, set_show, change_theme}) => {
         navigate(path);
     }
 
-    return <div className='overlay-backdrop' onClick={() => handleOuterClick()}>
-        <div className='overlay-content base_flex_column rounded_border' style={{
-            flexWrap: 'nowrap',
-
-            backgroundColor: 'var(--header-color)',
-            color: 'var(--header-text-color)',
-
-            height: '30vh',
+    return <div className='header_overlay-backdrop' onClick={() => handleOuterClick()}>
+        <div className='header_overlay-content base_flex_column rounded_border' style={{
             padding: '5px'
         }} onClick={(e) => handleInnerClick(e)}>
-            {mobile_headers.map((header, i) => <div key={i} style={{
-                backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)': 'inherit',
-                color: is_current_window(header.path) ? 'var(--header-current-text-color)': 'var(--header-text-color)',
-                textDecoration: 'none',
-                ...header.m_style,
-            }} onClick={() => nav(header.path)} className='header_a_c'>{header.label}</div>)}
+            {mobile_headers.map((header, i) => (user?.name !== null && !header.no_user_show) ? (
+                <div key={i} style={{
+                    backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)' : 'inherit',
+                    color: is_current_window(header.path) ? 'var(--header-current-text-color)' : 'var(--header-text-color)',
+                    ...header.m_style,
+                }} onClick={() => nav(header.path)} className='header_a_c'>{header.label}</div>):null
+            )}
+            <div className='base_flex_row' style={{
+                width: '100%',
+                flexWrap: 'nowrap',
+                justifyContent: 'space-between',
+                maxHeight:'10vh',
+                backgroundColor: 'inherit'
+            }}>
+                {theme === 'dark' ? (
+                    <div className='header_a_theme base_flex_column' style={{height:'10vh', marginLeft: '10px'}} onClick={() => handle_theme('light')}>
+                        <img src={light} alt="светлая тема" className='header_a_theme_icon'/>
+                    </div>
+                ) : (
+                    <div className='header_a_theme base_flex_column' style={{height:'10vh', marginLeft: '10px'}} onClick={() => handle_theme('dark')}>
+                        <img src={dark} alt="темная тема" className='header_a_theme_icon'/>
+                    </div>
+                )}
+                {user.name === null ? (
+                    <div onClick={() => nav('/auth/login')} style={{
+                        height: '10vh',
+                        padding: '0 15px',
+                        borderRadius: '10px',
+                        backgroundColor: is_current_window('/auth/login') ? 'var(--header-current-color)': 'inherit',
+                        color: is_current_window('/auth/login') ? 'var(--header-current-text-color)': 'var(--header-text-color)',
+                    }} className='header_a'>Вход</div>
+                ):(
+                    <div onClick={() => nav('/auth/user')} style={{
+                        height: '10vh',
+                        padding: '0 15px',
+                        borderRadius: '10px',
+                        backgroundColor: is_current_window('/auth/user') ? 'var(--header-current-color)': 'inherit',
+                        color: is_current_window('/auth/user') ? 'var(--header-current-text-color)': 'var(--header-text-color)',
+                    }} className='header_a'>Профиль</div>
+                )}
+            </div>
         </div>
     </div>
 }
 
 
-const CustomHeader = ({logo, headers, username, change_theme}) => {
-    const navigate = useNavigate();
+const CustomHeader = ({logo, headers}) => {
+    const location = useLocation()
+    const { user } = useAuth();
+    const { theme, set_theme } = useTheme();
+    const { isMobile } = useDevice();
 
     const [mobile_show_view, set_mobile_show_view] = useState(false);
 
+    const handle_theme = (new_theme) => {
+        set_theme(new_theme);
+    }
+
     useEffect(() => {
 
-    }, []);
+    }, [user, theme, location]);
 
-    return <header style={{
-        backgroundColor: 'var(--header-color)',
-        width: '100%',
-        height: '50px',
-        flexShrink: 0,
-    }}>
-        <div className='desktop base_flex_row' style={{
-            backgroundColor: 'var(--header-color)',
-            alignItems: 'center',
-            height: '100%',
-
-            gap: 0,
-            flexWrap: 'nowrap',
-        }}>
-            {logo}
-            {headers.map((header, i) => <Link key={i} style={{
-                backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)': 'inherit',
-                color: is_current_window(header.path) ? 'var(--header-current-text-color)': 'var(--header-text-color)',
-                textDecoration: 'none',
-                ...header.d_style,
-            }} to={header.path} className='header_a'>{header.label}</Link>)}
-        </div>
-        <div className='mobile base_flex_row' style={{
-            backgroundColor: 'var(--header-color)',
-            alignItems: 'center',
-            height: '100%',
-            gap: 0,
-            flexWrap: 'nowrap',
-        }}>
-            {logo}
-            <span style={{
-                height: '100%',
-
-                color: 'var(--header-text-color)',
-                fontSize: '20px',
-
-                padding: '0 5px',
-
-                display: 'flex',
-                justifyContent: 'center', /* Центрирует по горизонтали */
-                alignItems: 'center',
-            }}>{get_current_window(headers)}</span>
-            <button className='header_a' style={{
-                marginLeft: 'auto',
-                marginRight: '5px',
-                padding: '15px',
-                color: 'var(--header-current-text-color)',
-                backgroundColor: 'var(--header-color)',
-            }} onClick={() => set_mobile_show_view(!mobile_show_view)}>···</button>
-            {mobile_show_view && <MobileHeaderView headers={headers} set_show={set_mobile_show_view} change_theme={change_theme}/>}
-        </div>
+    return <header>
+        {logo}
+        {isMobile ? (
+            <div className='base_flex_row header_container'>
+                <span className='header_no_click'>{get_current_window(headers)}</span>
+                <button className='header_a' style={{
+                    marginLeft: 'auto',
+                    padding: '15px',
+                    color: 'var(--header-current-text-color)',
+                    backgroundColor: 'var(--header-color)',
+                    boxShadow: 'none',
+                }} onClick={() => set_mobile_show_view(!mobile_show_view)}>···</button>
+                {mobile_show_view && <MobileHeaderView
+                    headers={headers}
+                    set_show={set_mobile_show_view}
+                    theme={theme}
+                    handle_theme={handle_theme}
+                    user={user}
+                />}
+            </div>
+            ):(
+            <div className='base_flex_row header_container'>
+                {headers.map((header, i) => (user?.name !== null && !header.no_user_show) ? <Link key={i} to={header.path} style={{
+                    backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)': 'inherit',
+                    color: is_current_window(header.path) ? 'var(--header-current-text-color)': 'var(--header-text-color)',
+                    ...header.d_style,
+                }} className='header_a'>{header.label}</Link>: null)}
+                {theme === 'dark' ? (
+                    <div className='header_a_theme base_flex_column' onClick={() => handle_theme('light')}>
+                        <img src={light} alt="светлая тема" className='header_a_theme_icon'/>
+                    </div>
+                ) : (
+                    <div className='header_a_theme base_flex_column' onClick={() => handle_theme('dark')}>
+                        <img src={dark} alt="темная тема" className='header_a_theme_icon'/>
+                    </div>
+                )}
+                {user.name === null || user.name === undefined ? (
+                    <Link to='/auth/login' style={{
+                        backgroundColor: is_current_window('/auth/login') ? 'var(--header-current-color)': 'inherit',
+                        color: is_current_window('/auth/login') ? 'var(--header-current-text-color)': 'var(--header-text-color)',
+                    }} className='header_a'>Вход</Link>
+                ):(
+                    <Link to='/auth/user' style={{
+                        backgroundColor: is_current_window('/auth/user') ? 'var(--header-current-color)': 'inherit',
+                        color: is_current_window('/auth/user') ? 'var(--header-current-text-color)': 'var(--header-text-color)',
+                    }} className='header_a'>Профиль</Link>
+                )}
+            </div>
+        )}
     </header>
 }
 

@@ -1,10 +1,13 @@
-from core.requests_makers import HttpMakerAsync
+from core.requests_makers import HttpMakerAsyncRedis
 from core.redis_client import RedisClient
 
 from src.settings import settings
 
 
-class BlocklistService(HttpMakerAsync):
+class BlocklistService(HttpMakerAsyncRedis):
+    """
+    Подключаемся к сервису отслеживания блокировок.
+    """
     def __init__(self):
         super().__init__(
             base_url=settings.BLOCKER_URL,
@@ -14,12 +17,17 @@ class BlocklistService(HttpMakerAsync):
         )
 
     async def in_ban(self, ip: str, redis: RedisClient) -> bool:
+        """
+        Находится ли пользователь в блокировке.
+        """
+        # Попытка получить данные с redis
         data = await redis.get_json(
             key=f'in_ban:ip_address:{ip}',
             spec_app_prefix=settings.BLOCKER_REDIS_PREFIX
         )
         if data is not None and type(data.get('ok')) == bool:
             return data['ok']
+        # Если данных нет запрашиваю с сервиса
         return (await self._make(f'/v1/bans/{ip}', method='GET')).json.get('ok', False)
 
     async def ban(
@@ -29,6 +37,9 @@ class BlocklistService(HttpMakerAsync):
         permanent: bool = False,
         white: bool = False
     ) -> bool:
+        """
+        Заблокировать пользователя
+        """
         return (await self._make(f'/v1/bans', method='POST', json={
             'ip': ip,
             'reason': reason,

@@ -1,6 +1,0 @@
-sqlalchemy
-redis
-pydantic
-fastapi
-aiohttp
-psutil

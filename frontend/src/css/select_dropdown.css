@@ -1,0 +1,90 @@
+.select-dropdown {
+    position: relative;
+    width: 100%;
+    max-width: 75px;
+
+
+    user-select: none;
+
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+
+.select-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.select-header:hover {
+    border-color: var(--button-hover-border-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.select-header span {
+    font-weight: 500;
+}
+
+.arrow {
+    transition: transform 0.2s ease;
+}
+
+.arrow.open {
+    transform: rotate(180deg);
+}
+
+.select-options {
+    max-height: 250px;
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    margin: 0;
+    padding: 0 0;
+    list-style: none;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.select-option {
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    border-radius: 10px;
+    border: 0 solid var(--border-color);
+}
+
+.select-option:hover {
+    background-color: var(--text-color);
+    color: var(--bg-color);
+}
+
+.select-option.selected {
+    background-color: #eff6ff;
+    color: #2563eb;
+    font-weight: 500;
+}
+
+/* Анимация появления */
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.select-options {
+    animation: slideDown 0.2s ease-out;
+}

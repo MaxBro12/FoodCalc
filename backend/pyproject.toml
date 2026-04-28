@@ -3,13 +3,14 @@ name = "foodapp"
 version = "0.1.0"
 description = "Food calculator"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.14"
 dependencies = [
     "aiohttp>=3.13.2",
     "aiosqlite>=0.21.0",
     "alembic>=1.17.2",
     "asyncpg>=0.31.0",
     "bcrypt==4.2.0",
+    "core",
     "fastapi>=0.121.3",
     "freezegun>=1.5.5",
     "greenlet>=3.2.4",
@@ -25,3 +26,6 @@ dependencies = [
     "sqlalchemy>=2.0.44",
     "uvicorn>=0.38.0",
 ]
+
+[tool.uv.sources]
+core = { git = "https://github.com/MaxBro12/core.git", rev = "master" }

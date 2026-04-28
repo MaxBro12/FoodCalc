@@ -1,9 +1,12 @@
-from core.requests_makers import HttpMakerAsync
+from core.requests_makers import HttpMakerAsyncRedis
 
 from src.settings import settings
 
 
-class DispatcherService(HttpMakerAsync):
+class DispatcherService(HttpMakerAsyncRedis):
+    """
+    Сервис подключения к NCT-Dispatcher
+    """
     def __init__(self):
         super().__init__(
             base_url=settings.BLOCKER_URL,

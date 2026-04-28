@@ -2,44 +2,56 @@ import api from './main.jsx'
 
 
 export const db_service = {
-    types: async () => {
-        console.log(await api.get('/v1/universe/types/'))
-        return (await api.get('/v1/universe/types/')).data.types || [];
+    types: {
+        // Все методы связанные типами минералов
+        all: async () => {
+            // Получение всех типов минералов или пустого массива если связь не установлена
+            return (await api.get('/v1/universe/types')).data.types || [];
+        },
     },
-    minerals: async () => {
-        return (await api.get('/v1/universe/minerals')).data.minerals || [];
+    minerals: {
+        all: async () => {
+            // Получение всех минералов или пустого массива если связь не установлена
+            return (await api.get('/v1/universe/minerals')).data.minerals || [];
+        },
     },
-    products: async (skip_= 0, limit_= 10) => {
-        return (await api.get('/v1/products/', {
-            params: {
-                skip: skip_,
-                limit: limit_,
-            }
-        })).data.products || [];
+    products: {
+        all: async ({skip = 0, limit = 10}) => {
+            // Получение списка продуктов с параметров пагинации
+            return (await api.get('/v1/products/', {
+                params: {
+                    skip: skip,
+                    limit: limit,
+                }
+            })).data.products || [];
+        },
+        detail: async (product_id) => {
+            // Получение детальной информации о продукте по ID
+            return (await api.get(`/v1/products/details/${product_id}`)).data;
+        },
+        names: async (limit_ = 500) => {
+            // Получение списка названий продуктов с лимитом
+            return (await api.get('/v1/products/names', {
+                params: {
+                    limit: limit_,
+                }
+            })).data.names || [];
+        },
+        search: async (query) => {
+            // Поисковой запрос по имени или ID, возвращает список названий с поисковым индексом
+            return (await api.post('/v1/products/search', {id_or_name: query})).data.names || [];
+        },
+        new: async ({id, name, description, minerals, calories, energy}) => {
+            return (await api.post('/v1/products/new', {
+                id: id.toString(),
+                name: name,
+                description: description,
+                minerals: minerals,
+                calories: calories,
+                energy: energy,
+            })).data.ok || false;
+        }
     },
-    product_detail: async (product_id) => {
-        return (await api.get(`/v1/products/details/${product_id}`)).data;
-    },
-    products_names: async (limit_= 500) => {
-        return (await api.get('/v1/products/names', {
-            params: {
-                limit: limit_,
-            }
-        })).data.names || [];
-    },
-    products_search: async (query) => {
-        return (await api.post('/v1/products/search', {id_or_name: query})).data.names || [];
-    },
-    new_product: async (id, name, description, minerals, calories, energy) => {
-        return (await api.post('/v1/products/new', {
-            id: id.toString(),
-            name: name,
-            description: description,
-            minerals: minerals,
-            calories: calories,
-            energy: energy,
-        })).data.ok || false;
-    }
 };
 
 export default db_service;

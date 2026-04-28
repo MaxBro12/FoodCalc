@@ -5,6 +5,13 @@ from ..database import Base
 
 
 class MineralType(Base):
+    """
+    Модель типа минерала.
+    - `id`: идентификатор типа минерала
+    - `name`: название типа минерала
+    - `description`: описание типа минерала
+    - `minerals`: связь с моделью минерала
+    """
     __tablename__ = 'mineral_types'
 
     id: Mapped[int] = mapped_column(primary_key=True)
