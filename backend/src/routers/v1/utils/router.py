@@ -1,19 +1,40 @@
-from typing import Annotated, Union
-from fastapi import APIRouter, Request, Cookie, Response
+import os
+from typing import Any
 
-#from src.core import dispatcher
-from src.depends import UserDep
-from .model import Feedback
-from core.pydantic_misc_models import Ok
-from core.fast_routers import utils_router_v1
+import psutil
+from fastapi import APIRouter
+from pydantic import BaseModel
+
+from src.depends import DBDep
 
 
-@utils_router_v1.post("/feedback", response_model=Ok)
-async def feedback_data(feedback: Feedback): # , token: TokenDep
-    #await dispatcher.send(
-    #    title=f'Сообщение от пользователя {token.user.name}',
-    #    message=feedback.message,
-    #    level='info',
-    #    logs=f'Пользователь {token.user.name}'
-    #)
-    return {"ok": True}
+class StatusResponse(BaseModel):
+    ok: bool
+    cpu_usage: float
+    memory_usage: float
+    disk_usage: float
+    adt_data: dict[str, Any]
+
+
+utils_router_v1 = APIRouter(prefix="/v1/utils", tags=["utils"])
+process = psutil.Process(os.getpid())
+
+
+@utils_router_v1.get("/status", response_model=StatusResponse)
+async def status(db: DBDep):
+    """
+    Возвращает статус загруженности приложения.
+    - ok - загрузка успешна
+    - cpu_usage - использование CPU в процентах (может быть более 100% если используется несколько ядер)
+    - memory_usage - использование памяти в мегабайтах
+    - disk_usage - использование диска в процентах
+    - adt_data - дополнительные данные
+    """
+    return {
+        "ok": True,
+        "cpu_usage": round(process.cpu_percent(), 1),
+        "memory_usage": round(process.memory_info().rss / 1024 / 1024, 1),
+        "disk_usage": round(psutil.disk_usage(os.getcwd()).percent, 1),
+        "adt_data": {
+        }
+    }

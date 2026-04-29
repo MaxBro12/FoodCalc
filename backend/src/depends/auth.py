@@ -2,11 +2,11 @@ from typing import Annotated
 
 from fastapi import Depends, Request, Response
 
-from src.handlers.auth import AuthHandler, User
+from src.handlers import AuthHandler, User
 
 
-async def verify_access_token(request: Request, response: Response) -> User:
+async def verify_token(request: Request, response: Response) -> User:
     return await AuthHandler().verify_token(request, response)
 
 
-UserDep = Annotated[User, Depends(verify_access_token)]
+UserDep = Annotated[User, Depends(verify_token)]

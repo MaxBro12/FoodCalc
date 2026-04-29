@@ -9,14 +9,15 @@ except ImportError:
 from contextlib import asynccontextmanager
 
 import uvicorn
-from fastapi import FastAPI, Request, HTTPException, status
-from fastapi.middleware.cors import CORSMiddleware
 import redis.asyncio as redis
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
-from src.database.init_db import init_db
-from src.routers.v1 import auth_router_v1, mineral_router_v1, products_router_v1, utils_router_v1
-from src.services import blocklist_service
 from core.redis_client import RedisClient
+from core.fast_middlewares import blocker_check
+from src.routers import auth_router_v1, mineral_router_v1, products_router_v1, utils_router_v1
+from src.database import init_db
+from src.services import blocklist_service
 
 from src.settings import settings
 
@@ -38,12 +39,24 @@ async def lifespan(app: FastAPI):
     yield
 
 
-app = FastAPI(
-    title='Food app backend',
-    description='Special api for food app',
-    version='0.1.0',
-    lifespan=lifespan
-)
+if settings.DEBUG:
+    app = FastAPI(
+        title='Food app backend',
+        description='Special api for food app',
+        version='0.2.0',
+        lifespan=lifespan
+    )
+else:
+    app = FastAPI(
+        title='Food app backend',
+        description='Special api for food app',
+        version='0.2.0',
+        lifespan=lifespan,
+        docs_url=None,
+        redoc_url=None,
+        openapi_url=None
+    )
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.FRONTEND_URL.split(','),
@@ -60,37 +73,21 @@ app.include_router(utils_router_v1)
 
 @app.middleware('http')
 async def blocker(request: Request, call_next):
-    # Проверяем в бане ли пользователь
-    if await blocklist_service.in_ban(request.client.host, RedisClient(
-        redis_pool=redis_c,
-        prefix=settings.REDIS_PREFIX,
-        expire=settings.REDIS_EXPIRE
-    )):
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
-    # Проверяем не ведет ли эндпойнт в никуда
-    exceptions_routes = [ # список эндпоинтов, которые сразу получают бан
-        '/.env',
-    ]
-    if not settings.DEBUG:
-        exceptions_routes.extend([
-            '/openapi.json',
-            '/docs',
-            '/redoc',
-            '/swagger',
-        ])
-    # Получаем чистые пути без параметров
-    routes = tuple([i.path.split('{')[0] for i in app.routes if i not in exceptions_routes])
-    if not request.url.path.startswith(routes): # Проверяем не ведет ли эндпойнт в никуда
-        await blocklist_service.ban(
-            ip=request.client.host,
-            reason='FoodApp > Endpoint not found',
-            duration_days=3,
-        )
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-        )
+    # Запускаем blocker_check для проверки бана и недопустимых эндпоинтов
+    await blocker_check(
+        request=request,
+        app=app,
+        blocklist_service=blocklist_service,
+        settings=settings,
+        redis_client=RedisClient(
+            redis_pool=redis_c,
+            prefix=settings.REDIS_PREFIX,
+            expire=settings.REDIS_EXPIRE
+        ),
+        exceptions_routes=[
+            '/.env'
+        ],
+    )
     return await call_next(request)
 
 

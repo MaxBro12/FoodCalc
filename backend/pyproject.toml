@@ -1,6 +1,6 @@
 [project]
 name = "foodapp"
-version = "0.1.0"
+version = "0.2.0b"
 description = "Food calculator"
 readme = "README.md"
 requires-python = ">=3.14"

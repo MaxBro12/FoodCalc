@@ -15,10 +15,10 @@ from .models import (
 )
 
 
-mineral_router_v1 = APIRouter(prefix='/v1/universe', tags=['minerals and types'])
+minerals_router_v1 = APIRouter(prefix='/v1/universe', tags=['minerals and types'])
 
 
-@mineral_router_v1.get('/minerals', response_model=MultipleMineralResponse)
+@minerals_router_v1.get('/minerals', response_model=MultipleMineralResponse)
 @cache(key='minerals_pagination')
 async def minerals_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
     if pagination.skip is None or pagination.limit is None:
@@ -40,7 +40,7 @@ async def minerals_pagination(db: DBDep, pagination: PaginationParams, redis: Re
     } for mineral in minerals]}
 
 
-@mineral_router_v1.get('/minerals/{mineral_id}', response_model=MineralResponse)
+@minerals_router_v1.get('/minerals/{mineral_id}', response_model=MineralResponse)
 @cache(key='mineral_by_id')
 async def mineral_by_id(mineral_id: int, db: DBDep, redis: RedisDep):
     ans = await db.minerals.by_id(
@@ -60,12 +60,12 @@ async def mineral_by_id(mineral_id: int, db: DBDep, redis: RedisDep):
     }
 
 
-@mineral_router_v1.delete('/minerals/{mineral_id}', response_model=Ok)
+@minerals_router_v1.delete('/minerals/{mineral_id}', response_model=Ok)
 async def del_mineral(mineral_id: int, db: DBDep, user: UserDep):
     return {'ok': await db.minerals.del_by_id(mineral_id=mineral_id)}
 
 
-@mineral_router_v1.post('/minerals/new', response_model=Ok)
+@minerals_router_v1.post('/minerals/new', response_model=Ok)
 async def save_new_mineral(new: NewMineral, db: DBDep, user: UserDep):
     return {'ok': await db.minerals.new(
         name=new.name,
@@ -76,7 +76,7 @@ async def save_new_mineral(new: NewMineral, db: DBDep, user: UserDep):
     )}
 
 
-@mineral_router_v1.get('/types', response_model=MultipleMineralTypeResponse)
+@minerals_router_v1.get('/types', response_model=MultipleMineralTypeResponse)
 @cache(key='mineral_types_pagination')
 async def mineral_types_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
     types = await db.mineral_types.pagination(
@@ -97,7 +97,7 @@ async def mineral_types_pagination(db: DBDep, pagination: PaginationParams, redi
     } for t in types]}
 
 
-@mineral_router_v1.get('/types/{type_id}', response_model=MineralTypeResponse)
+@minerals_router_v1.get('/types/{type_id}', response_model=MineralTypeResponse)
 @cache(key='mineral_type_by_id')
 async def type_by_id(type_id: int, db: DBDep, redis: RedisDep):
     ans = await db.mineral_types.by_id(
@@ -109,12 +109,12 @@ async def type_by_id(type_id: int, db: DBDep, redis: RedisDep):
     return ans
 
 
-@mineral_router_v1.delete('/types/{type_id}', response_model=Ok)
+@minerals_router_v1.delete('/types/{type_id}', response_model=Ok)
 async def del_type(type_id: int, db: DBDep, user: UserDep):
     return {'ok': await db.mineral_types.del_by_id(type_id=type_id)}
 
 
-@mineral_router_v1.post('/types/new', response_model=Ok)
+@minerals_router_v1.post('/types/new', response_model=Ok)
 async def save_new_type(new: NewMineralType, db: DBDep, user: UserDep):
     return {'ok': await db.mineral_types.new(
         name=new.name,

@@ -6,17 +6,19 @@ class Settings(BaseSettings):
 
     #.env
     DEBUG: bool
+    USE_LOCAL: bool
     HOST: str
     PORT: int
     DB_PATH: str
 
     AUTH_URL: str
+    AUTH_ACCESS_CODE: str
     AUTH_SECRET_KEY: str
     AUTH_ALGORITHM: str
     AUTH_ACCESS_EXPIRE: int
     AUTH_REFRESH_EXPIRE_DAYS: int
     AUTH_REDIS_PREFIX: str
-    AUTH_ACCESS_CODE: str
+    AUTH_APP_NAME: str
 
     REDIS_URL: str
     REDIS_EXPIRE: int
