@@ -44,7 +44,7 @@ async def minerals_pagination(db: DBDep, pagination: PaginationParams, redis: Re
 @cache(key='mineral_by_id')
 async def mineral_by_id(mineral_id: int, db: DBDep, redis: RedisDep):
     ans = await db.minerals.by_id(
-        type_id=mineral_id,
+        mineral_id=mineral_id,
         load_relations=True
     )
     if ans is None:

@@ -14,7 +14,7 @@ class Mineral(Base):
     - `name`: название минерала
     - `compact_name`: сокращенное название минерала
     - `description`: описание минерала
-    - `intake`: потребление минерала в милиграммах в день
+    - `daily_value`: рекомендуемое потребление минерала в милиграммах в день
     - `type_id`: идентификатор типа минерала
     - `type`: связь с моделью типа минерала
     - `products`: связь с моделью продукта
@@ -25,7 +25,7 @@ class Mineral(Base):
     name: Mapped[str] = mapped_column(unique=True, nullable=False)
     compact_name: Mapped[str] = mapped_column(unique=True, nullable=False) # Сокращенное имя
     description: Mapped[str]
-    intake: Mapped[float] # Милиграммы в день
+    daily_value: Mapped[float]
 
     type_id: Mapped[int] = mapped_column(ForeignKey('mineral_types.id'))
     type: Mapped[MineralType] = relationship(MineralType, back_populates='minerals', lazy='selectin')
@@ -35,8 +35,8 @@ class Mineral(Base):
     )
 
     def __str__(self):
-        return f'Mineral {self.name} ({self.id}) - {self.intake} - {self.type}'
+        return f'Mineral {self.name}'
 
     def __repr__(self):
-        return f'Mineral(id={self.id}, name={self.name}, description={self.description}, intake={self.intake}, \
+        return f'Mineral(id={self.id}, name={self.name}, description={self.description}, daily_value={self.daily_value}, \
         type_id={self.type_id}, type={self.type})'

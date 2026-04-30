@@ -15,7 +15,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from core.redis_client import RedisClient
 from core.fast_middlewares import blocker_check
-from src.routers import auth_router_v1, mineral_router_v1, products_router_v1, utils_router_v1
+from src.routers import auth_router_v1, minerals_router_v1, products_router_v1, utils_router_v1
 from src.database import init_db
 from src.services import blocklist_service
 
@@ -66,7 +66,7 @@ app.add_middleware(
 )
 
 app.include_router(auth_router_v1)
-app.include_router(mineral_router_v1)
+app.include_router(minerals_router_v1)
 app.include_router(products_router_v1)
 app.include_router(utils_router_v1)
 

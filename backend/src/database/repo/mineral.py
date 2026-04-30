@@ -29,7 +29,7 @@ class MineralRepo(RepositoryObj):
         name: str,
         compact_name: str,
         description: str,
-        intake: float,
+        daily_value: float,
         type_id: int,
         commit: bool = True
     ) -> bool:
@@ -38,7 +38,7 @@ class MineralRepo(RepositoryObj):
             - name: имя минерала
             - compact_name: компактное имя минерала
             - description: описание минерала
-            - intake: среднее потребление минерала в миллиграммах в день
+            - daily_value: среднее потребление минерала в миллиграммах в день
             - type_id: идентификатор типа минерала
             - commit: если True, то коммитит изменения в базу данных
         """
@@ -47,7 +47,7 @@ class MineralRepo(RepositoryObj):
                 name=name,
                 compact_name=compact_name,
                 description=description,
-                intake=intake,
+                daily_value=daily_value,
                 type_id=type_id
             ),
             commit=commit

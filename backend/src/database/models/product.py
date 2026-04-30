@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.database.database import Base
+from .dish_products import Dishes_Association_Table
 
 
 class Product(Base):
@@ -10,7 +11,8 @@ class Product(Base):
     - `name`: название продукта
     - `description`: описание продукта
     - `added_by`: идентификатор пользователя, добавившего продукт
-    - `minerals`: список минералов, входящих в продукт
+    - `is_verified`: флаг верификации администратором продукта
+    - `likes`: количество лайков продукта
     - `search_index`: поисковой индекс продукта - чем больше, тем чаще ищут. Максимальное значение - 100
     """
 
@@ -21,12 +23,17 @@ class Product(Base):
     description: Mapped[str] = mapped_column(default='Описание не указано')
 
     added_by: Mapped[int]
+    is_verified: Mapped[bool] = mapped_column(default=False)
+    likes: Mapped[int] = mapped_column(default=0)
+    search_index: Mapped[float] = mapped_column(default=0)
 
     minerals: Mapped[list["ProductMineral"]] = relationship(
         back_populates='product',
         lazy='selectin',
         cascade='all, delete-orphan'
     )
-    dishes: Mapped[list["Dish"]] = relationship("Dish", back_populates="products")
-
-    search_index: Mapped[float] = mapped_column(default=0)
+    dishes: Mapped[list["Dish"]] = relationship(
+        "Dish",
+        secondary=Dishes_Association_Table,
+        back_populates="products"
+    )

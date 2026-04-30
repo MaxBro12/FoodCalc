@@ -1,1 +1,1 @@
-from .router import mineral_router_v1
+from .router import minerals_router_v1

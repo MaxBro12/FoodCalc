@@ -232,7 +232,7 @@ class AuthHandler(AuthHandlerBase):
         Регистрация пользователя.
         Получает запрос и данные пользователя для регистрации.
         """
-        if user.key != 'just_testing'
+        if user.key != 'just_testing':
             await blocklist_service.ban(
                 ip=request.client.host,
                 reason='Dispatcher > Try to parse key'

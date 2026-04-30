@@ -41,7 +41,7 @@ async def create_tables(session: AsyncSession):
                         name=mineral['name'],
                         compact_name=mineral['compact_name'],
                         description=mineral['description'],
-                        intake=mineral['intake'],
+                        daily_value=mineral['intake'],
                         type_id=m_type['id'],
                     )
                     session.add(mineral_to_save)

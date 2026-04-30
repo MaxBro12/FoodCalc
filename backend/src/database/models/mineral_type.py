@@ -21,7 +21,7 @@ class MineralType(Base):
     minerals: Mapped[List['Mineral']] = relationship('Mineral', back_populates='type')
 
     def __str__(self):
-        return f'Mineral Type: {self.name} - {self.description}'
+        return f'Mineral Type: {self.name}'
 
     def __repr__(self):
         return f'MineralType(id={self.id}, name={self.name}, description={self.description})'
