@@ -45,7 +45,7 @@ async def mineral_by_id(mineral_id: int, db: DBDep, redis: RedisDep):
 @minerals_router_v1.get('/types', response_model=MultipleMineralTypeResponse)
 @cache(key='mineral_types_pagination')
 async def mineral_types_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
-    return await MineralsHandler(db).all(skip=pagination.skip, limit=pagination.limit)
+    return await MineralTypesHandler(db).all(skip=pagination.skip, limit=pagination.limit)
 
 
 @minerals_router_v1.get('/types/{type_id}', response_model=MineralTypeResponse)

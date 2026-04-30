@@ -13,19 +13,19 @@ from src.settings import settings
 
 
 async def create_tables(session: AsyncSession):
-    data = None
+    minerals = None
     products = None
     try:
         with open(r'data/types.json') as f:
-            data = json.load(f)
+            minerals = json.load(f)
         with open(r'data/products.json') as f:
             products = json.load(f)
     except FileNotFoundError:
         pass
 
-    if data is not None and products is not None:
+    if minerals is not None:
         try:
-            for m_type in data['data']:
+            for m_type in minerals['data']:
                 if bool(await session.scalar(select(exists().select_from(MineralType).where(text(f"id={m_type['id']}"))))):
                     continue
                 mineral_type = MineralType(
@@ -46,29 +46,11 @@ async def create_tables(session: AsyncSession):
                     )
                     session.add(mineral_to_save)
                     await session.flush()
-            if settings.DEBUG:
-                db = DataBase(session)
-                for product in products['products']:
-                    session.add(Product(
-                        id=str(product['id']),
-                        name=product['name'],
-                        description=product['description'],
-                        calories=product['calories'],
-                        energy=product['energy'],
-                        added_by=product['added_by'],
-                    ))
-                    await session.flush()
-
-                    for mineral in product['minerals']:
-                        await db.products_minerals.new(
-                            product_id=str(product['id']),
-                            mineral_id=mineral['mineral_id'],
-                            content=mineral['content']
-                        )
-                await session.commit()
-
         except IntegrityError:
             return
+    await session.commit()
+    if products is not None:
+        return
 
 
 async def init_db():
@@ -77,5 +59,4 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
     async with new_session() as session:
-        pass
-        #await create_tables(session)
+        await create_tables(session)
