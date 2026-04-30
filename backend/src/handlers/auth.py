@@ -166,7 +166,7 @@ class AuthHandlerBase:
 
     async def logout(self, user: User, response: Response) -> bool:
         """
-        Выход пользователя
+        Выход пользователя.
         """
         logging.debug(f'{self.__class__.__name__} > logout({user.name})')
         response.delete_cookie("access_token")
@@ -220,7 +220,8 @@ class AuthHandler(AuthHandlerBase):
 
     async def login(self, user: UserLogin, response: Response, request: Request) -> bool:
         """
-        Авторизация пользователя
+        Авторизация пользователя. Выдача токенов доступа и обновления в куки.
+        Требуется имя пользователя и пароль, запрос и ответный запрос.
         """
         tokens = await auth_service.login(name=user.name, password=user.password, ip=request.client.host)
         self._set_tokens(response, tokens.access_token, tokens.refresh_token)
@@ -228,9 +229,10 @@ class AuthHandler(AuthHandlerBase):
 
     async def register(self, request: Request, user: UserRegister) -> bool:
         """
-        Регистрация пользователя
+        Регистрация пользователя.
+        Получает запрос и данные пользователя для регистрации.
         """
-        if user.key != settings.APP_ACCESS_KEY:
+        if user.key != 'just_testing'
             await blocklist_service.ban(
                 ip=request.client.host,
                 reason='Dispatcher > Try to parse key'

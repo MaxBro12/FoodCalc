@@ -1,31 +1,56 @@
-from fastapi import APIRouter, HTTPException, status, Response
+from fastapi import APIRouter, status, Response
 from fastapi.requests import Request
 
-from core.pydantic_misc_models import Ok
-from src.services import auth_service
-from src.handlers.auth import AuthHandler, UserLogin, UserRegister
-from src.depends import DBDep, UserDep
+from core.pydantic_misc_models import Ok, Detail
+from core.fast_decorators import rate_limiter
+from src.handlers.auth import auth_handler, UserLogin, UserRegister
+from src.depends import UserDep
+from .models import User
 
 
 auth_router_v1 = APIRouter(prefix='/v1/auth', tags=['auth'])
 
 
-@auth_router_v1.post('/login', response_model=Ok)
-async def login(response: Response, user_data: UserLogin):
-    return {'ok': await AuthHandler().login(user_data, response)}
+@auth_router_v1.post('/login', response_model=Ok | Detail)
+async def login(request: Request, response: Response, user_data: UserLogin):
+    """
+    Вход пользователя в систему.
+    """
+    return {'ok': await auth_handler.login(user_data, response, request)}
 
 
-@auth_router_v1.post('/refresh', response_model=Ok)
+@auth_router_v1.post('/refresh', response_model=Ok | Detail)
 async def refresh(request: Request, response: Response):
-    #await auth.refresh(request=request, response=response)
+    """
+    Обновление токена доступа.
+    """
     return {'ok': True}
 
 
-@auth_router_v1.post('/logout', response_model=Ok)
+@auth_router_v1.post('/logout', response_model=Ok | Detail)
 async def logout(response: Response, user: UserDep):
-    return {'ok': await AuthHandler().logout(user=user, response=response)}
+    """
+    Выход пользователя из системы.
+    """
+    return {'ok': await auth_handler.logout(user=user, response=response)}
 
 
-@auth_router_v1.post('/register', response_model=Ok)
-async def register(user_data: UserRegister):
-    return {'ok': await AuthHandler().register(user=user_data)}
+@auth_router_v1.post('/register', response_model=Ok | Detail)
+async def register(request: Request, user_data: UserRegister):
+    """
+    Регистрация нового пользователя.
+    """
+    return {'ok': await auth_handler.register(request=request, user=user_data)}
+
+
+@auth_router_v1.get('/who_am_i', response_model=User | Detail, responses = {
+    200: {'model': User},
+    401: {'description': 'Unauthorized', 'model': Detail},
+    403: {'description': 'Token expired/invalid', 'model': Detail},
+})
+@rate_limiter(10, 30)
+async def who_am_i(request: Request, response: Response, user: UserDep):
+    """
+    Возвращает информацию о текущем пользователе.
+    """
+    return {'name': user.name}
