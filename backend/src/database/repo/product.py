@@ -54,14 +54,14 @@ class ProductRepo(RepositoryObj):
 
     async def by_id(
         self,
-        type_id: str,
+        product_id: int,
         load_relations: bool = False
     ) -> Product | None:
         """
         Возвращает продукт по его идентификатору или None, если продукт не найден.
         """
         return await self.get(
-            Product.id == type_id,
+            Product.id == product_id,
             load_relations=load_relations
         )
 

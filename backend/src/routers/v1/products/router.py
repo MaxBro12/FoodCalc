@@ -2,9 +2,10 @@ from fastapi import APIRouter, HTTPException, status, Body
 
 from src.depends import DBDep, UserDep
 from src.routers.v1.products.models import NewProduct
-from core.pydantic_misc_models import Ok
+from src.handlers.products import ProductsHandler
+from core.pydantic_misc_models import Ok, Detail
 from core.fast_depends import PaginationParams
-from core.fast_decorators import cache
+from core.fast_decorators import cache, rate_limiter
 from core.redis_client import RedisDep
 from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
 
@@ -12,111 +13,74 @@ from .models import SearchProduct, MultipleProductsResponse, ProductResponse, Pr
 products_router_v1 = APIRouter(prefix='/v1/products', tags=['products'])
 
 
-@products_router_v1.get('/', response_model=MultipleProductsResponse)
-@cache(key='products_pagination')
+@products_router_v1.get('', response_model=MultipleProductsResponse)
+@cache(key='products_pagination', expire=60*15)
+@rate_limiter(max_requests=100, time_delta=60)
 async def products_pagination(db: DBDep, pagination: PaginationParams, redis: RedisDep):
-    products = await db.products.pagination(
-        skip=pagination.skip,
-        limit=pagination.limit,
-        load_relations=True
-    )
-    return {'products': [{
-        'id': product.id,
-        'name': product.name,
-        'description': product.description,
-        'minerals': [{
-            'id': mineral.mineral.id,
-            'name': mineral.mineral.name,
-            'compact_name': mineral.mineral.compact_name,
-            'type_id': mineral.mineral.type_id,
-            'content': mineral.content,
-        } for mineral in product.minerals],
-        'calories': product.calories,
-        'energy': product.energy,
-        'added_by_id': product.added_by,
-        'added_by_name': str(product.added_by)
-    } for product in products]}
+    """
+    Получение пагинированного списка продуктов.
+    Ветка кэшируется на 15 минут. Максимум 100 запросов в минуту.
+    """
+    return await ProductsHandler(db).all(skip=pagination.skip, limit=pagination.limit)
 
 
-@products_router_v1.get('/details/{product_id}', response_model=ProductResponse)
-@cache(key='product_by_id')
-async def product_by_id(product_id: str, db: DBDep, redis: RedisDep):
-    product = await db.products.by_id(
-        type_id=product_id,
-        load_relations=True
-    )
-    if product is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Продукт с данным кодом не найден')
-    return {
-        'id': product.id,
-        'name': product.name,
-        'description': product.description,
-        'minerals': [{
-            'id': mineral.mineral.id,
-            'name': mineral.mineral.name,
-            'compact_name': mineral.mineral.compact_name,
-            'type_id': mineral.mineral.type_id,
-            'content': mineral.content,
-        } for mineral in product.minerals],
-        'calories': product.calories,
-        'energy': product.energy,
-        'added_by_id': product.added_by,
-        'added_by_name': str(product.added_by)
-    }
+@products_router_v1.get('/details/{product_id}', response_model=ProductResponse, responses={
+    200: {'model': ProductResponse, 'description': 'Успешно'},
+    404: {'model': Detail, 'description': 'Продукт по заданному ID не найден'},
+})
+@cache(key='product_by_id', expire=60*60)
+@rate_limiter(max_requests=100, time_delta=60)
+async def product_by_id(product_id: int, db: DBDep, redis: RedisDep):
+    """
+    Получение информации о продукте по его ID.
+    Ветка кэшируется на 1 час. Максимум 100 запросов в минуту.
+    """
+    return await ProductsHandler(db).by_id(product_id)
 
 
 @products_router_v1.post('/search', response_model=ProductsNames)
-@cache(key='search_products')
+@cache(key='search_products', expire=60*15)
+@rate_limiter(max_requests=100, time_delta=60)
 async def search_products(query: SearchProduct, db: DBDep, redis: RedisDep):
-    return {'names': [{
-        'id': i[0],
-        'name': i[1],
-        'search_index': i[2]
-    } for i in await db.products.search(query=query.id_or_name)]}
+    """
+    Поиск продуктов по имени или ID/barcode. Возвращает список найденных продуктов.
+    Если данных не будет найдено, возвращает пустой список.
+    Ветка кэшируется на 15 минут. Максимум 100 запросов в минуту.
+    """
+    return await ProductsHandler(db).search(query.id_or_name)
 
 
 @products_router_v1.get('/names', response_model=ProductsNames)
-@cache(key='product_names')
+@cache(key='product_names', expire=60*15)
+@rate_limiter(max_requests=100, time_delta=60)
 async def names(db: DBDep, redis: RedisDep, limit: int = 500):
-    return {'names': [{
-        'id': i[0],
-        'name': i[1],
-        'search_index': i[2]
-    } for i in await db.products.names(limit=limit)]}
+    """
+    Возвращает список имен продуктов необходимых для поисковых запросов.
+    Ветка кэшируется на 15 минут. Максимум 100 запросов в минуту.
+    """
+    return await ProductsHandler(db).names(limit=limit)
 
 
-@products_router_v1.post('/new', response_model=Ok)
+@products_router_v1.post('/new', response_model=Ok, responses={
+    200: {'model': Ok},
+    400: {'model': Detail, 'description': 'Не удалось сохранить продукт'},
+    409: {'model': Detail, 'description': 'Код продукта уже существует'}
+})
 async def save_new_product(new: NewProduct, db: DBDep, user: UserDep):
     if await db.products.exists_by_id(new.id):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Продукт уже существует'
         )
-    try:
-        if await db.products.new(
-            pid=new.id,
-            name=new.name,
-            description=new.description,
-            calories=new.calories,
-            energy=new.energy,
-            added_by_id=user.id,
-            commit=False,
-        ):
-            await db.flush()
-            for i in new.minerals:
-                await db.products_minerals.new(
-                    product_id=new.id,
-                    mineral_id=i.id,
-                    content=i.content
-                )
-            return {'ok': True}
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Не удалось сохранить продукт'
-        )
+    return await ProductsHandler(db).new(product=new.dict(), user_id=user.id)
 
 
 @products_router_v1.delete('/{product_id}', response_model=Ok)
+@rate_limiter(max_requests=10, time_delta=60)
 async def del_product(product_id: str, db: DBDep, user: UserDep):
+    """
+    Удаляет продукт по его идентификатору.
+    Доступно только для аутентифицированных пользователей.
+    Разрешен только 10 запросов в минуту.
+    """
     return {'ok': await db.products.del_by_id(product_id=product_id)}

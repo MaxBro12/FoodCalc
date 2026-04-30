@@ -77,4 +77,5 @@ async def init_db():
         await conn.run_sync(Base.metadata.create_all)
 
     async with new_session() as session:
-        await create_tables(session)
+        pass
+        #await create_tables(session)

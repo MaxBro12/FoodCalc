@@ -11,8 +11,12 @@ class NewProduct(BaseModel):
     name: str
     description: str
     minerals: list[MineralInProduct]
-    calories: int
-    energy: int
+    calories_per_100g: float
+    proteins_per_100g: float
+    fats_per_100g: float
+    carbs_per_100g: float
+    fiber_per_100g: float
+    sugar_per_100g: float
 
 
 class SearchProduct(BaseModel):
@@ -40,9 +44,12 @@ class ProductResponse(BaseModel):
     name: str
     description: str
     minerals: list[MineralInProductResponse]
-    calories: int
-    energy: int
-    added_by_id: int
+    calories_per_100g: float
+    proteins_per_100g: float
+    fats_per_100g: float
+    carbs_per_100g: float
+    fiber_per_100g: float
+    sugar_per_100g: float
     added_by_name: str
 
 
