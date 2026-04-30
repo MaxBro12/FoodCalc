@@ -24,6 +24,12 @@ class ProductRepo(RepositoryObj):
         pid: str,
         name: str,
         description: str,
+        calories_per_100g: float,
+        proteins_per_100g: float,
+        fats_per_100g: float,
+        carbs_per_100g: float,
+        fiber_per_100g: float,
+        sugar_per_100g: float,
         added_by_id: int,
         commit: bool = False
     ) -> bool:
@@ -35,6 +41,12 @@ class ProductRepo(RepositoryObj):
                 id=pid,
                 name=name,
                 description=description,
+                calories_per_100g=calories_per_100g,
+                proteins_per_100g=proteins_per_100g,
+                fats_per_100g=fats_per_100g,
+                carbs_per_100g=carbs_per_100g,
+                fiber_per_100g=fiber_per_100g,
+                sugar_per_100g=sugar_per_100g,
                 added_by=int(added_by_id)
             ),
             commit=commit
@@ -64,6 +76,14 @@ class ProductRepo(RepositoryObj):
         return await self.get(
             Product.name == name,
             load_relations=load_relations
+        )
+
+    async def not_verified(self) -> tuple[Product, ...]:
+        """
+        Возвращает продукты, которые не верифицированы администратором.
+        """
+        return await self.some(
+            Product.is_verified == False
         )
 
     async def del_by_id(self, product_id: str) -> bool:
