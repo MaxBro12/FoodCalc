@@ -7,7 +7,13 @@ from core.pydantic_misc_models import Ok, Detail
 from core.fast_depends import PaginationParams
 from core.fast_decorators import cache, rate_limiter
 from core.redis_client import RedisDep
-from .models import SearchProduct, MultipleProductsResponse, ProductResponse, ProductsNames
+from .models import (
+    SearchProduct,
+    MultipleProductsResponse,
+    ProductResponse,
+    ProductsNames,
+    UpdateProduct,
+)
 
 
 products_router_v1 = APIRouter(prefix='/v1/products', tags=['products'])
@@ -21,7 +27,11 @@ async def products_pagination(db: DBDep, pagination: PaginationParams, redis: Re
     Получение пагинированного списка продуктов.
     Ветка кэшируется на 15 минут. Максимум 100 запросов в минуту.
     """
-    return await ProductsHandler(db).all(skip=pagination.skip, limit=pagination.limit)
+    return await ProductsHandler(db).all(
+        skip=pagination.skip,
+        limit=pagination.limit,
+        redis=redis
+    )
 
 
 @products_router_v1.get('/details/{product_id}', response_model=ProductResponse, responses={
@@ -30,12 +40,12 @@ async def products_pagination(db: DBDep, pagination: PaginationParams, redis: Re
 })
 @cache(key='product_by_id', expire=60*60)
 @rate_limiter(max_requests=100, time_delta=60)
-async def product_by_id(product_id: int, db: DBDep, redis: RedisDep):
+async def product_by_id(product_id: str, db: DBDep, redis: RedisDep):
     """
     Получение информации о продукте по его ID.
     Ветка кэшируется на 1 час. Максимум 100 запросов в минуту.
     """
-    return await ProductsHandler(db).by_id(product_id)
+    return await ProductsHandler(db).by_id(product_id, redis=redis)
 
 
 @products_router_v1.post('/search', response_model=ProductsNames)
@@ -84,3 +94,29 @@ async def del_product(product_id: str, db: DBDep, user: UserDep):
     Разрешен только 10 запросов в минуту.
     """
     return {'ok': await db.products.del_by_id(product_id=product_id)}
+
+
+@products_router_v1.put('/{product_id}', response_model=Ok, responses={
+    200: {'model': Ok},
+    400: {'model': Detail, 'description': 'Неверные данные'},
+    401: {'model': Detail, 'description': 'Пользователь не аутентифицирован'},
+    403: {'model': Detail, 'description': 'Недостаточно прав'},
+    404: {'model': Detail, 'description': 'Продукт не найден'}
+})
+@rate_limiter(max_requests=10, time_delta=60)
+async def update_product(
+    product_id: str,
+    new: UpdateProduct,
+    db: DBDep,
+    user: UserDep,
+    redis: RedisDep
+):
+    """
+    Обновляет статус  продукт по его идентификатору.
+    """
+    return await ProductsHandler(db).update(
+        product_id=product_id,
+        new=new.model_dump(),
+        user=user,
+        redis=redis
+    )

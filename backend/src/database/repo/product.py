@@ -54,7 +54,7 @@ class ProductRepo(RepositoryObj):
 
     async def by_id(
         self,
-        product_id: int,
+        product_id: str,
         load_relations: bool = False
     ) -> Product | None:
         """
@@ -90,7 +90,7 @@ class ProductRepo(RepositoryObj):
         """
         Удаляет продукт по его идентификатору.
         """
-        obj = await self.by_id(type_id=product_id)
+        obj = await self.by_id(product_id)
         if obj is not None:
             return await self.delete(obj=obj, commit=True)
         return False
@@ -126,6 +126,7 @@ class ProductRepo(RepositoryObj):
 
     async def pagination(
         self, skip: int = 0, limit: int = 10,
+        verified: bool = False,
         load_relations: bool = False
     ) -> tuple[Product, ...]:
         """
@@ -135,5 +136,6 @@ class ProductRepo(RepositoryObj):
             skip=skip,
             limit=limit,
             order_by_field='id',
+            filter_=Product.is_verified == verified,
             load_relations=load_relations
         )

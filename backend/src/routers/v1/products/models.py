@@ -19,6 +19,19 @@ class NewProduct(BaseModel):
     sugar_per_100g: float
 
 
+class UpdateProduct(BaseModel):
+    name: str | None = None
+    description: str | None = None
+    minerals: list[MineralInProduct] | None = None
+    calories_per_100g: float | None = None
+    proteins_per_100g: float | None = None
+    fats_per_100g: float | None = None
+    carbs_per_100g: float | None = None
+    fiber_per_100g: float | None = None
+    sugar_per_100g: float | None = None
+    is_verified: bool | None = None
+
+
 class SearchProduct(BaseModel):
     id_or_name: str
 
@@ -50,7 +63,11 @@ class ProductResponse(BaseModel):
     carbs_per_100g: float
     fiber_per_100g: float
     sugar_per_100g: float
-    added_by_name: str
+    likes: int
+    search_index: float
+    created_at: str
+    updated_at: str
+    added_by: str
 
 
 class MultipleProductsResponse(BaseModel):
