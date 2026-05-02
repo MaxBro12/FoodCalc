@@ -4,6 +4,8 @@ from src.database import DataBase, Product
 from src.services.authservice import auth_service, User as UserFull
 from src.handlers.auth import User
 
+from src.settings import settings
+
 
 class ProductsHandler:
     """
@@ -17,6 +19,8 @@ class ProductsHandler:
 
     @staticmethod
     async def _get_username(product: Product, redis: RedisClient) -> str:
+        if settings.USE_LOCAL:
+            return 'Test User'
         return (await auth_service.user_by_id(product.added_by, redis)).name
 
     @staticmethod
@@ -36,9 +40,10 @@ class ProductsHandler:
             'sugar_per_100g': product.sugar_per_100g,
             'likes': product.likes,
             'search_index': product.search_index,
-            'created_at': product.created_at,
-            'updated_at': product.updated_at,
+            'created_at': product.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'updated_at': product.updated_at.strftime('%Y-%m-%d %H:%M:%S'),
             'added_by': username,
+            'minerals': [],
         }
 
     async def all(self, redis: RedisClient, skip: int | None = 0, limit: int | None = 100) -> dict:
@@ -51,6 +56,7 @@ class ProductsHandler:
             verified=True,
             load_relations=True
         )
+        print(len(products))
         return {'products': [self._product_to_dict(
             product,
             await self._get_username(product, redis)

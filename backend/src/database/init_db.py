@@ -18,7 +18,7 @@ async def create_tables(session: AsyncSession):
     try:
         with open(r'data/types.json') as f:
             minerals = json.load(f)
-        with open(r'data/products.json') as f:
+        with open(r'data/new_products.json') as f:
             products = json.load(f)
     except FileNotFoundError:
         pass
@@ -48,9 +48,30 @@ async def create_tables(session: AsyncSession):
                     await session.flush()
         except IntegrityError:
             return
-    await session.commit()
+    await session.flush()
     if products is not None:
-        return
+        try:
+            for product in products['products']:
+                if bool(await session.scalar(select(exists().select_from(Product).where(text(f"id={product['id']}"))))):
+                    continue
+                product_to_save = Product(
+                    id=product['id'],
+                    name=product['name'],
+                    description=product['description'],
+                    calories_per_100g=product['calories_per_100g'],
+                    proteins_per_100g=product['proteins_per_100g'],
+                    fats_per_100g=product['fats_per_100g'],
+                    carbs_per_100g=product['carbs_per_100g'],
+                    fiber_per_100g=product['fiber_per_100g'],
+                    sugar_per_100g=product['sugar_per_100g'],
+                    added_by=1,
+                    is_verified=True,
+                )
+                session.add(product_to_save)
+                await session.flush()
+        except IntegrityError:
+            return
+    await session.commit()
 
 
 async def init_db():
