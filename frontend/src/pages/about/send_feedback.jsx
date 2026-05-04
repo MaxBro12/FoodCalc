@@ -29,7 +29,7 @@ export const DebugPage = () => {
     }}>
         <form onSubmit={handleSubmit} style={{
             width: '600px', alignItems: "center"
-        }} className='base_flex_column desktop'>
+        }} className='base_flex_column'>
             <textarea value={message} onChange={(e) => handle_msg(e)}
                   placeholder='Как можно подробнее опишите проблему и её решение'
                   style={{
@@ -53,33 +53,6 @@ export const DebugPage = () => {
                 borderRadius: 10,
                 /*margin: "5px 0px 0px auto",*/
                 padding: "8px 16px"
-            }}/>
-        </form>
-        <form onSubmit={handleSubmit} style={{
-            width: '100%',
-            gap: '20px'
-        }} className='base_flex_column mobile'>
-            <textarea value={message} onChange={(e) => handle_msg(e)}
-                      placeholder='Как можно подробнее опишите проблему и её решение'
-                      style={{
-                          backgroundColor: 'var(--button-color)',
-                          color: 'var(--text-color)',
-                          height: 200,
-                          width: '100%',
-                          textAlign: 'left',
-                          verticalAlign: 'top',
-                          display: "block",
-                          position: "relative",
-                          marginLeft: "auto",
-                          marginRight: "auto",
-                          padding: "5px"
-                      }}/>
-            <input type="submit" className='base_button' style={{
-                position: 'relative',
-                right: 0,
-                borderRadius: 10,
-                /*margin: "5px 0px 0px auto",*/
-                padding: "15px 25px"
             }}/>
         </form>
     </div>

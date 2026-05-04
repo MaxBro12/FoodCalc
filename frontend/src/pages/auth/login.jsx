@@ -69,19 +69,9 @@ export const LoginPage = () => {
             required
         />
         {error && <div style={{ color: 'red' }}>{error}</div>}
-        <button type="submit" disabled={loading} className='base_button desktop'>
+        <button type="submit" disabled={loading} className='base_button'>
             {loading ? 'Вхожу...' : 'Войти'}
         </button>
-        <button type="submit" disabled={loading} style={{
-            padding: '15px',
-            marginTop: '10px',
-        }} className='base_button mobile'>
-            {loading ? 'Вхожу...' : 'Войти'}
-        </button>
-        <Link to='/auth/register' style={{
-            textDecoration: 'none',
-            userSelect: 'none',
-        }} className='desktop'>Создать</Link>
         <Link to='/auth/register' style={{
             textDecoration: 'none',
             userSelect: 'none',

@@ -108,28 +108,12 @@ export const RegisterPage = () => {
             required
         />
         {error && <div style={{ color: 'red' }}>{error}</div>}
-        <button type="submit" disabled={loading} className='base_button desktop'>
-            {loading ? 'Регистрируюсь...' : 'Регистрация'}
-        </button>
-        <button type="submit" disabled={loading} style={{
-            padding: '15px',
-            marginTop: '10px',
-        }} className='base_button mobile'>
+        <button type="submit" disabled={loading} className='base_button'>
             {loading ? 'Регистрируюсь...' : 'Регистрация'}
         </button>
         <Link to='/auth/login' style={{
             textDecoration: 'none',
             userSelect: 'none',
-        }} className='desktop'>Есть аккаунт</Link>
-        <Link to='/auth/login' style={{
-            textDecoration: 'none',
-            userSelect: 'none',
-            marginTop: 10
-        }} className='mobile'>Есть аккаунт</Link>
-        {import.meta.env.VITE_DEBUG && (
-            <div>
-                В режиме разработки используйте ключ "123" для регистрации.
-            </div>
-        )}
+        }}>Есть аккаунт</Link>
     </form>
 };
