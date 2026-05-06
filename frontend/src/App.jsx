@@ -18,8 +18,7 @@ import {UserPage} from "@/pages/auth/user.jsx";
 //import {AboutPage} from "./pages/about/about.jsx";
 //import {DebugPage} from "./pages/about/send_feedback.jsx";
 //import { NewProductView } from "./pages/universe/new_product.jsx";
-import { WrongPage } from "./pages/about/wrong.jsx";
-import {TestPage} from "./utils/tests.jsx";
+import {AboutPage} from '@/pages/about/about.jsx'
 
 
 function App() {
@@ -55,8 +54,8 @@ function App() {
                     <Route path="register" element={<RegisterPage />}/>
                     <Route path="user" element={<UserPage />}/>
                 </Route>
-                {/*<Route path='/about' element={<AboutPage />}/>
-                <Route path='/about/debug' element={<DebugPage />}/>
+                <Route path='/about' element={<AboutPage />}/>
+                {/*<Route path='/about/debug' element={<DebugPage />}/>
                 <Route path='/about/error' element={<WrongPage />}/>
                 <Route path='/test' element={<TestPage />}/>
                 <Route path='/calc' element={<Calculator />} />

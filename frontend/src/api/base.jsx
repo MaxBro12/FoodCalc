@@ -27,6 +27,7 @@ api.interceptors.response.use(
               }
             }
 
+        /*
         if (error.response?.status === 401 || error.response?.status === 405) {
             window.location.href = '/auth/login';
         }
@@ -35,6 +36,13 @@ api.interceptors.response.use(
         }
         if (error.response?.status === 403) {
             window.location.href = '/auth/login';
+        }
+        */
+        if (error.response?.status === 400) {
+            window.location.href = '/about?error=inner';
+        }
+        if (error.response?.status === 500) {
+            window.location.href = '/about?error=backend_off';
         }
         return Promise.reject(error);
     }

@@ -7,6 +7,13 @@ import light from '/light.svg'
 import useDevice from "@/context/mobile.jsx";
 
 
+function header_to_show(header, user) {
+    // Если пользователь не авторизован, показываем заголовок только при no_user_show
+    if (user?.name === null) {
+        return header?.no_user_show ?? true
+    }
+    return true
+}
 function is_current_window(path) {
     return window.location.pathname.startsWith(path)
 }
@@ -51,7 +58,7 @@ const MobileHeaderView = ({headers, set_show, theme, handle_theme, user}) => {
         <div className='header_overlay-content base_flex_column rounded_border' style={{
             padding: '5px'
         }} onClick={(e) => handleInnerClick(e)}>
-            {mobile_headers.map((header, i) => (user?.name !== null && !header.no_user_show) ? (
+            {mobile_headers.map((header, i) => header_to_show(header, user) ? (
                 <div key={i} style={{
                     backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)' : 'inherit',
                     color: is_current_window(header.path) ? 'var(--header-current-text-color)' : 'var(--header-text-color)',
@@ -135,7 +142,7 @@ const CustomHeader = ({logo, headers}) => {
             </div>
             ):(
             <div className='base_flex_row header_container'>
-                {headers.map((header, i) => (user?.name !== null && !header.no_user_show) ? <Link key={i} to={header.path} style={{
+                {headers.map((header, i) => header_to_show(header, user) ? <Link key={i} to={header.path} style={{
                     backgroundColor: is_current_window(header.path) ? 'var(--header-current-color)': 'inherit',
                     color: is_current_window(header.path) ? 'var(--header-current-text-color)': 'var(--header-text-color)',
                     ...header.d_style,
