@@ -27,17 +27,9 @@ api.interceptors.response.use(
               }
             }
 
-        /*
-        if (error.response?.status === 401 || error.response?.status === 405) {
+        if (error.response?.status === 401 && !error?.response.href.includes('/who_am_i')) {
             window.location.href = '/auth/login';
         }
-        if (error.response?.status === 403) {
-            window.location.href = '/auth/login';
-        }
-        if (error.response?.status === 403) {
-            window.location.href = '/auth/login';
-        }
-        */
         if (error.response?.status === 400) {
             window.location.href = '/about?error=inner';
         }

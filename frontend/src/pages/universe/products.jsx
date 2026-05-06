@@ -1,138 +1,31 @@
-import {useEffect, useState} from "react";
-import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
-import db_service from "../../api/universe.jsx";
-import {useNavigate} from "react-router-dom";
-import PaginationTable from "../../components/utils/custom_tables.jsx";
-import {not_to_long_text} from "../../components/utils/string_line.jsx";
-import {Mineral} from "../../components/mineral.jsx";
+import { useState } from 'react';
+import { useNavigate } from "react-router-dom";
+
+import db_service from "@/api/universe.jsx";
+import PaginationTable from "@/components/utils/custom_tables.jsx";
+
+import { ProductDetail } from '@/components/products/table_detail.jsx'
+import { ProductsHeader } from '@/components/products/table_header.jsx'
+import { ProductLine } from '@/components/products/table_line.jsx'
 
 
-const ProductsHeader = () => {
-    return <tr>
-        <th style={{textAlign: 'left', width: '250px'}}>Название</th>
-        <th style={{textAlign: 'left'}}>Описание</th>
-    </tr>
-}
-
-const ProductLine = ({data, update, action_on_click}) => {
-    const handle_click = () => {
-        action_on_click(data)
-    }
-    return <tr onClick={() => handle_click()}>
-        <td className='mobile' dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 40)}}></td>
-        <td className='desktop' style={{userSelect:'none'}} dangerouslySetInnerHTML={{__html: not_to_long_text(data.name, '', 100)}}></td>
-        <td className='mobile' dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 30)}}></td>
-        <td className='desktop' style={{userSelect:'none'}} dangerouslySetInnerHTML={{__html: not_to_long_text('', data.description, 100)}}></td>
-    </tr>
-}
-
-const ProductDetail = ({data, on_close, update}) => {
-    const sorted_minerals = {...data}
-    sorted_minerals.minerals.sort((a,b)=> a.id - b.id)
-
-    const handleOuterClick = () => {
-        on_close();
-    };
-
-    const handleInnerClick = (e) => {
-        e.stopPropagation(); // Останавливаем всплытие события
-    };
-
-    return <div className="overlay-backdrop" onClick={() => handleOuterClick()}>
-        <div className="overlay-content base_flex_column rounded_border base_margins desktop" style={{
-            width: '50em',
-        }} onClick={(e) => handleInnerClick(e)}>
-            <div className='base_flex_column' style={{
-                alignItems: 'flex-start',
-                width: '100%',
-            }}>
-                <span style={{fontWeight: 'bolder'}}>{data.name}</span>
-                <span>Код: {data.id}</span>
-                <span>Добавлено: {data.added_by_name}</span>
-                <span>{data.description}</span>
-                <span>Калорийность: {data.calories} ККал</span>
-                <span>Энергетическая ценность: {data.energy} КДж</span>
-
-                {sorted_minerals.minerals.length > 0 && <div className='base_flex_row' style={{
-                    padding: '5px',
-                }}>
-                    {sorted_minerals.minerals.map((mineral, index) => <Mineral key={index} mineral={mineral} adt_str={mineral.content}/>)}
-                </div>}
-            </div>
-        </div>
-        <div className="base_flex_column mobile" style={{
-            width: '100%',
-            marginTop: '50px'
-        }} onClick={(e) => handleInnerClick(e)}>
-            <div className='base_flex_column' style={{
-                alignItems: 'flex-start',
-                width: '100%',
-                padding: '5px'
-            }}>
-                <span style={{fontWeight: 'bolder'}}>{data.name}</span>
-                <span>Код: {data.id}</span>
-                <span>Добавлено: {data.added_by_name}</span>
-                <span>{data.description}</span>
-                <span>Калорийность: {data.calories} ККал</span>
-                <span>Энергетическая ценность: {data.energy} КДж</span>
-
-                {sorted_minerals.minerals.length > 0 && <div className='base_flex_row' style={{
-                    padding: '5px',
-                }}>
-                    {sorted_minerals.minerals.map((mineral, index) => <div key={index} className='base_flex_column rounded_border' style={{
-                        flexWrap: 'nowrap',
-                        padding: '5px'
-                    }}>
-                        <Mineral mineral={mineral} compact={true}/>
-                        <span>{mineral.content}</span>
-                    </div>)}
-                </div>}
-            </div>
-        </div>
-    </div>
-}
-
-
-export const Products = () => {
-    const [loading, set_loading] = useState(true);
+export const ProductsPage = () => {
     const navigate = useNavigate()
-
-    const [show_details, set_show_details] = useState(false);
-    const [items, set_items] = useState([]);
-
-    const update_items = async () => {
-        set_loading(true)
-        set_items(await db_service.products());
-        set_loading(false)
-    }
-
-    useEffect(() => {
-        update_items()
-    }, [])
-
-    if (loading) {
-        return <LoadingAnimation />
-    }
+    const [show_new, set_show_new] = useState(false);
 
     return <div style={{
+        padding: 5,
         height: '100%',
         width: '100%',
+        maxWidth: '50em',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'flex-start',
     }}>
-        <div className='base_button mobile' style={{
-            width: '100%',
-            padding: '10px 20px',
-            margin: '10px'
-        }} onClick={() => navigate('/db/products/new')}>Добавить продукт</div>
-        <div className='base_button desktop' style={{
-            margin: '5px'
-        }} onClick={() => navigate('/db/products/new')}>Добавить продукт</div>
-        <PaginationTable CustomHead={ProductsHeader} Line={ProductLine} Detail={ProductDetail} api_request={db_service.products} adt_style={{
-            width: '100%',
-            marginTop: '0px'
-        }}/>
+        <button className='rounded_border base_margins' onClick={() => set_show_new(true)} style={{
+            marginBottom: 5
+        }}>Создать новое</button>
+        <PaginationTable CustomHead={ProductsHeader} Line={ProductLine} Detail={ProductDetail} api_request={db_service.products.all}/>
     </div>
 }

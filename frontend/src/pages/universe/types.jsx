@@ -1,21 +1,20 @@
 import {useEffect, useState} from "react";
-import db_service from "../../api/universe.jsx";
+import db_service from "@/api/universe.jsx";
 
-import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
-import {Mineral} from "../../components/mineral.jsx";
+import {LoadingAnimation} from "@/components/utils/loading_animation.jsx";
+import {Mineral} from "@/components/mineral.jsx";
 
 
-export const MineralsTypes = () => {
+export const MineralsTypesPage = () => {
     const [loading, set_loading] = useState(true);
     const [items, set_items] = useState([]);
 
-    const update_items = async () => {
-        set_loading(true)
-        set_items(await db_service.types());
-        set_loading(false)
-    }
-
     useEffect(() => {
+        const update_items = async () => {
+            set_loading(true)
+            set_items(await db_service.types.all());
+            set_loading(false)
+        }
         update_items()
     }, [])
 

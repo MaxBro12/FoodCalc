@@ -10,15 +10,16 @@ import {RegisterPage} from "@/pages/auth/register.jsx";
 import {AuthOutlet} from "@/pages/auth/outlet.jsx";
 import {UserPage} from "@/pages/auth/user.jsx";
 
-//import {UniverseOutlet} from "./pages/universe/outlet.jsx";
-//import {MineralsTypes} from "./pages/universe/types.jsx";
-//import {Products} from "./pages/universe/products.jsx";
-//import {Minerals} from "./pages/universe/minerals.jsx";
+import { AboutPage } from '@/pages/about/about.jsx'
+
+import {UniverseOutlet} from "@/pages/universe/outlet.jsx";
+import {MineralsTypesPage} from "@/pages/universe/types.jsx";
+import {MineralsPage} from "@/pages/universe/minerals.jsx";
+import {ProductsPage} from "./pages/universe/products.jsx";
 //import {Calculator} from "./pages/calculator/calculator.jsx";
 //import {AboutPage} from "./pages/about/about.jsx";
 //import {DebugPage} from "./pages/about/send_feedback.jsx";
 //import { NewProductView } from "./pages/universe/new_product.jsx";
-import {AboutPage} from '@/pages/about/about.jsx'
 
 
 function App() {
@@ -54,15 +55,16 @@ function App() {
                     <Route path="register" element={<RegisterPage />}/>
                     <Route path="user" element={<UserPage />}/>
                 </Route>
-                <Route path='/about' element={<AboutPage />}/>
+                <Route path='/about' element={<AboutPage />} />
+
+                <Route path='/db' element={<UniverseOutlet />} />
+                <Route path='/db/types' element={<MineralsTypesPage />}/>
+                <Route path='/db/minerals' element={<MineralsPage />}/>
+                <Route path='/db/products' element={<ProductsPage />}/>
                 {/*<Route path='/about/debug' element={<DebugPage />}/>
                 <Route path='/about/error' element={<WrongPage />}/>
                 <Route path='/test' element={<TestPage />}/>
                 <Route path='/calc' element={<Calculator />} />
-                <Route path='/db' element={<UniverseOutlet />} />
-                <Route path='/db/types' element={<MineralsTypes />}/>
-                <Route path='/db/minerals' element={<Minerals />}/>
-                <Route path='/db/products' element={<Products />}/>
                 <Route path='/db/products/new' element={<NewProductView />}/>*/}
             </Routes>
         </div>

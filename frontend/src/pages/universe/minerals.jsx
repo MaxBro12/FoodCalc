@@ -1,22 +1,24 @@
 import {useEffect, useState} from "react";
-import {LoadingAnimation} from "../../components/utils/loading_animation.jsx";
-import db_service from "../../api/universe.jsx";
-import {mineral_color} from "../../utils/minerals_colors.jsx";
-import {Mineral} from "../../components/mineral.jsx";
+import {LoadingAnimation} from "@/components/utils/loading_animation.jsx";
+import db_service from "@/api/universe.jsx";
+//import {mineral_color} from "@/utils/minerals_colors.jsx";
+import {Mineral} from "@/components/mineral.jsx";
+import {useDevice} from "@/context/mobile.jsx";
 
 
-export const Minerals = () => {
+export const MineralsPage = () => {
+    const {isMobile} = useDevice()
     const [loading, set_loading] = useState(true);
     const [items, set_items] = useState([]);
 
-    const update_items = async () => {
-        set_loading(true)
-        const minerals = (await db_service.minerals()).filter(miner => miner.type_id !== 1)
-        set_items(minerals);
-        set_loading(false)
-    }
+    console.log(items)
 
     useEffect(() => {
+        const update_items = async () => {
+            set_loading(true)
+            set_items((await db_service.minerals.all()).filter(miner => miner.type_id !== 1));
+            set_loading(false)
+        }
         update_items()
     }, [])
 
@@ -26,28 +28,28 @@ export const Minerals = () => {
 
     return <div>
         <table style={{padding: '5px'}}>
-            <thead className='desktop'>
+            {!isMobile && <thead>
             <tr>
                 <th></th>
                 <th>Норма (мг)</th>
                 <th>Описание</th>
             </tr>
-            </thead>
-            <tbody className='desktop'>
+            </thead>}
+            {!isMobile && <tbody>
             {items.map((item, index) => <tr key={index}>
                 <td><Mineral mineral={item}/></td>
                 <td style={{
                     textAlign: 'center',
-                }}>{item.intake}</td>
+                }}>{item.daily_value}</td>
                 <td>{item.description}</td>
             </tr>)}
-            </tbody>
-            <tbody className='mobile'>
+            </tbody>}
+            {isMobile && <tbody className='mobile'>
             {items.map((item, index) => <tr key={index}>
-                <td><Mineral mineral={item} compact={true} adt_str={item.intake}/></td>
+                <td><Mineral mineral={item} compact={true} adt_str={item.daily_value}/></td>
                 <td style={{textAlign: 'justify'}}>{item.description}</td>
             </tr>)}
-            </tbody>
+            </tbody>}
         </table>
     </div>
 }
